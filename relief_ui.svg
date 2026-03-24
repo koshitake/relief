@@ -1,0 +1,203 @@
+<svg width="390" height="1420" viewBox="0 0 390 1420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="390" y2="1420" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFF4E9"/>
+      <stop offset="100%" stop-color="#E9F6F2"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FFB38A"/>
+      <stop offset="100%" stop-color="#5CC8A1"/>
+    </linearGradient>
+    <linearGradient id="accentBtn" x1="0" y1="0" x2="350" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFB38A"/>
+      <stop offset="100%" stop-color="#5CC8A1"/>
+    </linearGradient>
+    <filter id="soft">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#D4A898" flood-opacity="0.18"/>
+    </filter>
+    <filter id="card">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#C8B0A8" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="390" height="1420" fill="url(#bg)"/>
+  <!-- Decorative circles -->
+  <circle cx="340" cy="80" r="70" fill="#FFE0CC" opacity="0.5"/>
+  <circle cx="50" cy="190" r="36" fill="#D8F1E8" opacity="0.6"/>
+
+  <!-- ===== HEADER ===== -->
+  <g transform="translate(20 24)">
+    <text x="0" y="26" font-family="Space Grotesk, sans-serif" font-size="26" font-weight="700" fill="#2B2B2B">Relief</text>
+    <text x="0" y="46" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#4D4D4D">肌の記録と食事の傾向をやさしく見える化</text>
+    <!-- Chips -->
+    <rect x="0" y="56" width="94" height="26" rx="13" fill="#FFFFFF" stroke="#F0C5AF" stroke-width="1"/>
+    <text x="10" y="73" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">セルフケア</text>
+    <rect x="104" y="56" width="176" height="26" rx="13" fill="#FFFFFF" stroke="#C7E7DD" stroke-width="1"/>
+    <text x="114" y="73" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#2E6A57">医療行為ではありません</text>
+  </g>
+
+  <!-- ===== CALENDAR NAV ===== -->
+  <g transform="translate(20 112)">
+    <rect width="350" height="52" rx="16" fill="#FFFFFF" filter="url(#soft)"/>
+    <!-- Prev button -->
+    <circle cx="30" cy="26" r="16" fill="#FFF0E6"/>
+    <path d="M33 19 L27 26 L33 33" stroke="#7A4B34" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Date -->
+    <text x="175" y="22" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="16" font-weight="600" fill="#2B2B2B">2024.01.12</text>
+    <text x="175" y="38" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#6B6B6B">金曜日</text>
+    <!-- Next button -->
+    <circle cx="320" cy="26" r="16" fill="#E6F5EE"/>
+    <path d="M317 19 L323 26 L317 33" stroke="#2E6A57" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- ===== TODAY SNAPSHOT ===== -->
+  <g transform="translate(20 180)">
+    <text x="0" y="18" font-family="Space Grotesk, sans-serif" font-size="13" font-weight="700" fill="#2B2B2B">Today Snapshot</text>
+
+    <!-- Row 1: かゆみ | 水分 -->
+    <g transform="translate(0 26)">
+      <rect width="168" height="80" rx="16" fill="#FFFFFF" filter="url(#card)"/>
+      <text x="14" y="26" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">かゆみ</text>
+      <text x="14" y="58" font-family="Space Grotesk, sans-serif" font-size="28" font-weight="700" fill="#2B2B2B">3</text>
+      <text x="48" y="58" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#9B9B9B">/10</text>
+    </g>
+    <g transform="translate(182 26)">
+      <rect width="168" height="80" rx="16" fill="#FFFFFF" filter="url(#card)"/>
+      <text x="14" y="26" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#2E6A57">水分</text>
+      <text x="14" y="58" font-family="Space Grotesk, sans-serif" font-size="24" font-weight="700" fill="#2B2B2B">1,600</text>
+      <text x="100" y="58" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#9B9B9B">ml</text>
+    </g>
+
+    <!-- Row 2: 糖質 | 塩分 -->
+    <g transform="translate(0 116)">
+      <rect width="168" height="80" rx="16" fill="#FFFFFF" filter="url(#card)"/>
+      <text x="14" y="26" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">糖質</text>
+      <text x="14" y="58" font-family="Space Grotesk, sans-serif" font-size="24" font-weight="700" fill="#2B2B2B">68</text>
+      <text x="50" y="58" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#9B9B9B">g</text>
+    </g>
+    <g transform="translate(182 116)">
+      <rect width="168" height="80" rx="16" fill="#FFFFFF" filter="url(#card)"/>
+      <text x="14" y="26" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#2E6A57">塩分</text>
+      <text x="14" y="58" font-family="Space Grotesk, sans-serif" font-size="24" font-weight="700" fill="#2B2B2B">6.2</text>
+      <text x="52" y="58" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#9B9B9B">g</text>
+    </g>
+  </g>
+
+  <!-- ===== TABS ===== -->
+  <g transform="translate(20 430)">
+    <rect width="350" height="40" rx="20" fill="#EEDFD8"/>
+    <!-- Active: 日々の入力 -->
+    <rect x="2" y="2" width="170" height="36" rx="18" fill="url(#accentBtn)"/>
+    <text x="87" y="26" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">日々の入力</text>
+    <!-- Inactive: 相談チャット -->
+    <text x="261" y="26" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#7A6055">相談チャット</text>
+  </g>
+
+  <!-- ===== INPUT SECTION ===== -->
+
+  <!-- かゆみ部位 -->
+  <g transform="translate(20 486)">
+    <rect width="350" height="86" rx="16" fill="#FFFFFF" filter="url(#card)"/>
+    <text x="14" y="24" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">かゆみ部位（任意）</text>
+    <rect x="14" y="32" width="322" height="38" rx="10" fill="#FFF6EF"/>
+    <text x="26" y="56" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#C09080">例: ひじ / 首 / 背中</text>
+  </g>
+
+  <!-- かゆみスコア | 水分合計 -->
+  <g transform="translate(20 584)">
+    <!-- かゆみスコア -->
+    <rect width="168" height="100" rx="16" fill="#FFFFFF" filter="url(#card)"/>
+    <text x="14" y="24" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">かゆみスコア</text>
+    <!-- Slider track -->
+    <rect x="14" y="40" width="140" height="8" rx="4" fill="#FFE6D5"/>
+    <rect x="14" y="40" width="85" height="8" rx="4" fill="url(#accentBtn)"/>
+    <!-- Slider thumb -->
+    <circle cx="99" cy="44" r="8" fill="#FFFFFF" stroke="#FFB38A" stroke-width="2"/>
+    <text x="14" y="78" font-family="Space Grotesk, sans-serif" font-size="24" font-weight="700" fill="#2B2B2B">3</text>
+    <text x="40" y="78" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#9B9B9B"> / 10</text>
+
+    <!-- 水分合計 -->
+    <g transform="translate(182 0)">
+      <rect width="168" height="100" rx="16" fill="#FFFFFF" filter="url(#card)"/>
+      <text x="14" y="24" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#2E6A57">水分合計</text>
+      <rect x="14" y="36" width="140" height="38" rx="10" fill="#E9F6F2"/>
+      <text x="26" y="60" font-family="Space Grotesk, sans-serif" font-size="16" font-weight="600" fill="#2E6A57">1,600</text>
+      <text x="100" y="60" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#6B9E8E">ml</text>
+    </g>
+  </g>
+
+  <!-- メモ -->
+  <g transform="translate(20 696)">
+    <rect width="350" height="100" rx="16" fill="#FFFFFF" filter="url(#card)"/>
+    <text x="14" y="24" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">メモ（任意）</text>
+    <rect x="14" y="32" width="322" height="52" rx="10" fill="#FFF6EF"/>
+    <text x="26" y="54" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#C09080">その日の症状や気づいたこと</text>
+  </g>
+
+  <!-- 運動 -->
+  <g transform="translate(20 808)">
+    <rect width="350" height="86" rx="16" fill="#FFFFFF" filter="url(#card)"/>
+    <text x="14" y="24" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#4D4D4D">運動（任意）</text>
+    <rect x="14" y="32" width="322" height="38" rx="10" fill="#F4F9F6"/>
+    <text x="26" y="56" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#AAAAAA">例: ウォーキング30分、ジム1時間</text>
+  </g>
+
+  <!-- ===== 食事入力 ===== -->
+  <g transform="translate(20 906)">
+    <rect width="350" height="156" rx="16" fill="#FFFFFF" filter="url(#card)"/>
+    <text x="14" y="26" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#4D4D4D">食事内容</text>
+    <rect x="14" y="34" width="322" height="72" rx="10" fill="#FAFAFA"/>
+    <text x="26" y="56" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#BBAAAA">例: 朝 玄米・味噌汁</text>
+    <text x="26" y="74" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#BBAAAA">昼 そば  夜 鶏むね・野菜炒め</text>
+    <!-- AI推定ボタン -->
+    <rect x="14" y="118" width="322" height="26" rx="13" fill="url(#accentBtn)"/>
+    <text x="175" y="135" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">AI で糖質・塩分を推定する</text>
+  </g>
+
+  <!-- ===== 栄養推定結果 ===== -->
+  <g transform="translate(20 1074)">
+    <!-- 糖質 -->
+    <rect width="168" height="110" rx="16" fill="#FFFFFF" filter="url(#card)"/>
+    <text x="14" y="26" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">糖質（推定）</text>
+    <text x="14" y="60" font-family="Space Grotesk, sans-serif" font-size="26" font-weight="700" fill="#2B2B2B">68</text>
+    <text x="50" y="60" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#9B9B9B">g</text>
+    <text x="14" y="78" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#9B9B9B">上書き</text>
+    <rect x="14" y="84" width="140" height="18" rx="8" fill="#FFF0E6" stroke="#FFB38A" stroke-width="1"/>
+    <text x="22" y="97" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#7A4B34">60 g と入力</text>
+
+    <!-- 塩分 -->
+    <g transform="translate(182 0)">
+      <rect width="168" height="110" rx="16" fill="#FFFFFF" filter="url(#card)"/>
+      <text x="14" y="26" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#2E6A57">塩分（推定）</text>
+      <text x="14" y="60" font-family="Space Grotesk, sans-serif" font-size="26" font-weight="700" fill="#2B2B2B">6.2</text>
+      <text x="56" y="60" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#9B9B9B">g</text>
+      <text x="14" y="78" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#9B9B9B">上書き</text>
+      <rect x="14" y="84" width="140" height="18" rx="8" fill="#E6F5EE" stroke="#5CC8A1" stroke-width="1"/>
+      <text x="22" y="97" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#2E6A57">5.5 g と入力</text>
+    </g>
+  </g>
+
+  <!-- 推定根拠テキスト -->
+  <g transform="translate(20 1196)">
+    <rect width="350" height="32" rx="10" fill="#F4F4F4"/>
+    <text x="14" y="21" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#6B6B6B">推定根拠: 主食と汁物が多いため糖質・塩分ともやや高め</text>
+  </g>
+
+  <!-- ===== 日次アドバイス ===== -->
+  <g transform="translate(20 1242)">
+    <rect width="350" height="130" rx="16" fill="#FFFFFF" filter="url(#card)"/>
+    <text x="14" y="26" font-family="Noto Sans JP, sans-serif" font-size="11" font-weight="700" fill="#2B2B2B">日次アドバイス</text>
+    <rect x="14" y="36" width="322" height="58" rx="10" fill="#FFF8F4"/>
+    <text x="24" y="56" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#4D4D4D">水分が十分です。入浴後の保湿を忘れずに。</text>
+    <text x="24" y="74" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#4D4D4D">塩分はやや高めなので明日は意識しましょう。</text>
+    <!-- 再生成ボタン -->
+    <rect x="14" y="104" width="322" height="16" rx="8" fill="#F4F4F4"/>
+    <text x="175" y="116" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#9B9B9B">アドバイスを再生成する</text>
+  </g>
+
+  <!-- 免責事項 -->
+  <g transform="translate(20 1386)">
+    <text x="175" y="14" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#AAAAAA">※ 医療行為ではありません。不安な場合は主治医・皮膚科へ</text>
+  </g>
+</svg>
