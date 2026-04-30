@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <!-- Flat iOS Blue background -->
+  <rect width="192" height="192" rx="42" fill="#007AFF"/>
+  <!-- White "R" lettermark -->
+  <text x="96" y="138" text-anchor="middle"
+        font-family="-apple-system, 'Hiragino Sans', sans-serif"
+        font-size="112" font-weight="700" fill="#FFFFFF" letter-spacing="-3">R</text>
+</svg>
