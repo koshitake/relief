@@ -1,7 +1,7 @@
 "use client";
 
 // 食事内容入力セクションコンポーネントです。
-// 食事内容のテキスト入力と、糖質・塩分の手動入力を提供します。
+// 食事内容のテキスト入力、糖質・塩分の入力（手動 or AI自動入力）、AI推定ボタンを提供します。
 // AI推定は有料機能のため現時点では未実装です。
 
 import { useAppStore } from "@/store/UseAppStore";
@@ -15,49 +15,59 @@ export default function MealsSection({ day }: MealsSectionProps) {
     const record = getOrCreateRecord(day);
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {/* 食事内容入力 */}
-            <div className="card">
-                <div className="section-label">食事</div>
+        <div>
+            {/* 食事内容テキスト入力 */}
+            <label
+                htmlFor="meals-text"
+                style={{
+                    display: "block",
+                    fontSize: "0.8rem",
+                    color: "var(--color-text-secondary)",
+                    marginBottom: "6px",
+                }}
+            >
+                食事内容
+            </label>
+            <textarea
+                id="meals-text"
+                value={record.mealsText}
+                onChange={(e: { target: { value: string } }) =>
+                    updateRecord(day, { mealsText: e.target.value })
+                }
+                placeholder={"例: 朝 玄米・味噌汁\n昼 そば  夜 鶏むね・野菜炒め"}
+                rows={4}
+                maxLength={2000}
+                style={{ resize: "vertical", marginBottom: "16px" }}
+            />
 
-                <label
-                    htmlFor="meals-text"
+            {/* 糖質・塩分入力（手動入力、またはAI推定で自動入力される） */}
+            <div
+                style={{
+                    borderTop: "1px solid var(--color-border)",
+                    paddingTop: "12px",
+                    marginBottom: "16px",
+                }}
+            >
+                <div
                     style={{
-                        display: "block",
-                        fontSize: "0.8rem",
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
                         color: "var(--color-text-secondary)",
-                        marginBottom: "6px",
+                        marginBottom: "4px",
                     }}
                 >
-                    食事内容
-                </label>
-                <textarea
-                    id="meals-text"
-                    value={record.mealsText}
-                    onChange={(e: { target: { value: string } }) =>
-                        updateRecord(day, { mealsText: e.target.value })
-                    }
-                    placeholder={"例: 朝 玄米・味噌汁\n昼 そば  夜 鶏むね・野菜炒め"}
-                    rows={4}
-                    maxLength={2000}
-                    style={{ resize: "vertical", marginBottom: "12px" }}
-                />
-
-                {/* AI推定ボタン（有料機能 - 現時点では未実装） */}
-                <button
-                    className="btn-premium-disabled"
-                    disabled
-                    aria-label="AI糖質・塩分推定（有料機能）"
+                    糖質・塩分
+                </div>
+                {/* AI推定時に自動入力される旨を説明するサブテキスト */}
+                <div
+                    style={{
+                        fontSize: "0.75rem",
+                        color: "var(--color-text-muted)",
+                        marginBottom: "10px",
+                    }}
                 >
-                    <span>🔒</span>
-                    <span>AIで糖質・塩分を推定する（有料機能）</span>
-                </button>
-            </div>
-
-            {/* 栄養手動入力（AIが未実装のため、手動で入力できる） */}
-            <div className="card">
-                <div className="section-label">栄養（手動入力）</div>
-
+                    手動で入力できます。AIで推定すると自動で入力されます。
+                </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                     {/* 糖質 */}
                     <div>
@@ -121,6 +131,16 @@ export default function MealsSection({ day }: MealsSectionProps) {
                     </div>
                 </div>
             </div>
+
+            {/* AI推定ボタン（有料機能 - 現時点では未実装） - カード最下部に配置 */}
+            <button
+                className="btn-premium-disabled"
+                disabled
+                aria-label="AI糖質・塩分推定（有料機能）"
+            >
+                <span>🔒</span>
+                <span>AIで糖質・塩分を推定する（有料機能）</span>
+            </button>
         </div>
     );
 }

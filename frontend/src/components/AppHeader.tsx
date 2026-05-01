@@ -23,7 +23,7 @@ export default function AppHeader({ user }: AppHeaderProps) {
                     lineHeight: 1.1,
                 }}
             >
-                Relief
+                あとろぐ
             </div>
 
             {/* サブタイトル */}
@@ -35,13 +35,7 @@ export default function AppHeader({ user }: AppHeaderProps) {
                     marginBottom: "12px",
                 }}
             >
-                肌の記録とセルフケアをサポート
-            </div>
-
-            {/* チップ（セルフケア・医療行為でない旨） */}
-            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                <span className="header-chip">セルフケア</span>
-                <span className="header-chip">医療行為ではありません</span>
+                アトピーのための毎日の記録をサポート
             </div>
 
             {/* Google ログイン・ログアウトボタン */}

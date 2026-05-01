@@ -11,6 +11,7 @@ import WaterSection from "./WaterSection";
 import ExerciseSection from "./ExerciseSection";
 import NoteSection from "./NoteSection";
 import MealsSection from "./MealsSection";
+import AccordionCard from "./AccordionCard";
 
 interface RecordTabProps {
     day: string;
@@ -80,11 +81,22 @@ export default function RecordTab({ day }: RecordTabProps) {
                     role="tabpanel"
                     style={{ display: "flex", flexDirection: "column", gap: "12px" }}
                 >
+                    {/* 毎日入力するセクション: 常に展開表示 */}
                     <WaterSection day={day} />
-                    <ExerciseSection day={day} />
-                    <MealsSection day={day} />
-                    <ItchSection day={day} />
-                    <NoteSection day={day} />
+
+                    {/* 任意入力のセクション: デフォルト折りたたみ */}
+                    <AccordionCard title="運動">
+                        <ExerciseSection day={day} />
+                    </AccordionCard>
+                    <AccordionCard title="食事">
+                        <MealsSection day={day} />
+                    </AccordionCard>
+                    <AccordionCard title="かゆみ">
+                        <ItchSection day={day} />
+                    </AccordionCard>
+                    <AccordionCard title="メモ（症状・気づき）">
+                        <NoteSection day={day} />
+                    </AccordionCard>
                 </div>
             )}
         </div>

@@ -18,9 +18,7 @@ export default function ItchSection({ day }: ItchSectionProps) {
     const fillPercent = (record.itchScore / MAX_ITCH_SCORE) * 100;
 
     return (
-        <div className="card">
-            <div className="section-label">かゆみ</div>
-
+        <div>
             {/* かゆみの部位入力 */}
             <div style={{ marginBottom: "14px" }}>
                 <label

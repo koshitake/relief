@@ -14,11 +14,7 @@ export default function ExerciseSection({ day }: ExerciseSectionProps) {
     const record = getOrCreateRecord(day);
 
     return (
-        <div className="card">
-            <div className="section-label" style={{ color: "var(--color-text-secondary)" }}>
-                運動
-            </div>
-
+        <div>
             <label
                 htmlFor="exercise-text"
                 style={{

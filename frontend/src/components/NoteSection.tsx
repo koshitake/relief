@@ -14,9 +14,7 @@ export default function NoteSection({ day }: NoteSectionProps) {
     const record = getOrCreateRecord(day);
 
     return (
-        <div className="card">
-            <div className="section-label">メモ（症状・気づき）</div>
-
+        <div>
             <textarea
                 value={record.note}
                 onChange={(e: { target: { value: string } }) =>
