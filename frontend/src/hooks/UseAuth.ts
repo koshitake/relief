@@ -4,7 +4,7 @@
 // Supabase Auth のセッションを監視し、ログイン中のユーザーを返します。
 
 import { useState, useEffect } from "react";
-import { User } from "@supabase/supabase-js";
+import { User, Session, AuthChangeEvent } from "@supabase/supabase-js";
 import supabase from "@/lib/SupabaseClient";
 
 interface AuthState {
@@ -26,14 +26,19 @@ export function useAuth(): AuthState {
         }
 
         // 初期セッションを取得する
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setUser(session?.user ?? null);
-            setLoading(false);
-        });
+        // catch: Supabase への接続失敗時もローディングを解除して画面を表示する
+        supabase.auth.getSession()
+            .then(({ data: { session } }) => {
+                setUser(session?.user ?? null);
+                setLoading(false);
+            })
+            .catch(() => {
+                setLoading(false);
+            });
 
         // ログイン・ログアウト時のセッション変更を監視する
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            (_event, session) => setUser(session?.user ?? null)
+            (_event: AuthChangeEvent, session: Session | null) => setUser(session?.user ?? null)
         );
 
         return () => subscription.unsubscribe();
