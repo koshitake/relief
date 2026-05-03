@@ -238,7 +238,10 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                     <input
                         type="time"
                         value={entryTime}
-                        onChange={(e) => setEntryTime(e.target.value)}
+                        onChange={(e) => {
+                            // iOSのリセットボタンで空になった場合は現在時刻に移動する
+                            setEntryTime(e.target.value || getCurrentTime());
+                        }}
                         style={{ width: "auto", fontSize: "0.9rem", flex: "none" }}
                     />
                 </div>
