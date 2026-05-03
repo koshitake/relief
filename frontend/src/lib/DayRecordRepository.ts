@@ -1,0 +1,135 @@
+// day_records テーブルへの CRUD 操作を提供するリポジトリです。
+// Supabase が未設定の場合はすべての操作を無視します（DBなしモード）。
+
+import supabase from "@/lib/SupabaseClient";
+import { DayRecord, WaterLog, calcTotalWaterMl, createEmptyDayRecord } from "@/types/DayRecord";
+
+// 本番環境では DB の内部エラー詳細をコンソールに出力しない（情報漏洩対策）
+function logDbError(context: string, error: { message: string }) {
+    if (process.env.NODE_ENV !== "production") {
+        console.error(`[Relief] ${context} エラー:`, error.message);
+    } else {
+        console.error(`[Relief] ${context} でエラーが発生しました`);
+    }
+}
+
+// DB のカラム名（snake_case）と DayRecord のフィールド名（camelCase）のマッピング
+// DB から取得した行を DayRecord に変換する
+function rowToDayRecord(row: Record<string, unknown>): DayRecord {
+    // water_logs カラム（JSONB）からログ一覧を復元する。
+    // 不正な要素は除外し、型安全に変換する。
+    const waterLogs: WaterLog[] = Array.isArray(row.water_logs)
+        ? (row.water_logs as Array<{ time: unknown; ml: unknown }>)
+              .filter((log) => typeof log.time === "string" && typeof log.ml === "number")
+              .map((log) => ({ time: log.time as string, ml: log.ml as number }))
+        : [];
+
+    return {
+        itchArea:     String(row.itch_area ?? ""),
+        itchScore:    Number(row.itch_score ?? 0),
+        waterLogs,
+        exerciseText: String(row.exercise_text ?? ""),
+        note:         String(row.note ?? ""),
+        mealsText:    String(row.meals_text ?? ""),
+    };
+}
+
+// DayRecord を DB 保存用の行データに変換する
+function dayRecordToRow(
+    day: string,
+    userId: string,
+    record: DayRecord
+): Record<string, unknown> {
+    return {
+        day,
+        user_id:       userId,
+        itch_area:     record.itchArea,
+        itch_score:    record.itchScore,
+        // water_ml は集計クエリ用の合計値。water_logs に個別ログを保存する
+        water_ml:      calcTotalWaterMl(record.waterLogs),
+        water_logs:    record.waterLogs,
+        exercise_text: record.exerciseText,
+        note:          record.note,
+        meals_text:    record.mealsText,
+        updated_at:    new Date().toISOString(),
+    };
+}
+
+/**
+ * 指定日の記録を DB から取得する。
+ * 存在しない場合は null を返す。
+ * Supabase 未設定の場合は null を返す。
+ */
+export async function fetchDayRecord(
+    day: string,
+    userId: string
+): Promise<DayRecord | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from("day_records")
+        .select("*")
+        .eq("day", day)
+        .eq("user_id", userId)
+        .maybeSingle();
+
+    if (error) {
+        logDbError("fetchDayRecord", error);
+        return null;
+    }
+
+    if (!data) return null;
+
+    return rowToDayRecord(data);
+}
+
+/**
+ * 指定日の記録を DB に upsert（存在すれば更新、なければ挿入）する。
+ * UNIQUE(user_id, day) 制約を利用して重複を判定する。
+ * Supabase 未設定の場合は何もしない。
+ */
+export async function upsertDayRecord(
+    day: string,
+    userId: string,
+    record: DayRecord
+): Promise<void> {
+    if (!supabase) return;
+
+    const row = dayRecordToRow(day, userId, record);
+
+    const { error } = await supabase
+        .from("day_records")
+        .upsert(row, {
+            // (user_id, day) の複合ユニーク制約で重複を判定する
+            onConflict: "user_id,day",
+            ignoreDuplicates: false,
+        });
+
+    if (error) {
+        logDbError("upsertDayRecord", error);
+    }
+}
+
+/**
+ * cutoffDay より古い記録を DB から削除する（無料プランの14日制限）。
+ * Supabase 未設定の場合は何もしない。
+ */
+export async function deleteOldDayRecords(
+    cutoffDay: string,
+    userId: string
+): Promise<void> {
+    if (!supabase) return;
+
+    const { error } = await supabase
+        .from("day_records")
+        .delete()
+        .lt("day", cutoffDay)
+        .eq("user_id", userId);
+
+    if (error) {
+        logDbError("deleteOldDayRecords", error);
+    }
+}
+
+// DayRecord のエクスポート（他ファイルが import しやすいように再エクスポート）
+export { createEmptyDayRecord };
