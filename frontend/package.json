@@ -15,8 +15,7 @@
         "zustand": "^5.0.3",
         "react-hook-form": "^7.55.0",
         "zod": "^3.24.2",
-        "@supabase/supabase-js": "^2.49.4",
-        "next-auth": "^4.24.11"
+        "@supabase/supabase-js": "^2.49.4"
     },
     "devDependencies": {
         "@types/node": "^20",

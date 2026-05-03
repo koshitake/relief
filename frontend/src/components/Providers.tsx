@@ -1,14 +1,12 @@
 "use client";
 
-// NextAuth の SessionProvider をアプリ全体に提供するラッパーコンポーネントです。
-// layout.tsx はサーバーコンポーネントのため、クライアントコンポーネントとして切り出しています。
-
-import { SessionProvider } from "next-auth/react";
+// Supabase Auth を使用するため、SessionProvider は不要になりました。
+// layout.tsx はサーバーコンポーネントのため、このラッパーコンポーネントは残しています。
 
 interface ProvidersProps {
     children: React.ReactNode;
 }
 
 export default function Providers({ children }: ProvidersProps) {
-    return <SessionProvider>{children}</SessionProvider>;
+    return <>{children}</>;
 }

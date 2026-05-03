@@ -5,6 +5,7 @@
 
 import { useState, startTransition } from "react";
 import { useAppStore } from "@/store/UseAppStore";
+import { useDayRecord } from "@/hooks/UseDayRecord";
 import SummaryCard from "./SummaryCard";
 import ItchSection from "./ItchSection";
 import WaterSection from "./WaterSection";
@@ -21,12 +22,11 @@ interface RecordTabProps {
 type TabKey = "summary" | "input";
 
 export default function RecordTab({ day }: RecordTabProps) {
-    // デフォルトはサマリー（ダッシュボード）タブを表示する
     const [activeTab, setActiveTab] = useState<TabKey>("summary");
-    const { getOrCreateRecord } = useAppStore();
-    const record = getOrCreateRecord(day);
+    const { waterTargetMl, setWaterTargetMl } = useAppStore();
+    const { record, updateRecord } = useDayRecord(day);
 
-    // タブ切替は非緊急更新なので startTransition で包む（rendering-usetransition-loading）
+    // タブ切替は非緊急更新なので startTransition で包む
     function handleTabChange(tab: TabKey) {
         startTransition(() => setActiveTab(tab));
     }
@@ -82,20 +82,25 @@ export default function RecordTab({ day }: RecordTabProps) {
                     style={{ display: "flex", flexDirection: "column", gap: "12px" }}
                 >
                     {/* 毎日入力するセクション: 常に展開表示 */}
-                    <WaterSection day={day} />
+                    <WaterSection
+                        record={record}
+                        updateRecord={updateRecord}
+                        waterTargetMl={waterTargetMl}
+                        setWaterTargetMl={setWaterTargetMl}
+                    />
 
                     {/* 任意入力のセクション: デフォルト折りたたみ */}
                     <AccordionCard title="運動">
-                        <ExerciseSection day={day} />
+                        <ExerciseSection record={record} updateRecord={updateRecord} />
                     </AccordionCard>
                     <AccordionCard title="食事">
-                        <MealsSection day={day} />
+                        <MealsSection record={record} updateRecord={updateRecord} />
                     </AccordionCard>
                     <AccordionCard title="かゆみ">
-                        <ItchSection day={day} />
+                        <ItchSection record={record} updateRecord={updateRecord} />
                     </AccordionCard>
                     <AccordionCard title="メモ（症状・気づき）">
-                        <NoteSection day={day} />
+                        <NoteSection record={record} updateRecord={updateRecord} />
                     </AccordionCard>
                 </div>
             )}

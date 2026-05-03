@@ -1,19 +1,17 @@
 "use client";
 
 // かゆみセクションコンポーネントです。
-// SVGモックアップに沿い、部位入力とスライダーを白カード内に収めます。
+// 部位入力とスライダーを提供します。
 
-import { useAppStore } from "@/store/UseAppStore";
+import { DayRecord } from "@/types/DayRecord";
 import { MAX_ITCH_SCORE } from "@/constants/AppConstants";
 
 interface ItchSectionProps {
-    day: string;
+    record: DayRecord;
+    updateRecord: (patch: Partial<DayRecord>) => void;
 }
 
-export default function ItchSection({ day }: ItchSectionProps) {
-    const { getOrCreateRecord, updateRecord } = useAppStore();
-    const record = getOrCreateRecord(day);
-
+export default function ItchSection({ record, updateRecord }: ItchSectionProps) {
     // スライダーの塗りつぶし率（0〜100%）を計算する
     const fillPercent = (record.itchScore / MAX_ITCH_SCORE) * 100;
 
@@ -37,7 +35,7 @@ export default function ItchSection({ day }: ItchSectionProps) {
                     type="text"
                     value={record.itchArea}
                     onChange={(e: { target: { value: string } }) =>
-                        updateRecord(day, { itchArea: e.target.value })
+                        updateRecord({ itchArea: e.target.value })
                     }
                     placeholder="例: ひじ / 首 / 背中"
                     maxLength={100}
@@ -60,7 +58,6 @@ export default function ItchSection({ day }: ItchSectionProps) {
                     >
                         かゆみスコア
                     </label>
-                    {/* 現在値を Space Grotesk で大きく表示する */}
                     <span>
                         <span
                             style={{
@@ -84,7 +81,6 @@ export default function ItchSection({ day }: ItchSectionProps) {
                     </span>
                 </div>
 
-                {/* グラデーション塗りつぶしを CSS カスタムプロパティで実現する */}
                 <input
                     id="itch-score"
                     type="range"
@@ -92,7 +88,7 @@ export default function ItchSection({ day }: ItchSectionProps) {
                     max={MAX_ITCH_SCORE}
                     value={record.itchScore}
                     onChange={(e: { target: { value: string } }) =>
-                        updateRecord(day, { itchScore: Number(e.target.value) })
+                        updateRecord({ itchScore: Number(e.target.value) })
                     }
                     style={{
                         background: `linear-gradient(90deg, #007AFF ${fillPercent}%, #E5E5EA ${fillPercent}%)`,

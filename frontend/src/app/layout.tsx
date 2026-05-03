@@ -39,7 +39,7 @@ export default function RootLayout({
                 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
             </head>
             <body>
-                {/* NextAuth のセッション状態をアプリ全体で使えるようにする */}
+                {/* Supabase Auth のセッションはフック内で管理するため Providers はパススルー */}
                 <Providers>
                     {/* コンテンツ幅をモバイルサイズ(480px)に制限する */}
                     <main

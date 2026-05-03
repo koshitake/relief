@@ -5,7 +5,6 @@
 
 import { useAppStore } from "@/store/UseAppStore";
 import { useAuth } from "@/hooks/UseAuth";
-import { useDbSync } from "@/hooks/UseDbSync";
 import AppHeader from "@/components/AppHeader";
 import CalendarNav from "@/components/CalendarNav";
 import RecordTab from "@/components/RecordTab";
@@ -14,9 +13,6 @@ import PremiumSection from "@/components/PremiumSection";
 export default function HomePage() {
     const { selectedDay } = useAppStore();
     const { user, loading } = useAuth();
-
-    // DB との同期（ログイン中のみ動作）
-    useDbSync(user);
 
     // セッション確認中はローディング表示
     if (loading) {

@@ -4,12 +4,14 @@
 // 時刻（現在時刻・編集可）と量を入力してログとして追加する方式です。
 
 import { useCallback, useRef, useState } from "react";
-import { useAppStore } from "@/store/UseAppStore";
-import { WaterLog, calcTotalWaterMl } from "@/types/DayRecord";
+import { DayRecord, WaterLog, calcTotalWaterMl } from "@/types/DayRecord";
 import { MAX_WATER_ML, MIN_WATER_TARGET_ML, MAX_WATER_TARGET_ML } from "@/constants/AppConstants";
 
 interface WaterSectionProps {
-    day: string;
+    record: DayRecord;
+    updateRecord: (patch: Partial<DayRecord> | ((prev: DayRecord) => Partial<DayRecord>)) => void;
+    waterTargetMl: number;
+    setWaterTargetMl: (ml: number) => void;
 }
 
 const QUICK_ADD_OPTIONS = [50, 100, 150] as const;
@@ -27,10 +29,7 @@ function getCurrentTime(): string {
     return `${h}:${m}`;
 }
 
-export default function WaterSection({ day }: WaterSectionProps) {
-    const { getOrCreateRecord, updateRecord, waterTargetMl, setWaterTargetMl } = useAppStore();
-    const record = getOrCreateRecord(day);
-
+export default function WaterSection({ record, updateRecord, waterTargetMl, setWaterTargetMl }: WaterSectionProps) {
     // 目標設定の編集モード
     const [editingTarget, setEditingTarget] = useState(false);
     const [targetInput, setTargetInput] = useState(String(waterTargetMl));
@@ -71,16 +70,16 @@ export default function WaterSection({ day }: WaterSectionProps) {
     }
 
     // 追加: 入力内容を検証してログに追記する
+    // 関数パッチを使うことでrecord.waterLogsへの直接参照を避ける（rerender-memo）
     function handleAdd() {
         const ml = Number(entryMl);
         if (!entryTime || isNaN(ml) || ml <= 0) return;
 
-        // stale closure を避けるため getState() でストアの最新値を参照する
-        const current = useAppStore.getState().getOrCreateRecord(day);
-        if (calcTotalWaterMl(current.waterLogs) + ml > MAX_WATER_ML) return;
-
         const newLog: WaterLog = { time: entryTime, ml };
-        updateRecord(day, { waterLogs: sortLogsByTime([...current.waterLogs, newLog]) });
+        updateRecord((prev) => {
+            if (calcTotalWaterMl(prev.waterLogs) + ml > MAX_WATER_ML) return {};
+            return { waterLogs: sortLogsByTime([...prev.waterLogs, newLog]) };
+        });
 
         // 追加後はフォームをリセット（時刻は現在時刻に更新）
         setEntryMl("");
@@ -96,22 +95,23 @@ export default function WaterSection({ day }: WaterSectionProps) {
     // ログ時刻の保存
     function handleEditTimeSave() {
         if (editingLogIndex === null || !editingTime) return;
-        const current = useAppStore.getState().getOrCreateRecord(day);
-        const newLogs = current.waterLogs.map((log, i) =>
-            i === editingLogIndex ? { ...log, time: editingTime } : log
-        );
-        updateRecord(day, { waterLogs: sortLogsByTime(newLogs) });
+        const idx = editingLogIndex;
+        const time = editingTime;
+        updateRecord((prev) => ({
+            waterLogs: sortLogsByTime(prev.waterLogs.map((log, i) => (i === idx ? { ...log, time } : log))),
+        }));
         setEditingLogIndex(null);
     }
 
     // ログ削除: 指定インデックスのエントリを取り除く
+    // 関数パッチを使うことでrecord.waterLogsを依存配列から除去する（rerender-memo）
     const handleDeleteLog = useCallback(
         (index: number) => {
-            const current = useAppStore.getState().getOrCreateRecord(day);
-            const newLogs = current.waterLogs.filter((_, i) => i !== index);
-            updateRecord(day, { waterLogs: newLogs });
+            updateRecord((prev) => ({
+                waterLogs: prev.waterLogs.filter((_, i) => i !== index),
+            }));
         },
-        [day, updateRecord],
+        [updateRecord],
     );
 
     const totalMl = calcTotalWaterMl(record.waterLogs);
@@ -248,7 +248,6 @@ export default function WaterSection({ day }: WaterSectionProps) {
                     <span style={{ fontSize: "0.8rem", color: "var(--color-text-secondary)", minWidth: "28px" }}>
                         量
                     </span>
-                    {/* 任意入力ボタン */}
                     <button
                         className="btn-quick"
                         onClick={handleCustomInput}
@@ -256,7 +255,6 @@ export default function WaterSection({ day }: WaterSectionProps) {
                     >
                         任意入力
                     </button>
-                    {/* プリセットボタン */}
                     {QUICK_ADD_OPTIONS.map((amount) => (
                         <button
                             key={amount}
@@ -315,7 +313,7 @@ export default function WaterSection({ day }: WaterSectionProps) {
                     <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                         {record.waterLogs.map((log, i) => (
                             <div
-                                key={i}
+                                key={`${log.time}-${log.ml}-${i}`}
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
@@ -326,7 +324,6 @@ export default function WaterSection({ day }: WaterSectionProps) {
                                 }}
                             >
                                 {editingLogIndex === i ? (
-                                    /* 時刻編集モード */
                                     <>
                                         <input
                                             type="time"
@@ -366,7 +363,6 @@ export default function WaterSection({ day }: WaterSectionProps) {
                                         </button>
                                     </>
                                 ) : (
-                                    /* 通常表示モード */
                                     <>
                                         {/* 時刻をタップで編集モードへ */}
                                         <button

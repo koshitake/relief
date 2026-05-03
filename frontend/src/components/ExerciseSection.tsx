@@ -3,16 +3,14 @@
 // 運動セクションコンポーネントです。
 // 運動内容を自由記述で入力するカードです。
 
-import { useAppStore } from "@/store/UseAppStore";
+import { DayRecord } from "@/types/DayRecord";
 
 interface ExerciseSectionProps {
-    day: string;
+    record: DayRecord;
+    updateRecord: (patch: Partial<DayRecord>) => void;
 }
 
-export default function ExerciseSection({ day }: ExerciseSectionProps) {
-    const { getOrCreateRecord, updateRecord } = useAppStore();
-    const record = getOrCreateRecord(day);
-
+export default function ExerciseSection({ record, updateRecord }: ExerciseSectionProps) {
     return (
         <div>
             <label
@@ -31,7 +29,7 @@ export default function ExerciseSection({ day }: ExerciseSectionProps) {
                 type="text"
                 value={record.exerciseText}
                 onChange={(e: { target: { value: string } }) =>
-                    updateRecord(day, { exerciseText: e.target.value })
+                    updateRecord({ exerciseText: e.target.value })
                 }
                 placeholder="例: ウォーキング30分、ストレッチ10分"
                 maxLength={200}

@@ -4,16 +4,14 @@
 // 食事内容のテキスト入力、糖質・塩分の入力（手動 or AI自動入力）、AI推定ボタンを提供します。
 // AI推定は有料機能のため現時点では未実装です。
 
-import { useAppStore } from "@/store/UseAppStore";
+import { DayRecord } from "@/types/DayRecord";
 
 interface MealsSectionProps {
-    day: string;
+    record: DayRecord;
+    updateRecord: (patch: Partial<DayRecord>) => void;
 }
 
-export default function MealsSection({ day }: MealsSectionProps) {
-    const { getOrCreateRecord, updateRecord } = useAppStore();
-    const record = getOrCreateRecord(day);
-
+export default function MealsSection({ record, updateRecord }: MealsSectionProps) {
     return (
         <div>
             {/* 食事内容テキスト入力 */}
@@ -32,7 +30,7 @@ export default function MealsSection({ day }: MealsSectionProps) {
                 id="meals-text"
                 value={record.mealsText}
                 onChange={(e: { target: { value: string } }) =>
-                    updateRecord(day, { mealsText: e.target.value })
+                    updateRecord({ mealsText: e.target.value })
                 }
                 placeholder={"例: 朝 玄米・味噌汁\n昼 そば  夜 鶏むね・野菜炒め"}
                 rows={4}
@@ -58,7 +56,6 @@ export default function MealsSection({ day }: MealsSectionProps) {
                 >
                     糖質・塩分
                 </div>
-                {/* AI推定時に自動入力される旨を説明するサブテキスト */}
                 <div
                     style={{
                         fontSize: "0.75rem",
@@ -92,8 +89,8 @@ export default function MealsSection({ day }: MealsSectionProps) {
                             placeholder="例: 68"
                             onChange={(e: { target: { value: string } }) => {
                                 const raw = e.target.value;
-                                updateRecord(day, {
-                                    carbsG: raw === "" ? undefined : Math.max(0, Number(raw)),
+                                updateRecord({
+                                    carbsG: raw === "" ? undefined : Math.min(999, Math.max(0, Number(raw))),
                                 });
                             }}
                         />
@@ -123,8 +120,8 @@ export default function MealsSection({ day }: MealsSectionProps) {
                             placeholder="例: 6.2"
                             onChange={(e: { target: { value: string } }) => {
                                 const raw = e.target.value;
-                                updateRecord(day, {
-                                    saltG: raw === "" ? undefined : Math.max(0, Number(raw)),
+                                updateRecord({
+                                    saltG: raw === "" ? undefined : Math.min(99, Math.max(0, Number(raw))),
                                 });
                             }}
                         />

@@ -1,40 +1,43 @@
 "use client";
 
 // 認証状態を管理するカスタムフックです。
-// NextAuth.js のセッションからログイン中のユーザーを返します。
+// Supabase Auth のセッションを監視し、ログイン中のユーザーを返します。
 
-import { useSession } from "next-auth/react";
-
-export interface AuthUser {
-    /** Google の一意ユーザーID */
-    id: string;
-    /** メールアドレス */
-    email: string;
-    /** 表示名 */
-    name?: string | null;
-}
+import { useState, useEffect } from "react";
+import { User } from "@supabase/supabase-js";
+import supabase from "@/lib/SupabaseClient";
 
 interface AuthState {
     /** ログイン中のユーザー。未ログインの場合は null */
-    user: AuthUser | null;
+    user: User | null;
     /** セッション取得中かどうか */
     loading: boolean;
 }
 
 export function useAuth(): AuthState {
-    const { data: session, status } = useSession();
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    const loading = status === "loading";
+    useEffect(() => {
+        // Supabase 未設定（DBなしモード）の場合はローディングのみ解除する
+        if (!supabase) {
+            setLoading(false);
+            return;
+        }
 
-    // セッションからユーザー情報を取り出す
-    const user: AuthUser | null =
-        session?.user?.id && session?.user?.email
-            ? {
-                  id:    session.user.id,
-                  email: session.user.email,
-                  name:  session.user.name,
-              }
-            : null;
+        // 初期セッションを取得する
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setUser(session?.user ?? null);
+            setLoading(false);
+        });
+
+        // ログイン・ログアウト時のセッション変更を監視する
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            (_event, session) => setUser(session?.user ?? null)
+        );
+
+        return () => subscription.unsubscribe();
+    }, []);
 
     return { user, loading };
 }

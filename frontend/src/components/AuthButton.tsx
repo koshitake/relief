@@ -1,27 +1,44 @@
 "use client";
 
 // Google ログイン・ログアウトボタンコンポーネントです。
+// Supabase Auth の Google OAuth を使用します。
 
-import { signIn, signOut } from "next-auth/react";
-import { AuthUser } from "@/hooks/UseAuth";
+import { User } from "@supabase/supabase-js";
+import supabase from "@/lib/SupabaseClient";
 
 interface AuthButtonProps {
-    user: AuthUser | null;
+    user: User | null;
 }
 
 export default function AuthButton({ user }: AuthButtonProps) {
     /** Google OAuth でログインする */
-    const handleSignIn = () => signIn("google");
+    async function handleSignIn() {
+        if (!supabase) return;
+
+        // 環境変数でリダイレクト先を明示管理する（Open Redirect 対策）
+        // Supabase ダッシュボードの Redirect URLs 許可リストとも合わせること
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin;
+
+        await supabase.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+                redirectTo: appUrl,
+            },
+        });
+    }
 
     /** ログアウトする */
-    const handleSignOut = () => signOut();
+    async function handleSignOut() {
+        if (!supabase) return;
+        await supabase.auth.signOut();
+    }
 
     if (user) {
         return (
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "10px" }}>
                 {/* ログイン中のメールアドレスを表示 */}
                 <span style={{ fontSize: "0.75rem", color: "var(--color-text-muted)", flex: 1 }}>
-                    {user.email}
+                    {user.email ?? "（メールなし）"}
                 </span>
                 <button
                     onClick={handleSignOut}
