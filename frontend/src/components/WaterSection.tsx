@@ -311,7 +311,10 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                         記録一覧
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                        {record.waterLogs.map((log, i) => (
+                        {[...record.waterLogs].reverse().map((log, reversedIndex) => {
+                        // 内部データは昇順のため、表示用に逆順にした際の元インデックスを計算する
+                        const i = record.waterLogs.length - 1 - reversedIndex;
+                        return (
                             <div
                                 key={`${log.time}-${log.ml}-${i}`}
                                 style={{
@@ -403,7 +406,8 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                                     </>
                                 )}
                             </div>
-                        ))}
+                        );
+                        })}
                     </div>
                 </div>
             )}
