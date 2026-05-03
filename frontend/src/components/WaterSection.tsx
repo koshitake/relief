@@ -156,8 +156,8 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                                 background: "var(--color-accent)",
                                 color: "#fff",
                                 borderRadius: "var(--radius-pill)",
-                                padding: "4px 10px",
-                                fontSize: "0.75rem",
+                                padding: "10px 16px",
+                                fontSize: "0.82rem",
                                 cursor: "pointer",
                                 fontFamily: "inherit",
                             }}
@@ -343,8 +343,8 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                                                 background: "var(--color-accent)",
                                                 color: "#fff",
                                                 borderRadius: "var(--radius-pill)",
-                                                padding: "3px 10px",
-                                                fontSize: "0.75rem",
+                                                padding: "10px 16px",
+                                                fontSize: "0.82rem",
                                                 cursor: "pointer",
                                                 fontFamily: "inherit",
                                             }}
@@ -358,8 +358,9 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                                                 background: "none",
                                                 cursor: "pointer",
                                                 color: "var(--color-text-muted)",
-                                                fontSize: "0.75rem",
+                                                fontSize: "0.82rem",
                                                 fontFamily: "inherit",
+                                                padding: "10px 8px",
                                             }}
                                         >
                                             キャンセル
@@ -396,9 +397,14 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                                                 background: "none",
                                                 cursor: "pointer",
                                                 color: "var(--color-text-muted)",
-                                                fontSize: "0.9rem",
+                                                fontSize: "1rem",
                                                 lineHeight: 1,
-                                                padding: "2px 4px",
+                                                // タップ領域を 44×44px 以上に確保する
+                                                minWidth: "44px",
+                                                minHeight: "44px",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
                                             }}
                                         >
                                             ×

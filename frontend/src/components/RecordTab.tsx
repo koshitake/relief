@@ -3,7 +3,7 @@
 // ダッシュボードコンポーネントです。
 // 「今日のまとめ」（サマリー表示）と「入力」（記録フォーム）をセグメントコントロールで切り替えます。
 
-import { useState, startTransition } from "react";
+import React, { useState, startTransition, useRef } from "react";
 import { useAppStore } from "@/store/UseAppStore";
 import { useDayRecord } from "@/hooks/UseDayRecord";
 import { useUserSettings } from "@/hooks/UseUserSettings";
@@ -28,13 +28,44 @@ export default function RecordTab({ day }: RecordTabProps) {
     const { record, updateRecord } = useDayRecord(day);
     const { saveWaterTargetMl } = useUserSettings();
 
+    // スワイプ検出用: タッチ開始座標を保持する
+    const touchStartX = useRef<number | null>(null);
+    const touchStartY = useRef<number | null>(null);
+
     // タブ切替は非緊急更新なので startTransition で包む
     function handleTabChange(tab: TabKey) {
         startTransition(() => setActiveTab(tab));
     }
 
+    function handleTouchStart(e: React.TouchEvent) {
+        touchStartX.current = e.touches[0].clientX;
+        touchStartY.current = e.touches[0].clientY;
+    }
+
+    function handleTouchEnd(e: React.TouchEvent) {
+        if (touchStartX.current === null || touchStartY.current === null) return;
+
+        const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+        const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+
+        touchStartX.current = null;
+        touchStartY.current = null;
+
+        // 縦スクロールの場合はタブ切替しない
+        if (Math.abs(deltaY) > Math.abs(deltaX)) return;
+
+        const THRESHOLD = 60;
+        if (deltaX > THRESHOLD && activeTab === "input") {
+            // 右スワイプ → まとめタブへ
+            handleTabChange("summary");
+        } else if (deltaX < -THRESHOLD && activeTab === "summary") {
+            // 左スワイプ → 入力タブへ
+            handleTabChange("input");
+        }
+    }
+
     return (
-        <div>
+        <div onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
             {/* セグメントコントロール */}
             <div className="segment-control" role="tablist">
                 <button
@@ -57,25 +88,9 @@ export default function RecordTab({ day }: RecordTabProps) {
 
             {/* rendering-conditional-render: ternary を使って && を避ける */}
             {activeTab === "summary" ? (
-                /* 今日のまとめタブ: タップすると入力タブへ切り替わる */
-                <div
-                    role="tabpanel"
-                    onClick={() => handleTabChange("input")}
-                    style={{ cursor: "pointer" }}
-                    aria-label="タップして入力画面へ"
-                >
+                /* 今日のまとめタブ */
+                <div role="tabpanel">
                     <SummaryCard record={record} />
-                    <div
-                        style={{
-                            textAlign: "center",
-                            fontSize: "0.75rem",
-                            color: "var(--color-text-muted)",
-                            marginTop: "8px",
-                            paddingBottom: "4px",
-                        }}
-                    >
-                        タップして入力 →
-                    </div>
                 </div>
             ) : (
                 /* 入力タブ: 各記録フォームを表示 */
