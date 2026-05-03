@@ -238,12 +238,27 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                     <input
                         type="time"
                         value={entryTime}
-                        onChange={(e) => {
-                            // iOSのリセットボタンで空になった場合は現在時刻に移動する
-                            setEntryTime(e.target.value || getCurrentTime());
-                        }}
+                        onChange={(e) => setEntryTime(e.target.value)}
                         style={{ width: "auto", fontSize: "0.9rem", flex: "none" }}
                     />
+                    {/* 現在時刻にリセットするボタン */}
+                    <button
+                        onClick={() => setEntryTime(getCurrentTime())}
+                        style={{
+                            border: "none",
+                            background: "var(--color-accent-bg)",
+                            color: "var(--color-accent)",
+                            borderRadius: "var(--radius-pill)",
+                            padding: "6px 10px",
+                            fontSize: "0.72rem",
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            fontFamily: "inherit",
+                            whiteSpace: "nowrap",
+                        }}
+                    >
+                        現在時刻
+                    </button>
                 </div>
 
                 {/* 量の入力: 任意入力 + プリセットボタン */}
