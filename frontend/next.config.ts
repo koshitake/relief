@@ -1,3 +1,4 @@
+import path from "path";
 import type { NextConfig } from "next";
 import withPWA from "@ducanh2912/next-pwa";
 
@@ -68,6 +69,14 @@ const nextConfig: NextConfig = {
                 headers: securityHeaders,
             },
         ];
+    },
+    webpack(config) {
+        // next-pwa が webpack 設定を上書きするため、@ エイリアスを明示的に再設定する
+        config.resolve.alias = {
+            ...config.resolve.alias,
+            "@": path.resolve(process.cwd(), "src"),
+        };
+        return config;
     },
 };
 
