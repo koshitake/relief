@@ -1,133 +1,125 @@
 <svg width="390" height="980" viewBox="0 0 390 980" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="390" y2="980" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FFF4E9"/>
-      <stop offset="100%" stop-color="#E9F6F2"/>
-    </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#FFB38A"/>
-      <stop offset="100%" stop-color="#5CC8A1"/>
-    </linearGradient>
-    <linearGradient id="accentBtn" x1="0" y1="0" x2="350" y2="0" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FFB38A"/>
-      <stop offset="100%" stop-color="#5CC8A1"/>
-    </linearGradient>
-    <filter id="soft">
-      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#D4A898" flood-opacity="0.18"/>
-    </filter>
-    <filter id="card">
-      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#C8B0A8" flood-opacity="0.12"/>
-    </filter>
-  </defs>
 
-  <!-- Background -->
-  <rect width="390" height="980" fill="url(#bg)"/>
-  <circle cx="340" cy="80" r="70" fill="#FFE0CC" opacity="0.5"/>
-  <circle cx="50" cy="190" r="36" fill="#D8F1E8" opacity="0.6"/>
+  <!-- iOS Grouped Background -->
+  <rect width="390" height="980" fill="#F2F2F7"/>
 
-  <!-- ===== HEADER ===== -->
-  <g transform="translate(20 24)">
-    <text x="0" y="26" font-family="Space Grotesk, sans-serif" font-size="26" font-weight="700" fill="#2B2B2B">Relief</text>
-    <text x="0" y="46" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#4D4D4D">肌の記録と食事の傾向をやさしく見える化</text>
-    <rect x="0" y="56" width="94" height="26" rx="13" fill="#FFFFFF" stroke="#F0C5AF" stroke-width="1"/>
-    <text x="10" y="73" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">セルフケア</text>
-    <rect x="104" y="56" width="176" height="26" rx="13" fill="#FFFFFF" stroke="#C7E7DD" stroke-width="1"/>
-    <text x="114" y="73" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#2E6A57">医療行為ではありません</text>
+  <!-- ===== STATUS BAR ===== -->
+  <text x="22" y="29" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="15" font-weight="600" fill="#1C1C1E">9:41</text>
+  <rect x="341" y="17" width="28" height="14" rx="3.5" fill="none" stroke="#1C1C1E" stroke-width="1.2" stroke-opacity="0.35"/>
+  <rect x="369.5" y="20.5" width="2" height="7" rx="1" fill="#1C1C1E" opacity="0.4"/>
+  <rect x="343" y="19" width="22" height="10" rx="2.5" fill="#1C1C1E"/>
+  <path d="M316 26 Q319.5 22 323 26" stroke="#1C1C1E" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <path d="M313 23 Q319.5 15 326 23" stroke="#1C1C1E" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <circle cx="319.5" cy="28.5" r="2" fill="#1C1C1E"/>
+  <rect x="300" y="26" width="3" height="3" rx="0.8" fill="#1C1C1E"/>
+  <rect x="305" y="23" width="3" height="6" rx="0.8" fill="#1C1C1E"/>
+  <rect x="310" y="20" width="3" height="9" rx="0.8" fill="#1C1C1E"/>
+
+  <!-- ===== LARGE TITLE ===== -->
+  <g transform="translate(16 52)">
+    <text x="0" y="36" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="34" font-weight="700" letter-spacing="-0.5" fill="#1C1C1E">Relief</text>
+    <text x="2" y="58" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="14" fill="#8E8E93">肌の記録とセルフケアをサポート</text>
+    <rect x="0" y="66" width="82" height="24" rx="12" fill="#007AFF15" stroke="#007AFF" stroke-width="0.8" stroke-opacity="0.4"/>
+    <text x="12" y="82" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#007AFF">セルフケア</text>
+    <rect x="90" y="66" width="166" height="24" rx="12" fill="#007AFF10" stroke="#007AFF" stroke-width="0.8" stroke-opacity="0.3"/>
+    <text x="102" y="82" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#007AFF">医療行為ではありません</text>
   </g>
 
-  <!-- ===== CALENDAR NAV ===== -->
-  <g transform="translate(20 112)">
-    <rect width="350" height="52" rx="16" fill="#FFFFFF" filter="url(#soft)"/>
-    <circle cx="30" cy="26" r="16" fill="#FFF0E6"/>
-    <path d="M33 19 L27 26 L33 33" stroke="#7A4B34" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="175" y="22" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="16" font-weight="600" fill="#2B2B2B">2024.01.12</text>
-    <text x="175" y="38" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#6B6B6B">金曜日</text>
-    <circle cx="320" cy="26" r="16" fill="#E6F5EE"/>
-    <path d="M317 19 L323 26 L317 33" stroke="#2E6A57" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- ===== DATE NAVIGATION ===== -->
+  <g transform="translate(16 156)">
+    <rect width="358" height="48" rx="12" fill="#FFFFFF"/>
+    <circle cx="26" cy="24" r="16" fill="#F2F2F7"/>
+    <path d="M29 18 L23 24 L29 30" stroke="#007AFF" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="179" y="20" text-anchor="middle" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="14" font-weight="600" fill="#1C1C1E">2024年1月12日</text>
+    <text x="179" y="37" text-anchor="middle" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#8E8E93">金曜日</text>
+    <circle cx="332" cy="24" r="16" fill="#F2F2F7"/>
+    <path d="M329 18 L335 24 L329 30" stroke="#007AFF" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
 
-  <!-- ===== COMPACT SNAPSHOT (2 cards) ===== -->
-  <g transform="translate(20 180)">
-    <g>
-      <rect width="168" height="72" rx="16" fill="#FFFFFF" filter="url(#card)"/>
-      <text x="14" y="24" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">かゆみ</text>
-      <text x="14" y="54" font-family="Space Grotesk, sans-serif" font-size="24" font-weight="700" fill="#2B2B2B">3</text>
-      <text x="44" y="54" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#9B9B9B">/10</text>
-    </g>
-    <g transform="translate(182 0)">
-      <rect width="168" height="72" rx="16" fill="#FFFFFF" filter="url(#card)"/>
-      <text x="14" y="24" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#2E6A57">水分</text>
-      <text x="14" y="54" font-family="Space Grotesk, sans-serif" font-size="22" font-weight="700" fill="#2B2B2B">1,600</text>
-      <text x="96" y="54" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#9B9B9B">ml</text>
-    </g>
-  </g>
-
-  <!-- ===== TABS ===== -->
-  <g transform="translate(20 268)">
-    <rect width="350" height="40" rx="20" fill="#EEDFD8"/>
-    <!-- Inactive: 日々の入力 -->
-    <text x="87" y="26" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#7A6055">日々の入力</text>
+  <!-- ===== SEGMENT CONTROL (チャットタブ active) ===== -->
+  <g transform="translate(16 218)">
+    <rect width="358" height="44" rx="11" fill="#E5E5EA"/>
+    <text x="92" y="28" text-anchor="middle" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#8E8E93">日々の入力</text>
     <!-- Active: 相談チャット -->
-    <rect x="178" y="2" width="170" height="36" rx="18" fill="url(#accentBtn)"/>
-    <text x="263" y="26" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">相談チャット</text>
+    <rect x="179" y="2" width="177" height="40" rx="9" fill="#FFFFFF"/>
+    <text x="268" y="28" text-anchor="middle" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" font-weight="600" fill="#1C1C1E">相談チャット</text>
   </g>
 
-  <!-- ===== CHAT AREA ===== -->
-  <g transform="translate(20 322)">
-    <rect width="350" height="544" rx="20" fill="#FFFFFF" filter="url(#card)"/>
-
-    <!-- サジェストチップ -->
-    <text x="14" y="26" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#9B9B9B">よく聞かれること</text>
-    <rect x="14" y="34" width="126" height="26" rx="13" fill="#FFF0E6" stroke="#FFB38A" stroke-width="1"/>
-    <text x="24" y="51" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">かゆみが強い日</text>
-    <rect x="150" y="34" width="100" height="26" rx="13" fill="#E6F5EE" stroke="#5CC8A1" stroke-width="1"/>
-    <text x="160" y="51" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#2E6A57">睡眠の工夫</text>
-    <rect x="260" y="34" width="76" height="26" rx="13" fill="#F0F0FF" stroke="#9999CC" stroke-width="1"/>
-    <text x="270" y="51" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#4444AA">食事のヒント</text>
-
-    <!-- ユーザー発言 1 -->
-    <rect x="14" y="78" width="210" height="36" rx="18" fill="#F4F4F4"/>
-    <text x="26" y="101" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#4D4D4D">かゆみが強い日はどうすれば?</text>
-
-    <!-- AI応答 1 -->
-    <rect x="60" y="124" width="276" height="60" rx="18" fill="#FFE6D5"/>
-    <text x="76" y="148" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#7A4B34">冷却や室温調整を試しましょう。</text>
-    <text x="76" y="166" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#7A4B34">保湿は入浴後すぐに行うのが効果的です。</text>
-
-    <!-- ユーザー発言 2 -->
-    <rect x="14" y="200" width="196" height="36" rx="18" fill="#F4F4F4"/>
-    <text x="26" y="223" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#4D4D4D">塩分の目安はどれくらい?</text>
-
-    <!-- AI応答 2 -->
-    <rect x="60" y="248" width="276" height="60" rx="18" fill="#D5EDEA"/>
-    <text x="76" y="272" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#2E6A57">1日の目安は6g程度とされています。</text>
-    <text x="76" y="290" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#2E6A57">詳しくは主治医・皮膚科にご相談を。</text>
-
-    <!-- ユーザー発言 3 -->
-    <rect x="14" y="322" width="240" height="36" rx="18" fill="#F4F4F4"/>
-    <text x="26" y="345" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#4D4D4D">運動はアトピーに効果がありますか?</text>
-
-    <!-- AI応答 3（タイピング中） -->
-    <rect x="60" y="370" width="180" height="36" rx="18" fill="#F0F0F0"/>
-    <circle cx="82" cy="388" r="5" fill="#AAAAAA"/>
-    <circle cx="100" cy="388" r="5" fill="#AAAAAA"/>
-    <circle cx="118" cy="388" r="5" fill="#AAAAAA"/>
-
-    <!-- 免責テキスト -->
-    <rect x="14" y="418" width="322" height="34" rx="10" fill="#FFF8F4"/>
-    <text x="175" y="432" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#9B6B5A">※ このチャットは医療行為ではありません。</text>
-    <text x="175" y="446" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#9B6B5A">症状が重い場合は主治医・皮膚科にご相談ください。</text>
-
-    <!-- チャット入力バー -->
-    <rect x="14" y="462" width="270" height="44" rx="22" fill="#F4F4F4"/>
-    <text x="30" y="489" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#AAAAAA">相談内容を入力...</text>
-    <!-- 送信ボタン -->
-    <circle cx="320" cy="484" r="22" fill="url(#accentBtn)"/>
-    <path d="M313 477 L327 484 L313 491" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- ===== SUGGESTION CHIPS ===== -->
+  <text x="16" y="284" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="12" fill="#8E8E93">よく聞かれること</text>
+  <g transform="translate(16 292)">
+    <rect width="130" height="30" rx="15" fill="#007AFF15" stroke="#007AFF" stroke-width="0.8" stroke-opacity="0.5"/>
+    <text x="14" y="20" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="12" fill="#007AFF">かゆみが強い日</text>
+    <rect x="138" y="0" width="100" height="30" rx="15" fill="#007AFF10" stroke="#007AFF" stroke-width="0.8" stroke-opacity="0.4"/>
+    <text x="152" y="20" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="12" fill="#007AFF">睡眠の工夫</text>
+    <rect x="246" y="0" width="96" height="30" rx="15" fill="#007AFF10" stroke="#007AFF" stroke-width="0.8" stroke-opacity="0.4"/>
+    <text x="260" y="20" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="12" fill="#007AFF">食事のヒント</text>
   </g>
 
-  <!-- 免責事項フッター -->
-  <g transform="translate(20 880)">
-    <text x="175" y="14" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#AAAAAA">※ 医療行為ではありません。不安な場合は主治医・皮膚科へ</text>
+  <!-- ===== CONVERSATION ===== -->
+
+  <!-- User bubble 1 (right-aligned, iMessage style) -->
+  <g transform="translate(16 340)">
+    <rect x="118" y="0" width="240" height="36" rx="18" fill="#007AFF"/>
+    <text x="136" y="23" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#FFFFFF">かゆみが強い日はどうすれば?</text>
   </g>
+
+  <!-- AI bubble 1 (left-aligned) -->
+  <g transform="translate(16 392)">
+    <circle cx="18" cy="30" r="18" fill="#007AFF"/>
+    <text x="18" y="34" text-anchor="middle" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" font-weight="700" fill="#FFFFFF">AI</text>
+    <rect x="44" y="0" width="258" height="60" rx="18" fill="#FFFFFF"/>
+    <text x="60" y="22" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#1C1C1E">冷却や室温調整を試しましょう。</text>
+    <text x="60" y="42" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#1C1C1E">保湿は入浴後すぐが効果的です。</text>
+  </g>
+
+  <!-- User bubble 2 -->
+  <g transform="translate(16 470)">
+    <rect x="136" y="0" width="222" height="36" rx="18" fill="#007AFF"/>
+    <text x="154" y="23" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#FFFFFF">塩分の目安はどれくらい?</text>
+  </g>
+
+  <!-- AI bubble 2 -->
+  <g transform="translate(16 522)">
+    <circle cx="18" cy="30" r="18" fill="#007AFF"/>
+    <text x="18" y="34" text-anchor="middle" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" font-weight="700" fill="#FFFFFF">AI</text>
+    <rect x="44" y="0" width="258" height="60" rx="18" fill="#FFFFFF"/>
+    <text x="60" y="22" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#1C1C1E">1日の目安は6g程度とされています。</text>
+    <text x="60" y="42" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#1C1C1E">詳しくは主治医・皮膚科にご相談を。</text>
+  </g>
+
+  <!-- User bubble 3 -->
+  <g transform="translate(16 600)">
+    <rect x="90" y="0" width="268" height="36" rx="18" fill="#007AFF"/>
+    <text x="108" y="23" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#FFFFFF">運動はアトピーに効果がありますか?</text>
+  </g>
+
+  <!-- AI typing indicator -->
+  <g transform="translate(16 652)">
+    <circle cx="18" cy="20" r="18" fill="#007AFF"/>
+    <text x="18" y="24" text-anchor="middle" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" font-weight="700" fill="#FFFFFF">AI</text>
+    <rect x="44" y="0" width="90" height="40" rx="20" fill="#FFFFFF"/>
+    <circle cx="74" cy="20" r="5" fill="#C7C7CC"/>
+    <circle cx="90" cy="20" r="5" fill="#AEAEB2"/>
+    <circle cx="106" cy="20" r="5" fill="#8E8E93"/>
+  </g>
+
+  <!-- ===== DISCLAIMER ===== -->
+  <g transform="translate(16 714)">
+    <rect width="358" height="44" rx="10" fill="#FFFFFF"/>
+    <text x="179" y="19" text-anchor="middle" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#8E8E93">※ このチャットは医療行為ではありません。</text>
+    <text x="179" y="35" text-anchor="middle" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#8E8E93">症状が重い場合は主治医・皮膚科にご相談ください。</text>
+  </g>
+
+  <!-- ===== INPUT BAR ===== -->
+  <g transform="translate(16 888)">
+    <rect width="358" height="52" rx="26" fill="#FFFFFF"/>
+    <text x="24" y="32" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="14" fill="#C7C7CC">相談内容を入力...</text>
+    <circle cx="334" cy="26" r="20" fill="#007AFF"/>
+    <path d="M327 20 L341 26 L327 32" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- ===== FOOTER ===== -->
+  <text x="195" y="958" text-anchor="middle" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#AEAEB2">※ 医療行為ではありません。不安な場合は主治医・皮膚科へ</text>
+
 </svg>

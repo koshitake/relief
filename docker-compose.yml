@@ -1,0 +1,20 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      # ホストの 3000 番ポートをコンテナの 3000 番ポートにマッピングする
+      - "3000:3000"
+    volumes:
+      # ホットリロード用: ホストのソースコードをコンテナにマウントする
+      - ./frontend:/app/frontend
+      # node_modules はコンテナ内のものを優先する（ホストのものと混在させない）
+      - /app/frontend/node_modules
+    environment:
+      # macOS Docker Desktop でホットリロードを有効にするために必要
+      - WATCHPACK_POLLING=true
+      - NODE_ENV=development
+    env_file:
+      # .env ファイルが存在する場合に読み込む（APIキー等）
+      - ./frontend/.env

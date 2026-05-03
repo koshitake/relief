@@ -1,0 +1,427 @@
+@import "tailwindcss";
+
+/* ===== CSS カスタムプロパティ（デザイントークン） ===== */
+:root {
+    /* iOS Blue アクセント */
+    --color-accent:       #007AFF;
+    --color-accent-bg:    rgba(0, 122, 255, 0.08);
+    --color-accent-light: rgba(0, 122, 255, 0.15);
+
+    /* テキスト（iOS 準拠） */
+    --color-text-primary:     #1C1C1E;
+    --color-text-secondary:   #3C3C43;
+    --color-text-muted:       #8E8E93;
+    --color-text-placeholder: #C7C7CC;
+
+    /* 背景・カード */
+    --color-bg:       #F2F2F7;
+    --color-card:     #FFFFFF;
+    --color-input-bg: #F2F2F7;
+
+    /* シャドウ */
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+
+    /* 角丸 */
+    --radius-card:  14px;
+    --radius-input: 10px;
+    --radius-pill:  999px;
+}
+
+/* ===== ベーススタイル ===== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: var(--color-bg);
+    min-height: 100vh;
+    color: var(--color-text-primary);
+    /* システムフォント優先（Hiragino / Apple SD Gothic） */
+    font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    /* PWA: iPhone のノッチ・ホームバー領域を安全に回避する */
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+}
+
+/* ===== カード共通 ===== */
+.card {
+    background: var(--color-card);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 16px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* ===== セクションラベル ===== */
+.section-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+/* ===== 入力フィールド ===== */
+input[type="text"],
+input[type="number"],
+textarea {
+    width: 100%;
+    background: var(--color-input-bg);
+    border: 1.5px solid transparent;
+    border-radius: var(--radius-input);
+    padding: 10px 14px;
+    font-family: -apple-system, "Hiragino Sans", sans-serif;
+    color: var(--color-text-primary);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    /* スマホでのタップ時に拡大しないよう最小フォントサイズを確保 */
+    font-size: max(0.9rem, 16px);
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+    border-color: var(--color-accent);
+    background: #FFFFFF;
+}
+
+/* ===== スライダー（かゆみスコア） ===== */
+input[type="range"] {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: background 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    /* スマホでのタップしやすさのため最低 44px のタップ領域を確保 */
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    border: 2px solid var(--color-accent);
+    box-shadow: 0 1px 4px rgba(0, 122, 255, 0.3);
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    border: 2px solid var(--color-accent);
+    cursor: pointer;
+}
+
+/* ===== サマリーメトリクスグリッド ===== */
+.metric-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 10px 0 16px;
+}
+
+.metric-card {
+    background: var(--color-card);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* カード上部の青いアクセントバー */
+.metric-card-accent {
+    height: 5px;
+    background: var(--color-accent);
+}
+
+.metric-card-body {
+    padding: 10px 14px 14px;
+}
+
+.metric-label {
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    margin-bottom: 4px;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.1;
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    margin-bottom: 10px;
+}
+
+.metric-unit {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    font-weight: 400;
+}
+
+/* プログレスバー */
+.metric-bar-track {
+    height: 5px;
+    background: var(--color-bg);
+    border-radius: 2.5px;
+    overflow: hidden;
+}
+
+.metric-bar-fill {
+    height: 100%;
+    background: var(--color-accent);
+    border-radius: 2.5px;
+    transition: width 0.3s ease;
+}
+
+/* ===== セグメントコントロール ===== */
+.segment-control {
+    display: flex;
+    background: #E5E5EA;
+    border-radius: 11px;
+    padding: 2px;
+    margin-bottom: 16px;
+}
+
+.segment-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    border-radius: 9px;
+    padding: 8px 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+    color: var(--color-text-muted);
+    font-family: -apple-system, "Hiragino Sans", sans-serif;
+}
+
+.segment-btn.active {
+    background: #FFFFFF;
+    color: var(--color-text-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== カレンダーナビゲーション ===== */
+
+/* ===== 水分プログレスグラフ ===== */
+.water-bar-track {
+    height: 14px;
+    background: var(--color-input-bg);
+    border-radius: 7px;
+    overflow: hidden;
+}
+
+.water-bar-fill {
+    height: 100%;
+    border-radius: 7px;
+    transition: width 0.4s ease, background 0.3s ease;
+}
+
+/* ===== カレンダーポップアップ ===== */
+.cal-popup {
+    margin-top: 6px;
+    padding: 14px 12px 16px;
+    animation: fadeIn 0.15s ease-out;
+}
+
+.cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.cal-weekday {
+    text-align: center;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    padding: 4px 0 6px;
+}
+
+.cal-weekday-sun { color: #FF3B30; }
+.cal-weekday-sat { color: var(--color-accent); }
+
+.cal-day {
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 50%;
+    /* aspect-ratio で正円を維持する */
+    aspect-ratio: 1;
+    width: 100%;
+    font-size: 0.82rem;
+    color: var(--color-text-primary);
+    font-family: -apple-system, "Hiragino Sans", sans-serif;
+    transition: background 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cal-day:hover:not(.cal-day-selected) {
+    background: var(--color-accent-bg);
+}
+
+/* 今日（未選択） */
+.cal-day-today {
+    color: var(--color-accent);
+    font-weight: 700;
+}
+
+/* 選択中の日付 */
+.cal-day-selected {
+    background: var(--color-accent) !important;
+    color: #FFFFFF !important;
+    font-weight: 700;
+}
+
+/* 前月・翌月の日付 */
+.cal-day-other {
+    color: var(--color-text-placeholder);
+}
+
+/* 日曜・土曜のカラー（選択時は白で上書き） */
+.cal-day-sun { color: #FF3B30; }
+.cal-day-sat { color: var(--color-accent); }
+
+/* 今日へのショートカットボタン（他の日付を表示中のみ表示） */
+.btn-today {
+    border: none;
+    background: var(--color-accent);
+    color: #FFFFFF;
+    border-radius: var(--radius-pill);
+    padding: 5px 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: -apple-system, "Hiragino Sans", sans-serif;
+    transition: opacity 0.2s;
+}
+
+.btn-today:hover { opacity: 0.8; }
+
+.cal-nav-btn {
+    /* スマホでのタップしやすさのため最低 44px のタップ領域を確保 */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: var(--color-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.2s;
+    color: var(--color-accent);
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.cal-nav-btn:hover { opacity: 0.7; }
+
+/* ===== ヘッダーチップ ===== */
+.header-chip {
+    display: inline-flex;
+    align-items: center;
+    background: var(--color-accent-bg);
+    border-radius: var(--radius-pill);
+    padding: 4px 12px;
+    font-size: 0.72rem;
+    color: var(--color-accent);
+    border: 0.8px solid rgba(0, 122, 255, 0.3);
+}
+
+/* ===== ボタン ===== */
+/* 有料機能の無効化ボタン */
+.btn-premium-disabled {
+    width: 100%;
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    background: #E5E5EA;
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+    font-family: -apple-system, "Hiragino Sans", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+/* 水分クイック追加ボタン */
+.btn-quick {
+    border: 0.8px solid rgba(0, 122, 255, 0.4);
+    border-radius: var(--radius-pill);
+    padding: 6px 16px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    background: var(--color-accent-bg);
+    cursor: pointer;
+    transition: opacity 0.2s;
+    font-family: -apple-system, "Hiragino Sans", sans-serif;
+}
+
+.btn-quick:hover { opacity: 0.7; }
+
+/* ===== フィードバックメッセージ ===== */
+.msg-success {
+    background: #E8F5E9;
+    border-radius: var(--radius-input);
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    color: #2e7d32;
+    margin-bottom: 10px;
+}
+
+.msg-error {
+    background: #FDECEA;
+    border-radius: var(--radius-input);
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    color: #c62828;
+    margin-bottom: 10px;
+}
+
+/* ===== フッター免責テキスト ===== */
+.disclaimer-footer {
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    text-align: center;
+    margin-top: 24px;
+    /* PWA: iPhone のホームバー（下部）に被らないよう余白を確保 */
+    padding: 0 8px calc(env(safe-area-inset-bottom) + 8px);
+    line-height: 1.6;
+}
+
+/* ===== アニメーション ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

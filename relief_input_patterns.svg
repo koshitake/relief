@@ -1,139 +1,136 @@
-<svg width="390" height="920" viewBox="0 0 390 920" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="390" y2="920" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FFF4E9"/>
-      <stop offset="100%" stop-color="#E9F6F2"/>
-    </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="350" y2="0" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FFB38A"/>
-      <stop offset="100%" stop-color="#5CC8A1"/>
-    </linearGradient>
-    <filter id="card">
-      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#C8B0A8" flood-opacity="0.12"/>
-    </filter>
-  </defs>
+<svg width="390" height="960" viewBox="0 0 390 960" fill="none" xmlns="http://www.w3.org/2000/svg">
 
-  <rect width="390" height="920" fill="url(#bg)"/>
+  <!-- iOS Grouped Background -->
+  <rect width="390" height="960" fill="#F2F2F7"/>
 
-  <!-- Title -->
-  <g transform="translate(20 20)">
-    <text x="0" y="22" font-family="Space Grotesk, sans-serif" font-size="18" font-weight="700" fill="#2B2B2B">Input State Patterns</text>
-    <text x="0" y="42" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#6B6B6B">各セクションの入力状態パターン</text>
+  <!-- ===== TITLE ===== -->
+  <g transform="translate(16 20)">
+    <text x="0" y="22" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="20" font-weight="700" fill="#1C1C1E">Input State Patterns</text>
+    <text x="0" y="42" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#8E8E93">各セクションの入力状態パターン</text>
   </g>
 
   <!-- ==================== PATTERN 1: 未入力 ==================== -->
-  <g transform="translate(20 70)">
-    <rect width="350" height="238" rx="18" fill="#FFFFFF" filter="url(#card)"/>
+  <text x="32" y="82" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" font-weight="600" fill="#8E8E93" letter-spacing="0.2">未入力</text>
 
-    <!-- ラベル -->
-    <rect x="14" y="14" width="58" height="22" rx="11" fill="#F4F4F4"/>
-    <text x="22" y="29" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#8A8A8A">未入力</text>
+  <g transform="translate(16 92)">
+    <rect width="358" height="220" rx="14" fill="#FFFFFF"/>
+
+    <!-- State badge -->
+    <rect x="16" y="14" width="52" height="22" rx="11" fill="#E5E5EA"/>
+    <text x="23" y="29" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#8E8E93">未入力</text>
 
     <!-- かゆみ部位 -->
-    <text x="14" y="60" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#CCCCCC">かゆみ部位</text>
-    <rect x="14" y="66" width="322" height="32" rx="10" fill="#F8F8F8" stroke="#EEEEEE" stroke-width="1"/>
-    <text x="26" y="87" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#CCCCCC">例: ひじ / 首（未入力）</text>
+    <text x="16" y="58" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#C7C7CC">かゆみ部位</text>
+    <rect x="16" y="64" width="326" height="32" rx="9" fill="#F2F2F7"/>
+    <text x="28" y="84" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#C7C7CC">例: ひじ / 首（未入力）</text>
 
-    <!-- かゆみスコア | 水分 -->
-    <text x="14" y="118" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#CCCCCC">かゆみスコア</text>
-    <rect x="14" y="124" width="154" height="10" rx="5" fill="#F4F4F4"/>
-    <text x="14" y="148" font-family="Noto Sans JP, sans-serif" font-size="13" fill="#CCCCCC">—</text>
-    <text x="32" y="148" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#CCCCCC">/ 10</text>
+    <!-- かゆみスコア -->
+    <text x="16" y="114" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#C7C7CC">かゆみスコア</text>
+    <rect x="16" y="120" width="154" height="8" rx="4" fill="#F2F2F7"/>
+    <text x="16" y="146" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="22" fill="#D1D1D6">—</text>
+    <text x="38" y="146" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#D1D1D6">/ 10</text>
 
-    <text x="182" y="118" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#CCCCCC">水分合計</text>
-    <rect x="182" y="124" width="154" height="32" rx="10" fill="#F8F8F8" stroke="#EEEEEE" stroke-width="1"/>
-    <text x="194" y="145" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#CCCCCC">ml を入力</text>
-
-    <!-- メモ | 運動 -->
-    <rect x="14" y="166" width="130" height="22" rx="11" fill="#F8F8F8" stroke="#EEEEEE" stroke-width="1"/>
-    <text x="24" y="181" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#CCCCCC">メモ 未入力</text>
-    <rect x="154" y="166" width="182" height="22" rx="11" fill="#F8F8F8" stroke="#EEEEEE" stroke-width="1"/>
-    <text x="164" y="181" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#CCCCCC">運動 未入力</text>
+    <!-- 水分合計 -->
+    <text x="188" y="114" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#C7C7CC">水分合計</text>
+    <rect x="188" y="120" width="154" height="32" rx="9" fill="#F2F2F7"/>
+    <text x="200" y="140" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#C7C7CC">ml を入力</text>
 
     <!-- 食事 -->
-    <rect x="14" y="200" width="322" height="26" rx="10" fill="#F8F8F8" stroke="#EEEEEE" stroke-width="1"/>
-    <text x="26" y="217" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#CCCCCC">食事内容 未入力（推定もなし）</text>
+    <rect x="16" y="164" width="326" height="42" rx="9" fill="#F2F2F7"/>
+    <text x="28" y="182" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#C7C7CC">食事内容 未入力</text>
+    <text x="28" y="198" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#D1D1D6">AI推定もありません</text>
   </g>
 
   <!-- ==================== PATTERN 2: 入力中 ==================== -->
-  <g transform="translate(20 328)">
-    <rect width="350" height="252" rx="18" fill="#FFFFFF" filter="url(#card)"/>
+  <text x="32" y="332" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" font-weight="600" fill="#8E8E93" letter-spacing="0.2">入力中</text>
 
-    <!-- ラベル -->
-    <rect x="14" y="14" width="68" height="22" rx="11" fill="#FFE6D5"/>
-    <text x="22" y="29" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">入力中</text>
+  <g transform="translate(16 342)">
+    <rect width="358" height="248" rx="14" fill="#FFFFFF"/>
+    <rect x="0" y="0" width="358" height="4" rx="2" fill="#007AFF"/>
 
-    <!-- かゆみ部位 (入力済) -->
-    <text x="14" y="60" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">かゆみ部位</text>
-    <rect x="14" y="66" width="322" height="32" rx="10" fill="#FFF1E6" stroke="#FFB38A" stroke-width="1.5"/>
-    <text x="26" y="87" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#5A3020">首・手首</text>
+    <!-- State badge -->
+    <rect x="16" y="14" width="52" height="22" rx="11" fill="#007AFF15" stroke="#007AFF" stroke-width="0.8"/>
+    <text x="23" y="29" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#007AFF">入力中</text>
 
-    <!-- かゆみスコア(入力済) | 水分(入力済) -->
-    <text x="14" y="118" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">かゆみスコア</text>
-    <rect x="14" y="124" width="154" height="10" rx="5" fill="#FFE6D5"/>
-    <rect x="14" y="124" width="90" height="10" rx="5" fill="url(#accent)"/>
-    <circle cx="104" cy="129" r="8" fill="#FFFFFF" stroke="#FFB38A" stroke-width="2"/>
-    <text x="14" y="152" font-family="Space Grotesk, sans-serif" font-size="18" font-weight="700" fill="#2B2B2B">4</text>
-    <text x="34" y="152" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#9B9B9B">/ 10</text>
+    <!-- かゆみ部位 (filled) -->
+    <text x="16" y="58" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#007AFF">かゆみ部位</text>
+    <rect x="16" y="64" width="326" height="32" rx="9" fill="#F2F2F7" stroke="#007AFF" stroke-width="1.2"/>
+    <text x="28" y="84" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#1C1C1E">首・手首</text>
 
-    <text x="182" y="118" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#2E6A57">水分合計</text>
-    <rect x="182" y="124" width="154" height="32" rx="10" fill="#E5F5F0" stroke="#5CC8A1" stroke-width="1.5"/>
-    <text x="194" y="145" font-family="Space Grotesk, sans-serif" font-size="14" font-weight="600" fill="#2E6A57">1,200</text>
-    <text x="252" y="145" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#6B9E8E">ml</text>
+    <!-- かゆみスコア (filled) -->
+    <text x="16" y="114" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#007AFF">かゆみスコア</text>
+    <rect x="16" y="120" width="154" height="8" rx="4" fill="#F2F2F7"/>
+    <rect x="16" y="120" width="92" height="8" rx="4" fill="#007AFF"/>
+    <circle cx="108" cy="124" r="9" fill="#FFFFFF" stroke="#007AFF" stroke-width="2"/>
+    <text x="16" y="152" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="22" font-weight="700" fill="#1C1C1E">4</text>
+    <text x="36" y="152" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#8E8E93">/ 10</text>
 
-    <!-- メモ | 運動 -->
-    <rect x="14" y="172" width="130" height="22" rx="11" fill="#FFF1E6" stroke="#FFB38A" stroke-width="1"/>
-    <text x="24" y="187" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">乾燥が気になる</text>
-    <rect x="154" y="172" width="182" height="22" rx="11" fill="#E5F5F0" stroke="#5CC8A1" stroke-width="1"/>
-    <text x="164" y="187" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#2E6A57">ウォーキング30分</text>
+    <!-- 水分合計 (filled) -->
+    <text x="188" y="114" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#007AFF">水分合計</text>
+    <rect x="188" y="120" width="154" height="32" rx="9" fill="#F2F2F7" stroke="#007AFF" stroke-width="1.2"/>
+    <text x="200" y="140" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="15" font-weight="600" fill="#007AFF">1,200</text>
+    <text x="254" y="140" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#8E8E93">ml</text>
 
-    <!-- 食事（入力中・未推定） -->
-    <rect x="14" y="206" width="322" height="32" rx="10" fill="#FAFAFA"/>
-    <text x="26" y="220" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#4D4D4D">朝: 玄米・味噌汁  昼: そば</text>
-    <text x="26" y="232" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#BBBBBB">↑ 入力中（まだ推定していません）</text>
+    <!-- 食事 (入力中) -->
+    <rect x="16" y="172" width="326" height="60" rx="9" fill="#F2F2F7"/>
+    <text x="28" y="192" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" fill="#1C1C1E">朝: 玄米・味噌汁　昼: そば</text>
+    <text x="28" y="208" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#8E8E93">↑ 入力中（まだ推定していません）</text>
+
+    <!-- AI button -->
+    <rect x="16" y="210" width="326" height="28" rx="14" fill="#007AFF"/>
+    <text x="179" y="229" text-anchor="middle" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" font-weight="600" fill="#FFFFFF">AIで糖質・塩分を推定する</text>
   </g>
 
   <!-- ==================== PATTERN 3: 推定完了 + 上書き ==================== -->
-  <g transform="translate(20 600)">
-    <rect width="350" height="288" rx="18" fill="#FFFFFF" filter="url(#card)"/>
+  <text x="32" y="610" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="13" font-weight="600" fill="#8E8E93" letter-spacing="0.2">推定完了・上書き</text>
 
-    <!-- ラベル -->
-    <rect x="14" y="14" width="116" height="22" rx="11" fill="#D8F0E8"/>
-    <text x="22" y="29" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#2E6A57">推定完了 + 上書き</text>
+  <g transform="translate(16 620)">
+    <rect width="358" height="316" rx="14" fill="#FFFFFF"/>
+    <rect x="0" y="0" width="358" height="4" rx="2" fill="#007AFF"/>
 
-    <!-- 食事内容（確定） -->
-    <text x="14" y="58" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#4D4D4D">食事内容</text>
-    <text x="14" y="76" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#2B2B2B">朝: 玄米・味噌汁　昼: そば　夜: 鶏むね・野菜炒め</text>
+    <!-- State badge -->
+    <rect x="16" y="14" width="116" height="22" rx="11" fill="#007AFF15" stroke="#007AFF" stroke-width="0.8"/>
+    <text x="26" y="29" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#007AFF">推定完了・上書き可</text>
 
-    <!-- 糖質 推定値 + 上書き -->
-    <text x="14" y="100" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">糖質（推定）</text>
-    <rect x="14" y="106" width="150" height="32" rx="10" fill="#FFF0E6"/>
-    <text x="26" y="127" font-family="Space Grotesk, sans-serif" font-size="14" font-weight="700" fill="#7A4B34">68 g</text>
-    <text x="100" y="127" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#AAAAAA">AI推定値</text>
+    <!-- 食事内容 -->
+    <text x="16" y="58" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#8E8E93">食事内容</text>
+    <text x="16" y="75" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="12" fill="#1C1C1E">朝: 玄米・味噌汁　昼: そば　夜: 鶏むね・野菜炒め</text>
 
-    <text x="182" y="100" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">上書き値</text>
-    <rect x="182" y="106" width="154" height="32" rx="10" fill="#FFF1E6" stroke="#FFB38A" stroke-width="1.5"/>
-    <text x="194" y="127" font-family="Space Grotesk, sans-serif" font-size="14" font-weight="700" fill="#5A3020">60 g</text>
-    <text x="236" y="127" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#7A4B34">（手動入力）</text>
+    <!-- 糖質: 推定値 -->
+    <text x="16" y="100" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#8E8E93">糖質（AI推定）</text>
+    <rect x="16" y="106" width="154" height="40" rx="10" fill="#F2F2F7"/>
+    <text x="28" y="126" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="18" font-weight="700" fill="#1C1C1E">68 g</text>
+    <text x="28" y="140" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="10" fill="#8E8E93">AI推定値</text>
 
-    <!-- 塩分 推定値 + 上書き -->
-    <text x="14" y="158" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#2E6A57">塩分（推定）</text>
-    <rect x="14" y="164" width="150" height="32" rx="10" fill="#E6F5EE"/>
-    <text x="26" y="185" font-family="Space Grotesk, sans-serif" font-size="14" font-weight="700" fill="#2E6A57">6.2 g</text>
-    <text x="80" y="185" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#AAAAAA">AI推定値</text>
+    <!-- 糖質: 上書き -->
+    <text x="188" y="100" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#007AFF">上書き値</text>
+    <rect x="188" y="106" width="154" height="40" rx="10" fill="#F2F2F7" stroke="#007AFF" stroke-width="1.2"/>
+    <text x="200" y="126" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="18" font-weight="700" fill="#007AFF">60 g</text>
+    <text x="200" y="140" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="10" fill="#007AFF">手動入力</text>
 
-    <text x="182" y="158" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#2E6A57">上書き値</text>
-    <rect x="182" y="164" width="154" height="32" rx="10" fill="#DDF0E8" stroke="#5CC8A1" stroke-width="1.5"/>
-    <text x="194" y="185" font-family="Space Grotesk, sans-serif" font-size="14" font-weight="700" fill="#1D5A46">5.5 g</text>
-    <text x="236" y="185" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#2E6A57">（手動入力）</text>
+    <!-- 塩分: 推定値 -->
+    <text x="16" y="162" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#8E8E93">塩分（AI推定）</text>
+    <rect x="16" y="168" width="154" height="40" rx="10" fill="#F2F2F7"/>
+    <text x="28" y="188" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="18" font-weight="700" fill="#1C1C1E">6.2 g</text>
+    <text x="28" y="202" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="10" fill="#8E8E93">AI推定値</text>
 
-    <!-- 推定根拠 -->
-    <rect x="14" y="210" width="322" height="28" rx="10" fill="#F4F4F4"/>
-    <text x="24" y="228" font-family="Noto Sans JP, sans-serif" font-size="10" fill="#6B6B6B">根拠: 主食と汁物が多いため糖質・塩分ともやや高め</text>
+    <!-- 塩分: 上書き -->
+    <text x="188" y="162" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#007AFF">上書き値</text>
+    <rect x="188" y="168" width="154" height="40" rx="10" fill="#F2F2F7" stroke="#007AFF" stroke-width="1.2"/>
+    <text x="200" y="188" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="18" font-weight="700" fill="#007AFF">5.5 g</text>
+    <text x="200" y="202" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="10" fill="#007AFF">手動入力</text>
 
-    <!-- 日次アドバイス -->
-    <rect x="14" y="250" width="322" height="28" rx="10" fill="#FFF8F4"/>
-    <text x="24" y="264" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#7A4B34">アドバイス</text>
-    <text x="90" y="264" font-family="Noto Sans JP, sans-serif" font-size="11" fill="#4D4D4D">塩分に気をつけて、明日は減塩を試みましょう。</text>
+    <!-- 根拠 -->
+    <rect x="16" y="222" width="326" height="32" rx="9" fill="#F2F2F7"/>
+    <text x="28" y="242" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#8E8E93">根拠: 主食と汁物が多いため糖質・塩分ともやや高め</text>
+
+    <!-- アドバイス -->
+    <rect x="16" y="264" width="326" height="38" rx="9" fill="#007AFF08"/>
+    <text x="28" y="280" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="12" font-weight="600" fill="#007AFF">アドバイス</text>
+    <text x="100" y="280" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="12" fill="#3A3A3C">塩分に気をつけて明日は減塩を試みましょう。</text>
   </g>
+
+  <!-- ===== FOOTER ===== -->
+  <text x="195" y="950" text-anchor="middle" font-family="-apple-system, 'Hiragino Sans', sans-serif" font-size="11" fill="#AEAEB2">※ 医療行為ではありません。不安な場合は主治医・皮膚科へ</text>
+
 </svg>
