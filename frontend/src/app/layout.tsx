@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
+import BottomNav from "@/components/BottomNav";
 
 export const metadata: Metadata = {
     title: "Relief - アトピーセルフケア",
@@ -46,8 +47,8 @@ export default function RootLayout({
                         style={{
                             maxWidth: "480px",
                             margin: "0 auto",
-                            /* PWA: ホームバー分の余白を safe-area-inset-bottom で確保 */
-                            padding: "0 1rem calc(4rem + env(safe-area-inset-bottom))",
+                            /* ボトムナビバー分の余白を確保する */
+                            padding: "0 1rem calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 8px)",
                             minHeight: "100vh",
                             position: "relative",
                             zIndex: 1,
@@ -55,6 +56,8 @@ export default function RootLayout({
                     >
                         {children}
                     </main>
+                    {/* 固定ボトムナビゲーションバー */}
+                    <BottomNav />
                 </Providers>
             </body>
         </html>

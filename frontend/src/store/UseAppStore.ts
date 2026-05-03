@@ -9,6 +9,8 @@ interface AppState {
     selectedDay: string;
     /** 1日の目標水分量（ml）。ユーザーが設定可能 */
     waterTargetMl: number;
+    /** 現在アクティブなタブ */
+    activeTab: "summary" | "input";
 }
 
 interface AppActions {
@@ -16,6 +18,8 @@ interface AppActions {
     setSelectedDay: (day: string) => void;
     /** 1日の目標水分量を更新する */
     setWaterTargetMl: (ml: number) => void;
+    /** タブを切り替える */
+    setActiveTab: (tab: "summary" | "input") => void;
 }
 
 // 今日の日付を YYYY-MM-DD 形式で返す
@@ -26,12 +30,15 @@ function getTodayString(): string {
 export const useAppStore = create<AppState & AppActions>()((set) => ({
     selectedDay: getTodayString(),
     waterTargetMl: DEFAULT_WATER_TARGET_ML,
+    activeTab: "summary",
 
-    setSelectedDay: (day) => set({ selectedDay: day }),
+    setSelectedDay: (day: string) => set({ selectedDay: day }),
 
-    setWaterTargetMl: (ml) => {
+    setWaterTargetMl: (ml: number) => {
         // 入力値を許容範囲内にクランプしてから保存する
         const clamped = Math.min(MAX_WATER_TARGET_ML, Math.max(MIN_WATER_TARGET_ML, ml));
         set({ waterTargetMl: clamped });
     },
+
+    setActiveTab: (tab: "summary" | "input") => set({ activeTab: tab }),
 }));
