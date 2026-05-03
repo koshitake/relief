@@ -6,6 +6,7 @@
 import { useState, startTransition } from "react";
 import { useAppStore } from "@/store/UseAppStore";
 import { useDayRecord } from "@/hooks/UseDayRecord";
+import { useUserSettings } from "@/hooks/UseUserSettings";
 import SummaryCard from "./SummaryCard";
 import ItchSection from "./ItchSection";
 import WaterSection from "./WaterSection";
@@ -23,8 +24,9 @@ type TabKey = "summary" | "input";
 
 export default function RecordTab({ day }: RecordTabProps) {
     const [activeTab, setActiveTab] = useState<TabKey>("summary");
-    const { waterTargetMl, setWaterTargetMl } = useAppStore();
+    const { waterTargetMl } = useAppStore();
     const { record, updateRecord } = useDayRecord(day);
+    const { saveWaterTargetMl } = useUserSettings();
 
     // タブ切替は非緊急更新なので startTransition で包む
     function handleTabChange(tab: TabKey) {
@@ -86,7 +88,7 @@ export default function RecordTab({ day }: RecordTabProps) {
                         record={record}
                         updateRecord={updateRecord}
                         waterTargetMl={waterTargetMl}
-                        setWaterTargetMl={setWaterTargetMl}
+                        setWaterTargetMl={saveWaterTargetMl}
                     />
 
                     {/* 任意入力のセクション: デフォルト折りたたみ */}

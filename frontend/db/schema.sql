@@ -48,6 +48,29 @@ CREATE TRIGGER day_records_updated_at
 CREATE INDEX idx_day_records_user_day ON day_records (user_id, day);
 
 -- =====================================================================
+-- ユーザー設定テーブル
+-- 日付に紐づかないユーザーごとの設定値を保存する
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS user_settings (
+    user_id         UUID        PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    water_target_ml INTEGER     NOT NULL DEFAULT 2000,
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TRIGGER user_settings_updated_at
+    BEFORE UPDATE ON user_settings
+    FOR EACH ROW
+    EXECUTE FUNCTION set_updated_at();
+
+ALTER TABLE user_settings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "自分の設定のみ操作可能" ON user_settings
+    FOR ALL
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+-- =====================================================================
 -- RLS（Row Level Security）
 -- Supabase Auth を使用するため、auth.uid() でログイン中のユーザーを判定する。
 -- ログイン中のユーザーは自分のデータのみ操作できる。

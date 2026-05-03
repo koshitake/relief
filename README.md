@@ -95,33 +95,46 @@
 
 ## 技術スタック
 
-- 言語: React/NextJS/TypeScript
-- DB:supabase(PostgreSQL)
+- 言語: React / Next.js 16 / TypeScript
+- DB / 認証: Supabase (PostgreSQL + Supabase Auth)
+- ホスティング: Vercel（staging / 本番）
+- PWA: @ducanh2912/next-pwa（Service Worker によるオフライン対応）
+- 環境切り替え: APP_ENV 環境変数（local / staging / production）
 
 ## データモデル
 
-- DayRecord
-  - itch_area: Optional[str]
-  - itch_score: int
-  - note: Optional[str]
-  - water_ml: int
-  - meals_text: str
-  - carb_estimated_g: int
-  - carb_override_g: Optional[int]
-  - salt_estimated_g: float
-  - salt_override_g: Optional[float]
-  - walking_km: float
-  - running_km: float
+### day_records（日次記録）
+- id: UUID（主キー）
+- user_id: UUID（Supabase Auth のユーザーID）
+- day: DATE
+- itch_area: TEXT（かゆみの部位。任意）
+- itch_score: INTEGER（かゆみスコア 0〜10）
+- water_ml: INTEGER（水分摂取量の合計。集計クエリ用）
+- water_logs: JSONB（水分摂取ログ。例: [{"time":"08:00","ml":200}, ...]）
+- exercise_text: TEXT（運動内容の自由記述）
+- meals_text: TEXT（食事内容の自由記述）
+- note: TEXT（メモ・症状・気づき）
+- created_at / updated_at: TIMESTAMPTZ
 
-## AIの推定ロジック
+### user_settings（ユーザー設定）
+- user_id: UUID（主キー）
+- water_target_ml: INTEGER（1日の目標水分量）
+- updated_at: TIMESTAMPTZ
 
-- 糖質/塩分
-  - `nutrition.py` でプロンプト生成・AI送信・JSON解析
-  - 送信先未設定/失敗時はダミー値にフォールバック
-  - 文部科学省公開の成分表を読み込む
-- 日次アドバイス
-  - `advice.py` でプロンプト生成・AI送信
-  - 送信先未設定/失敗時は既定テキストにフォールバック
+※ 糖質・塩分推定値（carb_g / salt_g）は有料AI機能実装時にカラム追加予定
+
+## AIの推定ロジック（未実装・将来対応）
+
+- 糖質/塩分推定
+  - 入力: 食事内容テキスト
+  - 出力: JSON（例: `{"carbs_g": 70, "salt_g": 6.5, "reason": "..."}`）
+  - 実装言語: TypeScript（Next.js API Route）
+- 日次アドバイス生成
+  - 入力: その日の記録データ
+  - 出力: アドバイス文字列
+- 相談チャット
+  - 入力: ユーザーのテキスト
+  - 出力: 回答文字列
 
 ## AI送信の差し替えポイント(有料)
 
