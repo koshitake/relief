@@ -1,4 +1,3 @@
-import path from "path";
 import type { NextConfig } from "next";
 import withPWA from "@ducanh2912/next-pwa";
 
@@ -70,14 +69,8 @@ const nextConfig: NextConfig = {
             },
         ];
     },
-    webpack(config) {
-        // next-pwa が webpack 設定を上書きするため、@ エイリアスを明示的に再設定する
-        config.resolve.alias = {
-            ...config.resolve.alias,
-            "@": path.resolve(process.cwd(), "src"),
-        };
-        return config;
-    },
+    // Next.js 16 からデフォルトで Turbopack が有効になるため明示的に設定する
+    turbopack: {},
 };
 
 export default withPWA({
