@@ -1,7 +1,8 @@
 // day_records テーブルへの CRUD 操作を提供するリポジトリです。
 // Supabase が未設定の場合はすべての操作を無視します（DBなしモード）。
 
-import supabase from "@/lib/SupabaseClient";
+// サーバー側（API Route）からのみ呼び出すこと
+import supabase from "@/lib/SupabaseAdmin";
 import { DayRecord, WaterLog, calcTotalWaterMl, createEmptyDayRecord } from "@/types/DayRecord";
 
 // 本番環境では DB の内部エラー詳細をコンソールに出力しない（情報漏洩対策）

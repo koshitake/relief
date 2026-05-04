@@ -41,8 +41,9 @@
 - 日次アドバイスを生成できること、またこれは有料コンテンツとし、回数制限をもうけること
 - 相談チャットで簡易応答ができること。これは有料コンテンツとし、回数制限を儲けること
 - サブスクの実装を想定。無料での利用は14日間記録し、それ以前は削除する
-- ユーザー認証はGoogle認証とsupabaseAuthを利用する。
-- ログイン後の表示はメールアドレスではなくニックネーム（Googleアカウントの表示名）とする。メールアドレスは個人情報のため画面上に表示しないこと。
+- ユーザー認証は **Google OAuth 専用** とする（メールアドレス・パスワード認証は使用しない）
+- ログイン後の表示はGoogleアカウントの表示名（ニックネーム）とする
+- メールアドレスは個人情報のため保存・表示しないこと。Supabase Auth がGoogle OAuthから取得したメールアドレスはDBトリガーで即時削除（NULL化）する
 
 ## 非機能要件
 
@@ -125,6 +126,11 @@
 - user_id: UUID（主キー）
 - water_target_ml: INTEGER（1日の目標水分量）
 - updated_at: TIMESTAMPTZ
+
+### auth.users（Supabase 管理テーブル）
+- email: NULL固定（DBトリガー `clear_user_email_trigger` で INSERT/UPDATE 時に即時削除）
+- 識別子: Google OAuth の `sub`（provider_id）を使用
+- 認証方式: Google OAuth 専用（パスワード・マジックリンク不使用）
 
 ※ 糖質・塩分推定値（carb_g / salt_g）は有料AI機能実装時にカラム追加予定
 

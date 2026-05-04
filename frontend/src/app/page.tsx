@@ -13,7 +13,7 @@ import AdBanner from "@/components/AdBanner";
 
 export default function HomePage() {
     const { selectedDay } = useAppStore();
-    const { user, loading } = useAuth();
+    const { loading } = useAuth();
 
     // セッション確認中はローディング表示
     if (loading) {
@@ -27,7 +27,7 @@ export default function HomePage() {
     return (
         <>
             {/* ヘッダー */}
-            <AppHeader user={user} />
+            <AppHeader />
 
             {/* カレンダーナビゲーション */}
             <CalendarNav />
@@ -38,7 +38,7 @@ export default function HomePage() {
             {/* ダッシュボード（今日のまとめ / 入力 タブ切り替え） */}
             <RecordTab day={selectedDay} />
 
-            {/* 有料機能プレースホルダー（ダッシュボードの外に独立配置） */}
+            {/* 有料機能プレースホルダー */}
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "12px" }}>
                 <PremiumSection
                     title="日次アドバイス"

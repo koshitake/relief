@@ -1,7 +1,8 @@
 // user_settings テーブルへの CRUD 操作を提供するリポジトリです。
 // Supabase が未設定の場合はすべての操作を無視します（DBなしモード）。
 
-import supabase from "@/lib/SupabaseClient";
+// サーバー側（API Route）からのみ呼び出すこと
+import supabase from "@/lib/SupabaseAdmin";
 import { DEFAULT_WATER_TARGET_ML } from "@/constants/AppConstants";
 
 export interface UserSettings {

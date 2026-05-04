@@ -1,19 +1,14 @@
 "use client";
 
 // アプリのヘッダーコンポーネントです。
-// ブランド名・サブタイトル・セルフケア/免責チップ・認証ボタンを表示します。
+// ブランド名・サブタイトル・認証ボタンを表示します。
 
-import { User } from "@supabase/supabase-js";
 import AuthButton from "@/components/AuthButton";
 
-interface AppHeaderProps {
-    user: User | null;
-}
-
-export default function AppHeader({ user }: AppHeaderProps) {
+export default function AppHeader() {
     return (
         <header style={{ paddingTop: "24px", paddingBottom: "12px" }}>
-            {/* ブランド名（システムフォント） */}
+            {/* ブランド名 */}
             <div
                 style={{
                     fontSize: "2.1rem",
@@ -39,7 +34,7 @@ export default function AppHeader({ user }: AppHeaderProps) {
             </div>
 
             {/* Google ログイン・ログアウトボタン */}
-            <AuthButton user={user} />
+            <AuthButton />
         </header>
     );
 }

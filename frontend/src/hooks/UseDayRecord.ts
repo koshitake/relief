@@ -1,11 +1,10 @@
 "use client";
 
-// 指定日の記録をDBから読み書きするカスタムフックです。
+// 指定日の記録をAPIから読み書きするカスタムフックです。
 // 日付切り替え時は前のデータを維持したまま裏でfetchし、完了後に差し替えます。
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { DayRecord, createEmptyDayRecord } from "@/types/DayRecord";
-import { fetchDayRecord, upsertDayRecord } from "@/lib/DayRecordRepository";
 import { useAuth } from "@/hooks/UseAuth";
 
 // DB書き込みまでの待機時間（ms）
@@ -23,8 +22,7 @@ export function useDayRecord(day: string) {
     // debounce内で最新のrecordを参照するためのref（rerender-use-ref-transient-values）
     const recordRef = useRef<DayRecord>(record);
 
-    // 選択日またはユーザーが変わったらDBから読み込む
-    // 前のデータはそのまま表示し続け、fetch完了後に差し替えることでちらつきを防ぐ
+    // 選択日またはユーザーが変わったらAPIから読み込む
     useEffect(() => {
         isDirty.current = false;
 
@@ -35,28 +33,30 @@ export function useDayRecord(day: string) {
 
         let cancelled = false;
 
-        fetchDayRecord(day, userId).then((dbRecord) => {
-            if (cancelled) return;
-            const loaded = dbRecord ?? createEmptyDayRecord();
-            recordRef.current = loaded;
-            setRecord(loaded);
-        });
+        fetch(`/api/records/${day}`)
+            .then((r) => r.json())
+            .then((data: DayRecord | null) => {
+                if (cancelled) return;
+                const loaded = data ?? createEmptyDayRecord();
+                recordRef.current = loaded;
+                setRecord(loaded);
+            })
+            .catch(() => {
+                if (!cancelled) setRecord(createEmptyDayRecord());
+            });
 
         return () => {
             cancelled = true;
         };
     }, [day, userId]);
 
-    // ユーザーの入力によってrecordを更新する。
-    // debounceをuseEffect外で管理することで、recordを依存配列に持つuseEffectを不要にする（rerender-use-ref-transient-values）
-    // 関数パッチ(prev => patch)をサポートすることで、呼び出し元のstale closureを防ぐ
+    // ユーザーの入力によってrecordを更新する
     const updateRecord = useCallback(
         (patch: Partial<DayRecord> | ((prev: DayRecord) => Partial<DayRecord>)) => {
             isDirty.current = true;
-            setRecord((prev) => {
+            setRecord((prev: DayRecord) => {
                 const resolvedPatch = typeof patch === "function" ? patch(prev) : patch;
                 const next = { ...prev, ...resolvedPatch };
-                // setRecord内でrefを同期更新してdebounce側が最新値を参照できるようにする
                 recordRef.current = next;
                 return next;
             });
@@ -64,7 +64,11 @@ export function useDayRecord(day: string) {
             if (debounceTimer.current) clearTimeout(debounceTimer.current);
             debounceTimer.current = setTimeout(() => {
                 if (userId && isDirty.current) {
-                    upsertDayRecord(day, userId, recordRef.current);
+                    fetch(`/api/records/${day}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(recordRef.current),
+                    });
                 }
             }, DEBOUNCE_MS);
         },
