@@ -3,22 +3,22 @@
 // 接続確認後は削除してください。
 
 import { NextResponse } from "next/server";
-import supabase from "@/lib/SupabaseClient";
+import supabaseAdmin from "@/lib/SupabaseAdmin";
 
 export async function GET() {
     // 環境変数が未設定の場合
-    if (!supabase) {
+    if (!supabaseAdmin) {
         return NextResponse.json(
             {
                 status: "error",
-                message: "Supabase 環境変数が未設定です。NEXT_PUBLIC_SUPABASE_URL と NEXT_PUBLIC_SUPABASE_ANON_KEY を .env.local に設定してください。",
+                message: "Supabase 環境変数が未設定です。NEXT_PUBLIC_SUPABASE_URL と SUPABASE_SERVICE_ROLE_KEY を設定してください。",
             },
             { status: 500 }
         );
     }
 
     // day_records テーブルへの疎通確認（件数のみ取得）
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
         .from("day_records")
         .select("id", { count: "exact", head: true });
 
