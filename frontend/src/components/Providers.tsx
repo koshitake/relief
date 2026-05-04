@@ -1,12 +1,14 @@
 "use client";
 
-// Supabase Auth を使用するため、SessionProvider は不要になりました。
-// layout.tsx はサーバーコンポーネントのため、このラッパーコンポーネントは残しています。
+// NextAuth の SessionProvider でアプリ全体をラップします。
+// layout.tsx はサーバーコンポーネントのため、このクライアントラッパーが必要です。
+
+import { SessionProvider } from "next-auth/react";
 
 interface ProvidersProps {
     children: React.ReactNode;
 }
 
 export default function Providers({ children }: ProvidersProps) {
-    return <>{children}</>;
+    return <SessionProvider>{children}</SessionProvider>;
 }

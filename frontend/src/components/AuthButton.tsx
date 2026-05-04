@@ -1,52 +1,24 @@
 "use client";
 
 // Google ログイン・ログアウトボタンコンポーネントです。
-// Supabase Auth の Google OAuth を使用します。
+// NextAuth を使用します。メールアドレスは取得・表示しません。
 
-import { User } from "@supabase/supabase-js";
-import supabase from "@/lib/SupabaseClient";
+import { useSession, signIn, signOut } from "next-auth/react";
 
-interface AuthButtonProps {
-    user: User | null;
-}
+export default function AuthButton() {
+    const { data: session, status } = useSession();
 
-export default function AuthButton({ user }: AuthButtonProps) {
-    /** Google OAuth でログインする */
-    async function handleSignIn() {
-        if (!supabase) return;
+    if (status === "loading") return null;
 
-        // 環境変数でリダイレクト先を明示管理する（Open Redirect 対策）
-        // Supabase ダッシュボードの Redirect URLs 許可リストとも合わせること
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin;
-
-        await supabase.auth.signInWithOAuth({
-            provider: "google",
-            options: {
-                redirectTo: appUrl,
-            },
-        });
-    }
-
-    /** ログアウトする */
-    async function handleSignOut() {
-        if (!supabase) return;
-        await supabase.auth.signOut();
-    }
-
-    if (user) {
-        // Googleアカウントの表示名をニックネームとして使用する（メールアドレスは個人情報のため非表示）
-        const nickname = (user.user_metadata?.full_name as string | undefined)
-            ?? (user.user_metadata?.name as string | undefined)
-            ?? "ユーザー";
-
+    if (session?.user) {
         return (
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "10px" }}>
-                {/* ログイン中のニックネームを表示 */}
+                {/* ニックネーム（Google アカウントの表示名）を表示 */}
                 <span style={{ fontSize: "0.75rem", color: "var(--color-text-muted)", flex: 1 }}>
-                    {nickname}
+                    {session.user.name}
                 </span>
                 <button
-                    onClick={handleSignOut}
+                    onClick={() => signOut()}
                     style={{
                         background: "none",
                         border: "1px solid rgba(0, 122, 255, 0.4)",
@@ -67,7 +39,7 @@ export default function AuthButton({ user }: AuthButtonProps) {
 
     return (
         <button
-            onClick={handleSignIn}
+            onClick={() => signIn("google")}
             style={{
                 display: "flex",
                 alignItems: "center",
