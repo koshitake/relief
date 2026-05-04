@@ -34,11 +34,16 @@ export default function AuthButton({ user }: AuthButtonProps) {
     }
 
     if (user) {
+        // Googleアカウントの表示名をニックネームとして使用する（メールアドレスは個人情報のため非表示）
+        const nickname = (user.user_metadata?.full_name as string | undefined)
+            ?? (user.user_metadata?.name as string | undefined)
+            ?? "ユーザー";
+
         return (
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "10px" }}>
-                {/* ログイン中のメールアドレスを表示 */}
+                {/* ログイン中のニックネームを表示 */}
                 <span style={{ fontSize: "0.75rem", color: "var(--color-text-muted)", flex: 1 }}>
-                    {user.email ?? "（メールなし）"}
+                    {nickname}
                 </span>
                 <button
                     onClick={handleSignOut}
