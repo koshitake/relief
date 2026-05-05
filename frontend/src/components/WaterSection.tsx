@@ -58,9 +58,9 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
         setEditingTarget(true);
     }
 
-    // クイック選択: 量フィールドにプリセット値をセットする
+    // クイック選択: 既存の入力値に加算する
     function handleQuickSelect(amount: number) {
-        setEntryMl(String(amount));
+        setEntryMl((prev) => String((Number(prev) || 0) + amount));
     }
 
     // 任意入力: 量フィールドをクリアしてフォーカスする
@@ -285,7 +285,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                     ))}
                 </div>
 
-                {/* 量の数値フィールド + 追加ボタン */}
+                {/* 量の数値フィールド + クリア + 追加ボタン */}
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <input
                         ref={mlInputRef}
@@ -300,6 +300,24 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                         style={{ width: "90px", fontSize: "0.9rem" }}
                     />
                     <span style={{ fontSize: "0.8rem", color: "var(--color-text-muted)" }}>ml</span>
+                    {entryMl !== "" && (
+                        <button
+                            onClick={() => setEntryMl("")}
+                            aria-label="入力をクリア"
+                            style={{
+                                border: "none",
+                                background: "none",
+                                cursor: "pointer",
+                                color: "var(--color-text-muted)",
+                                fontSize: "1rem",
+                                lineHeight: 1,
+                                padding: "4px",
+                            }}
+                        >
+                            ×
+                        </button>
+                    )}
+
                     <button
                         onClick={handleAdd}
                         disabled={!canAdd}
