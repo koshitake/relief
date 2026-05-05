@@ -1,35 +1,49 @@
 "use client";
 
-// 広告バナーのプレースホルダーコンポーネントです。
+// 広告バナーコンポーネントです。
+// isActive = false のとき、開発確認用のモック表示を行います。
 // Google AdSense の審査通過後に isActive を true にして広告コードを差し込みます。
 
 interface AdBannerProps {
     slot: "top" | "bottom";
 }
 
+// AdSense 審査通過後に true に変更し、<ins> タグを追加する
+const IS_ACTIVE = false;
+
 export default function AdBanner({ slot }: AdBannerProps) {
-    // AdSense 審査通過後に true に変更し、<ins> タグを追加する
-    const isActive = false;
+    if (IS_ACTIVE) {
+        return (
+            <div data-slot={slot} style={{ width: "100%", margin: "8px 0" }}>
+                {/* ここに AdSense の <ins> タグを差し込む */}
+            </div>
+        );
+    }
 
-    if (!isActive) return null;
-
+    // 本番広告が未設定の間はモック表示（配置確認用）
     return (
         <div
             data-slot={slot}
             style={{
                 width: "100%",
-                minHeight: "50px",
+                height: "50px",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                background: "var(--color-input-bg)",
+                justifyContent: "space-between",
+                background: "repeating-linear-gradient(135deg, #f5f5f7 0px, #f5f5f7 6px, #e8e8ed 6px, #e8e8ed 12px)",
+                border: "1px dashed #c7c7cc",
                 borderRadius: "var(--radius-input)",
                 margin: "8px 0",
-                fontSize: "0.7rem",
-                color: "var(--color-text-muted)",
+                padding: "0 12px",
+                boxSizing: "border-box",
             }}
         >
-            {/* ここに AdSense の <ins> タグを差し込む */}
+            <span style={{ fontSize: "0.62rem", color: "#8e8e93", fontWeight: 600, letterSpacing: "0.05em" }}>
+                広告
+            </span>
+            <span style={{ fontSize: "0.6rem", color: "#aeaeb2" }}>
+                320 × 50（{slot}）
+            </span>
         </div>
     );
 }
