@@ -3,7 +3,7 @@
 // 水分摂取量セクションコンポーネントです。
 // 時刻（現在時刻・編集可）と量を入力してログとして追加する方式です。
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { DayRecord, WaterLog, calcTotalWaterMl } from "@/types/DayRecord";
 import { MAX_WATER_ML, MIN_WATER_TARGET_ML, MAX_WATER_TARGET_ML } from "@/constants/AppConstants";
 
@@ -113,6 +113,9 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
         },
         [updateRecord],
     );
+
+    // レンダリングごとに新配列を生成しないよう useMemo で記憶する（rerender-memo）
+    const reversedLogs = useMemo(() => [...record.waterLogs].reverse(), [record.waterLogs]);
 
     const totalMl = calcTotalWaterMl(record.waterLogs);
     const percent = Math.min(100, Math.max(0, (totalMl / waterTargetMl) * 100));
@@ -300,7 +303,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                         style={{ width: "90px", fontSize: "0.9rem" }}
                     />
                     <span style={{ fontSize: "0.8rem", color: "var(--color-text-muted)" }}>ml</span>
-                    {entryMl !== "" && (
+                    {entryMl !== "" ? (
                         <button
                             onClick={() => setEntryMl("")}
                             aria-label="入力をクリア"
@@ -316,7 +319,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                         >
                             ×
                         </button>
-                    )}
+                    ) : null}
 
                     <button
                         onClick={handleAdd}
@@ -341,14 +344,14 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
             </div>
 
             {/* 水分ログ一覧（記録がある場合のみ表示） */}
-            {record.waterLogs.length > 0 && (
+            {record.waterLogs.length > 0 ? (
                 <div>
                     <div style={{ fontSize: "0.72rem", color: "var(--color-text-muted)", marginBottom: "6px" }}>
                         記録一覧
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                        {[...record.waterLogs].reverse().map((log, reversedIndex) => {
-                        // 内部データは昇順のため、表示用に逆順にした際の元インデックスを計算する
+                        {/* reversedLogs は useMemo で記憶済み。元インデックスは全体長から逆算する */}
+                        {reversedLogs.map((log, reversedIndex) => {
                         const i = record.waterLogs.length - 1 - reversedIndex;
                         return (
                             <div
@@ -452,7 +455,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                         })}
                     </div>
                 </div>
-            )}
+            ) : null}
         </div>
     );
 }

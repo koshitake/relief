@@ -19,7 +19,9 @@ interface RecordTabProps {
 }
 
 export default function RecordTab({ day }: RecordTabProps) {
-    const { waterTargetMl, activeTab } = useAppStore();
+    // セレクターで必要な値だけ購読し、他の状態変化による不要な再レンダリングを防ぐ
+    const waterTargetMl = useAppStore((s) => s.waterTargetMl);
+    const activeTab = useAppStore((s) => s.activeTab);
     const { record, updateRecord } = useDayRecord(day);
     const { saveWaterTargetMl } = useUserSettings();
 

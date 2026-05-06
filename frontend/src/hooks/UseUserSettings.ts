@@ -1,28 +1,18 @@
 "use client";
 
-// ユーザー設定（目標水分量など）をAPIから読み書きするカスタムフックです。
-// ログイン時にAPIから設定を読み込んでストアに同期し、変更時はAPIに保存します。
+// ユーザー設定（目標水分量など）をAPIに保存するカスタムフックです。
+// 初回ロード時の読み込みは UseDayRecord が Promise.all で並列処理しているため、
+// このフックは保存処理のみ担当します。
 
-import { useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import { useAuth } from "@/hooks/UseAuth";
 import { useAppStore } from "@/store/UseAppStore";
 
 export function useUserSettings() {
     const { user } = useAuth();
-    const { setWaterTargetMl } = useAppStore();
+    // セレクターで必要な値だけ購読する（rerender-dependencies）
+    const setWaterTargetMl = useAppStore((s) => s.setWaterTargetMl);
     const userId = user?.id;
-
-    // ログイン時にAPIから設定を読み込んでストアに同期する
-    useEffect(() => {
-        if (!userId) return;
-
-        fetch("/api/settings")
-            .then((r) => r.json())
-            .then((data: { waterTargetMl?: number } | null) => {
-                if (data?.waterTargetMl) setWaterTargetMl(data.waterTargetMl);
-            })
-            .catch(() => {});
-    }, [userId, setWaterTargetMl]);
 
     // 目標水分量をAPIに保存しつつストアも更新する
     const saveWaterTargetMl = useCallback((ml: number) => {

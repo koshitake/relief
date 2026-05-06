@@ -11,6 +11,8 @@ interface AppState {
     waterTargetMl: number;
     /** 現在アクティブなタブ */
     activeTab: "summary" | "input";
+    /** ログイン中ユーザーの表示名。設定変更後に即時反映するためストアで管理する */
+    displayName: string;
 }
 
 interface AppActions {
@@ -20,6 +22,8 @@ interface AppActions {
     setWaterTargetMl: (ml: number) => void;
     /** タブを切り替える */
     setActiveTab: (tab: "summary" | "input") => void;
+    /** 表示名を更新する */
+    setDisplayName: (name: string) => void;
 }
 
 // 今日の日付を YYYY-MM-DD 形式で返す
@@ -31,6 +35,7 @@ export const useAppStore = create<AppState & AppActions>()((set) => ({
     selectedDay: getTodayString(),
     waterTargetMl: DEFAULT_WATER_TARGET_ML,
     activeTab: "summary",
+    displayName: "",
 
     setSelectedDay: (day: string) => set({ selectedDay: day }),
 
@@ -41,4 +46,6 @@ export const useAppStore = create<AppState & AppActions>()((set) => ({
     },
 
     setActiveTab: (tab: "summary" | "input") => set({ activeTab: tab }),
+
+    setDisplayName: (name: string) => set({ displayName: name }),
 }));
