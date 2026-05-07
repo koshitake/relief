@@ -23,14 +23,15 @@ export function middleware(request: NextRequest): NextResponse {
     const isLocal = getIsLocal();
 
     // ローカル: react-refresh が eval() を使うため unsafe-eval を許可する
-    // staging / production: nonce + strict-dynamic を使用する。
-    //   'unsafe-inline' を併記するのは意図的（CSP Level 3 の仕様による段階的移行）:
-    //   - モダンブラウザ (CSP3対応): strict-dynamic が優先され unsafe-inline は無視される
-    //   - 旧ブラウザ: strict-dynamic が未対応のため unsafe-inline がフォールバックになる
-    //   Next.js が内部のストリーミングスクリプトに nonce を自動付与しない環境での互換性を確保する
+    // staging / production: 'self' で同一オリジンスクリプトを許可し、
+    //   'unsafe-inline' でインラインスクリプトを許可する（変更前と同等の設定）。
+    //   nonce はヘッダーに含めるが、'strict-dynamic' は使用しない。
+    //   'strict-dynamic' は 'self' を無効化するため、Next.js の chunk スクリプトが
+    //   ブロックされる問題が発生する。nonce 専用 CSP への移行は Next.js 側の
+    //   自動 nonce 付与が確認できてから別途対応する。
     const scriptSrc = isLocal
         ? `'self' 'nonce-${nonce}' 'unsafe-eval' 'unsafe-inline'`
-        : `'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline'`;
+        : `'self' 'nonce-${nonce}' 'unsafe-inline'`;
 
     const csp = [
         "default-src 'self'",
