@@ -33,8 +33,23 @@ const securityHeaders = [
         key: "X-XSS-Protection",
         value: "1; mode=block",
     },
-    // CSP は src/middleware.ts で nonce ベースに動的生成するため、ここでは定義しない。
-    // （静的CSPとmiddlewareのCSPが重複すると 'unsafe-inline' が残存するリスクがあるため）
+    {
+        // ローカル: react-refresh が eval() を使うため unsafe-eval を許可する
+        // staging / production: 厳格な CSP を適用する
+        key: "Content-Security-Policy",
+        value: [
+            "default-src 'self'",
+            isLocal
+                ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+                : "script-src 'self' 'unsafe-inline'",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com",
+            "img-src 'self' data: https:",
+            "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com",
+            "frame-src https://accounts.google.com",
+            "frame-ancestors 'none'",
+        ].join("; "),
+    },
 ];
 
 // ローカルは HTTP のため HSTS を適用しない。staging / production は HTTPS なので有効にする
