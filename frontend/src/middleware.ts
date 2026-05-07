@@ -1,4 +1,8 @@
-// 現在このミドルウェアは何も処理せずスルーします。
-// nonce ベースの CSP 実装は Next.js の全スクリプトタグへの nonce 自動付与が
-// 確認できるまで保留し、CSP は next.config.ts で管理しています。
-export { } from "next/server";
+// CSP は next.config.ts で管理しています。
+// nonce ベースの CSP 実装は Next.js の全スクリプトへの nonce 自動付与が
+// 確認できるまで保留中のため、このミドルウェアは何も処理せずスルーします。
+import { NextResponse, type NextRequest } from "next/server";
+
+export function middleware(_request: NextRequest): NextResponse {
+    return NextResponse.next();
+}
