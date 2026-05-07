@@ -6,5 +6,11 @@ declare const process: {
         NEXT_PUBLIC_APP_URL?: string;
         NEXT_PUBLIC_SUPABASE_URL?: string;
         NEXT_PUBLIC_SUPABASE_ANON_KEY?: string;
+        // サーバーサイド専用（NEXT_PUBLIC_ なし = クライアントバンドルに含まない）
+        NEXTAUTH_SECRET?: string;
+        GOOGLE_CLIENT_ID?: string;
+        GOOGLE_CLIENT_SECRET?: string;
+        SUPABASE_SERVICE_ROLE_KEY?: string;
+        APP_ENV?: string;
     };
 };

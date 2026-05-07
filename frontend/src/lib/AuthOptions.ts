@@ -6,7 +6,15 @@ import { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import supabaseAdmin from "@/lib/SupabaseAdmin";
 
+// NEXTAUTH_SECRET が未設定のままデプロイされると JWT 偽造が可能になるため、起動時に検証する
+function requireSecret(): string {
+    const secret = process.env.NEXTAUTH_SECRET;
+    if (!secret) throw new Error("[Relief] NEXTAUTH_SECRET が設定されていません。環境変数を確認してください。");
+    return secret;
+}
+
 export const authOptions: NextAuthOptions = {
+    secret: requireSecret(),
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID ?? "",
