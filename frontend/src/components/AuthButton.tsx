@@ -4,18 +4,21 @@
 // NextAuth を使用します。メールアドレスは取得・表示しません。
 
 import { useSession, signIn, signOut } from "next-auth/react";
+import { useAppStore } from "@/store/UseAppStore";
 
 export default function AuthButton() {
     const { data: session, status } = useSession();
+    // 設定画面でニックネームを変更した場合に即時反映するためストアから取得する
+    const displayName = useAppStore((s) => s.displayName);
 
     if (status === "loading") return null;
 
     if (session?.user) {
         return (
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "10px" }}>
-                {/* ニックネーム（Google アカウントの表示名）を表示 */}
+                {/* ストアのニックネームを表示（設定変更後に即時反映される） */}
                 <span style={{ fontSize: "0.75rem", color: "var(--color-text-muted)", flex: 1 }}>
-                    {session.user.name}
+                    {displayName || session.user.name}
                 </span>
                 <button
                     onClick={() => signOut()}

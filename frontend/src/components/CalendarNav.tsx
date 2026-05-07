@@ -72,7 +72,9 @@ function getCalendarDays(
 }
 
 export default function CalendarNav() {
-    const { selectedDay, setSelectedDay } = useAppStore();
+    // セレクターで必要な値だけ購読し、他の状態変化による不要な再レンダリングを防ぐ
+    const selectedDay = useAppStore((s) => s.selectedDay);
+    const setSelectedDay = useAppStore((s) => s.setSelectedDay);
     const today = getTodayString();
     const isToday = selectedDay === today;
 
@@ -182,7 +184,7 @@ export default function CalendarNav() {
             </div>
 
             {/* カレンダーポップアップ */}
-            {calOpen && (
+            {calOpen ? (
                 <div className="card cal-popup">
                     {/* 月ナビゲーション */}
                     <div className="cal-header">
@@ -241,10 +243,10 @@ export default function CalendarNav() {
                         })}
                     </div>
                 </div>
-            )}
+            ) : null}
 
             {/* 今日以外を表示中のときだけ「今日」ショートカットを表示する */}
-            {!isToday && (
+            {!isToday ? (
                 <div style={{ textAlign: "center", marginTop: "8px" }}>
                     <button
                         className="btn-today"
@@ -257,7 +259,7 @@ export default function CalendarNav() {
                         今日
                     </button>
                 </div>
-            )}
+            ) : null}
         </div>
     );
 }

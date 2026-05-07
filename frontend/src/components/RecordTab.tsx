@@ -7,6 +7,7 @@ import { useAppStore } from "@/store/UseAppStore";
 import { useDayRecord } from "@/hooks/UseDayRecord";
 import { useUserSettings } from "@/hooks/UseUserSettings";
 import SummaryCard from "./SummaryCard";
+import MonthlyWaterChart from "./MonthlyWaterChart";
 import ItchSection from "./ItchSection";
 import WaterSection from "./WaterSection";
 import ExerciseSection from "./ExerciseSection";
@@ -19,7 +20,9 @@ interface RecordTabProps {
 }
 
 export default function RecordTab({ day }: RecordTabProps) {
-    const { waterTargetMl, activeTab } = useAppStore();
+    // セレクターで必要な値だけ購読し、他の状態変化による不要な再レンダリングを防ぐ
+    const waterTargetMl = useAppStore((s) => s.waterTargetMl);
+    const activeTab = useAppStore((s) => s.activeTab);
     const { record, updateRecord } = useDayRecord(day);
     const { saveWaterTargetMl } = useUserSettings();
 
@@ -29,6 +32,7 @@ export default function RecordTab({ day }: RecordTabProps) {
             /* 今日のまとめタブ */
             <div role="tabpanel">
                 <SummaryCard record={record} />
+                <MonthlyWaterChart />
             </div>
         ) : (
             /* 入力タブ: 各記録フォームを表示 */

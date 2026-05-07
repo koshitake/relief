@@ -132,5 +132,45 @@ export async function deleteOldDayRecords(
     }
 }
 
+/**
+ * 指定年月の記録を全件取得する（月次グラフ用）。
+ * 記録がない場合は空配列を返す。
+ */
+export async function fetchDayRecordsByMonth(
+    year: number,
+    month: number,
+    userId: string
+): Promise<Array<{ day: string; waterLogs: WaterLog[] }>> {
+    if (!supabase) return [];
+
+    const startDay = `${year}-${String(month).padStart(2, "0")}-01`;
+    // 翌月の1日を終端として、その日より前のデータを取得する
+    const endDay = month === 12
+        ? `${year + 1}-01-01`
+        : `${year}-${String(month + 1).padStart(2, "0")}-01`;
+
+    const { data, error } = await supabase
+        .from("day_records")
+        .select("day, water_logs")
+        .eq("user_id", userId)
+        .gte("day", startDay)
+        .lt("day", endDay)
+        .order("day", { ascending: true });
+
+    if (error) {
+        logDbError("fetchDayRecordsByMonth", error);
+        return [];
+    }
+
+    return (data ?? []).map((row) => {
+        const waterLogs: WaterLog[] = Array.isArray(row.water_logs)
+            ? (row.water_logs as Array<{ time: unknown; ml: unknown }>)
+                  .filter((log) => typeof log.time === "string" && typeof log.ml === "number")
+                  .map((log) => ({ time: log.time as string, ml: log.ml as number }))
+            : [];
+        return { day: row.day as string, waterLogs };
+    });
+}
+
 // DayRecord のエクスポート（他ファイルが import しやすいように再エクスポート）
 export { createEmptyDayRecord };
