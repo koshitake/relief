@@ -38,15 +38,11 @@ export default function HomePage() {
             {/* ダッシュボード（今日のまとめ / 入力 タブ切り替え） */}
             <RecordTab day={selectedDay} />
 
-            {/* 有料機能プレースホルダー */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "12px" }}>
+            {/* 有料機能プレースホルダー（日次アドバイスのみ） */}
+            <div style={{ marginTop: "12px" }}>
                 <PremiumSection
                     title="日次アドバイス"
                     description="今日の記録をもとにAIが肌ケアのアドバイスを生成します。"
-                />
-                <PremiumSection
-                    title="相談チャット"
-                    description="気になることをAIに相談できます。"
                 />
             </div>
 
