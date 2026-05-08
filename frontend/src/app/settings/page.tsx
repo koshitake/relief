@@ -3,6 +3,7 @@
 // 設定画面です。ニックネーム変更と有料プランへのアップグレードができます。
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { useAppStore } from "@/store/UseAppStore";
 import { useAuth } from "@/hooks/UseAuth";
 
@@ -23,6 +24,7 @@ const PLANS = [
 ] as const;
 
 export default function SettingsPage() {
+    const { update } = useSession();
     const { user, loading } = useAuth();
     const displayName = useAppStore((s) => s.displayName);
     const setDisplayName = useAppStore((s) => s.setDisplayName);
@@ -53,6 +55,8 @@ export default function SettingsPage() {
         if (res.ok) {
             setDisplayName(trimmed);
             setSaveResult("success");
+            // JWTトークンを更新して、リロード後も最新のニックネームが反映されるようにする
+            await update();
         } else {
             setSaveResult("error");
         }

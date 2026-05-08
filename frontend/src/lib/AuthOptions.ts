@@ -28,9 +28,23 @@ export const authOptions: NextAuthOptions = {
         }),
     ],
     callbacks: {
-        // JWT 生成時（初回サインイン時のみ account が存在する）:
-        // 既存ユーザーはDBのニックネームを使い、新規ユーザーのみ Google 名をデフォルトとして INSERT する
-        async jwt({ token, account, profile }: { token: JWT; account: Account | null; profile?: Profile }) {
+        // JWT 生成・更新時の処理:
+        // - 初回サインイン（account あり）: DBにユーザーを登録してニックネームをトークンに保存する
+        // - セッション更新（trigger === "update"）: DBから最新のニックネームを取得してトークンに反映する
+        async jwt({ token, account, profile, trigger }: { token: JWT; account: Account | null; profile?: Profile; trigger?: string }) {
+            if (trigger === "update" && supabaseAdmin && token.userId) {
+                // ニックネーム変更後に呼ばれるセッション更新: DBから最新の表示名を取得する
+                const { data } = await supabaseAdmin
+                    .from("users")
+                    .select("display_name")
+                    .eq("id", token.userId as string)
+                    .maybeSingle();
+                if (data) {
+                    token.name = data.display_name as string;
+                }
+                return token;
+            }
+
             if (account && supabaseAdmin) {
                 const googleSub = account.providerAccountId;
                 const googleName = (profile as { name?: string })?.name ?? "ユーザー";
