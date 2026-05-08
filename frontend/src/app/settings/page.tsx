@@ -12,19 +12,13 @@ const PLANS = [
         key: "standard",
         name: "Standard",
         price: "準備中",
-        features: ["広告非表示", "1ヶ月間記録", "データエクスポート"],
+        features: ["広告非表示", "1年間記録", "データエクスポート"],
     },
     {
         key: "pro",
         name: "Pro",
         price: "準備中",
-        features: ["Standard の全機能", "AI機能 月10回", "食事推定・日次アドバイス・相談チャット"],
-    },
-    {
-        key: "full",
-        name: "Full",
-        price: "準備中",
-        features: ["Pro の全機能", "AI機能 月100回"],
+        features: ["Standard の全機能", "AI機能 月60回", "食事推定・日次アドバイス"],
     },
 ] as const;
 
