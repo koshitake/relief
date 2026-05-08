@@ -1,8 +1,8 @@
 // アプリ全体で使用する定数を一元管理するファイルです。
 // 数値や文字列を直接コードに書く（ハードコード）のを避けるため定数化しています。
 
-// 無料プランで保持する記録の最大日数
-export const MAX_RECORD_DAYS = 14;
+// 無料プランで保持する記録の最大日数（1ヶ月分）
+export const MAX_RECORD_DAYS = 31;
 
 // かゆみスコアの最大値
 export const MAX_ITCH_SCORE = 10;

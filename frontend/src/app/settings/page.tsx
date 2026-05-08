@@ -148,7 +148,7 @@ export default function SettingsPage() {
                         無料プラン
                     </span>
                     <span style={{ fontSize: "0.72rem", color: "var(--color-text-muted)" }}>
-                        14日間記録
+                        1ヶ月間記録
                     </span>
                 </div>
 
