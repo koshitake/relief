@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useAppStore } from "@/store/UseAppStore";
 import { useAuth } from "@/hooks/UseAuth";
+import { useUserSettings } from "@/hooks/UseUserSettings";
+import { MIN_CARBS_TARGET_G, MAX_CARBS_TARGET_G, MIN_SALT_TARGET_G, MAX_SALT_TARGET_G } from "@/constants/AppConstants";
 
 // 有料プランの定義
 const PLANS = [
@@ -13,25 +15,37 @@ const PLANS = [
         key: "standard",
         name: "Standard",
         price: "準備中",
-        features: ["広告非表示", "1年間記録", "データエクスポート"],
+        features: ["広告非表示", "データバックアップ"],
     },
     {
         key: "pro",
         name: "Pro",
         price: "準備中",
-        features: ["Standard の全機能", "AI機能 月60回", "食事推定・日次アドバイス"],
+        features: ["Standard の全機能", "AI機能 月60回（食事推定・日次アドバイス）"],
     },
 ] as const;
 
 export default function SettingsPage() {
     const { update } = useSession();
     const { user, loading } = useAuth();
+    const { saveNutritionTargets } = useUserSettings();
     const displayName = useAppStore((s) => s.displayName);
     const setDisplayName = useAppStore((s) => s.setDisplayName);
+    const carbsTargetG = useAppStore((s) => s.carbsTargetG);
+    const saltTargetG = useAppStore((s) => s.saltTargetG);
 
     const [nicknameInput, setNicknameInput] = useState(displayName);
     const [saving, setSaving] = useState(false);
     const [saveResult, setSaveResult] = useState<"success" | "error" | null>(null);
+
+    const [carbsInput, setCarbsInput] = useState(carbsTargetG);
+    const [saltInput, setSaltInput] = useState(saltTargetG);
+    const [nutritionSaving, setNutritionSaving] = useState(false);
+    const [nutritionSaveResult, setNutritionSaveResult] = useState<"success" | "error" | null>(null);
+
+    // DBからストアに設定が読み込まれたら入力欄を同期する
+    useEffect(() => { setCarbsInput(carbsTargetG); }, [carbsTargetG]);
+    useEffect(() => { setSaltInput(saltTargetG); }, [saltTargetG]);
 
     // ストアのニックネームが更新されたら入力欄を同期する
     useEffect(() => {
@@ -59,6 +73,24 @@ export default function SettingsPage() {
             await update();
         } else {
             setSaveResult("error");
+        }
+    }
+
+    async function handleNutritionTargetSave() {
+        const carbs = Number(carbsInput);
+        const salt = Number(saltInput);
+        if (carbs < MIN_CARBS_TARGET_G || carbs > MAX_CARBS_TARGET_G) return;
+        if (salt < MIN_SALT_TARGET_G || salt > MAX_SALT_TARGET_G) return;
+
+        setNutritionSaving(true);
+        setNutritionSaveResult(null);
+        try {
+            saveNutritionTargets(carbs, salt);
+            setNutritionSaveResult("success");
+        } catch {
+            setNutritionSaveResult("error");
+        } finally {
+            setNutritionSaving(false);
         }
     }
 
@@ -134,6 +166,87 @@ export default function SettingsPage() {
                 ) : null}
             </div>
 
+            {/* 目標設定 */}
+            <div className="card" style={{ marginBottom: "12px" }}>
+                <div className="section-label">目標設定</div>
+
+                {/* 糖質目標 */}
+                <div style={{ marginBottom: "12px" }}>
+                    <label
+                        htmlFor="carbs-target"
+                        style={{ display: "block", fontSize: "0.8rem", color: "var(--color-text-secondary)", marginBottom: "6px" }}
+                    >
+                        糖質 1日の目標
+                    </label>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <input
+                            id="carbs-target"
+                            type="number"
+                            value={carbsInput}
+                            onChange={(e) => { setCarbsInput(Number(e.target.value)); setNutritionSaveResult(null); }}
+                            min={MIN_CARBS_TARGET_G}
+                            max={MAX_CARBS_TARGET_G}
+                            step={1}
+                            style={{ flex: 1, fontSize: "0.9rem" }}
+                        />
+                        <span style={{ fontSize: "0.9rem", color: "var(--color-text-muted)" }}>g</span>
+                    </div>
+                </div>
+
+                {/* 塩分目標 */}
+                <div style={{ marginBottom: "12px" }}>
+                    <label
+                        htmlFor="salt-target"
+                        style={{ display: "block", fontSize: "0.8rem", color: "var(--color-text-secondary)", marginBottom: "6px" }}
+                    >
+                        塩分 1日の目標
+                    </label>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <input
+                            id="salt-target"
+                            type="number"
+                            value={saltInput}
+                            onChange={(e) => { setSaltInput(Number(e.target.value)); setNutritionSaveResult(null); }}
+                            min={MIN_SALT_TARGET_G}
+                            max={MAX_SALT_TARGET_G}
+                            step={0.5}
+                            style={{ flex: 1, fontSize: "0.9rem" }}
+                        />
+                        <span style={{ fontSize: "0.9rem", color: "var(--color-text-muted)" }}>g</span>
+                    </div>
+                </div>
+
+                <button
+                    onClick={handleNutritionTargetSave}
+                    disabled={nutritionSaving}
+                    style={{
+                        width: "100%",
+                        border: "none",
+                        background: "var(--color-accent)",
+                        color: "#fff",
+                        borderRadius: "var(--radius-pill)",
+                        padding: "10px",
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                        opacity: nutritionSaving ? 0.4 : 1,
+                    }}
+                >
+                    {nutritionSaving ? "保存中…" : "目標を保存"}
+                </button>
+                {nutritionSaveResult === "success" && (
+                    <p style={{ fontSize: "0.75rem", color: "#34C759", margin: "8px 0 0" }}>
+                        目標を保存しました
+                    </p>
+                )}
+                {nutritionSaveResult === "error" && (
+                    <p style={{ fontSize: "0.75rem", color: "#FF3B30", margin: "8px 0 0" }}>
+                        保存に失敗しました。もう一度お試しください
+                    </p>
+                )}
+            </div>
+
             {/* プラン */}
             <div style={{ marginBottom: "4px" }}>
                 <div style={{
@@ -152,7 +265,7 @@ export default function SettingsPage() {
                         無料プラン
                     </span>
                     <span style={{ fontSize: "0.72rem", color: "var(--color-text-muted)" }}>
-                        1ヶ月間記録
+                        広告表示
                     </span>
                 </div>
 
@@ -219,7 +332,7 @@ export default function SettingsPage() {
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div>
                             <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--color-text-primary)" }}>
-                                データエクスポート
+                                データバックアップ
                             </div>
                             <div style={{ fontSize: "0.72rem", color: "var(--color-text-muted)", marginTop: "2px" }}>
                                 Standard プラン以上で利用可能

@@ -7,7 +7,6 @@ import { useAppStore } from "@/store/UseAppStore";
 import { useDayRecord } from "@/hooks/UseDayRecord";
 import { useUserSettings } from "@/hooks/UseUserSettings";
 import SummaryCard from "./SummaryCard";
-import MonthlyWaterChart from "./MonthlyWaterChart";
 import ItchSection from "./ItchSection";
 import WaterSection from "./WaterSection";
 import ExerciseSection from "./ExerciseSection";
@@ -32,7 +31,6 @@ export default function RecordTab({ day }: RecordTabProps) {
             /* 今日のまとめタブ */
             <div role="tabpanel">
                 <SummaryCard record={record} />
-                <MonthlyWaterChart />
             </div>
         ) : (
             /* 入力タブ: 各記録フォームを表示 */

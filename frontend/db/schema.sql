@@ -27,6 +27,8 @@ CREATE TABLE IF NOT EXISTS day_records (
     exercise_text TEXT        NOT NULL DEFAULT '',
     note          TEXT        NOT NULL DEFAULT '',
     meals_text    TEXT        NOT NULL DEFAULT '',
+    carbs_g       NUMERIC,                          -- 糖質（g）手動入力。NULL は未入力
+    salt_g        NUMERIC,                          -- 塩分（g）手動入力。NULL は未入力
     created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     -- 1ユーザーにつき1日1レコードを保証する（upsert の重複判定に使用）
@@ -36,7 +38,9 @@ CREATE TABLE IF NOT EXISTS day_records (
 -- ユーザー設定テーブル
 CREATE TABLE IF NOT EXISTS user_settings (
     user_id         UUID        PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    water_target_ml INTEGER     NOT NULL DEFAULT 2000,
+    water_target_ml INTEGER     NOT NULL DEFAULT 1500,
+    carbs_target_g  NUMERIC     NOT NULL DEFAULT 130,
+    salt_target_g   NUMERIC     NOT NULL DEFAULT 10,
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -69,3 +73,17 @@ CREATE OR REPLACE TRIGGER user_settings_updated_at
 
 CREATE INDEX IF NOT EXISTS idx_day_records_user_day ON day_records (user_id, day);
 CREATE INDEX IF NOT EXISTS idx_users_google_sub ON users (google_sub);
+
+-- =====================================================================
+-- マイグレーション（既存 DB に対して実行）
+-- =====================================================================
+
+-- day_records に糖質・塩分カラムを追加（新規作成済みの場合はスキップされる）
+ALTER TABLE day_records
+    ADD COLUMN IF NOT EXISTS carbs_g NUMERIC,
+    ADD COLUMN IF NOT EXISTS salt_g  NUMERIC;
+
+-- user_settings に糖質・塩分目標カラムを追加（新規作成済みの場合はスキップされる）
+ALTER TABLE user_settings
+    ADD COLUMN IF NOT EXISTS carbs_target_g NUMERIC NOT NULL DEFAULT 130,
+    ADD COLUMN IF NOT EXISTS salt_target_g  NUMERIC NOT NULL DEFAULT 10;
