@@ -193,7 +193,8 @@ export default function MonthlyWaterChart() {
                                 y={y + 1}
                                 textAnchor="end"
                                 fontSize={2.5}
-                                fill="var(--color-text-muted)"
+                                fontWeight="bold"
+                                fill="#333333"
                             >
                                 {label}
                             </text>
