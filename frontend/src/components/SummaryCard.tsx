@@ -1,100 +1,133 @@
 "use client";
 
-// 今日のサマリーカードコンポーネントです。
-// かゆみ・水分・糖質・塩分の4指標をプログレスバー付きで表示します。
-// 「今日のまとめ」というタイトルは呼び出し側のタブラベルで表示するため、このコンポーネントでは持ちません。
+// 今日のまとめカードコンポーネントです。
+// 水分・月次グラフ・運動・かゆみ/糖質/塩分を仕様の順で縦に並べて表示します。
 
-import { memo } from "react";
 import { DayRecord, calcTotalWaterMl } from "@/types/DayRecord";
-import { MAX_ITCH_SCORE, CARBS_TARGET_G, SALT_TARGET_G } from "@/constants/AppConstants";
+import { MAX_ITCH_SCORE } from "@/constants/AppConstants";
 import { useAppStore } from "@/store/UseAppStore";
+import MonthlyWaterChart from "./MonthlyWaterChart";
 
 interface SummaryCardProps {
     record: DayRecord;
 }
 
-interface MetricCardProps {
-    label: string;
-    value: string | number;
-    unit: string;
-    barPercent: number;
-}
-
-// rerender-memo: props が変わらない限り再レンダリングをスキップする
-const MetricCard = memo(function MetricCard({ label, value, unit, barPercent }: MetricCardProps) {
-    const clampedPercent = Math.min(100, Math.max(0, barPercent));
+export default function SummaryCard({ record }: SummaryCardProps) {
+    const waterTargetMl = useAppStore((s) => s.waterTargetMl);
+    const carbsTargetG = useAppStore((s) => s.carbsTargetG);
+    const saltTargetG = useAppStore((s) => s.saltTargetG);
+    const totalWaterMl = calcTotalWaterMl(record.waterLogs);
+    const waterPercent = Math.min(100, Math.round((totalWaterMl / waterTargetMl) * 100));
 
     return (
-        <div className="metric-card">
-            <div className="metric-card-accent" />
-            <div className="metric-card-body">
-                <div className="metric-label">{label}</div>
-                <div className="metric-value">
-                    {value}
-                    <span className="metric-unit">{unit}</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+
+            {/* 1. 水分（1枠） */}
+            <div className="card">
+                <div className="section-label">💧 水分</div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: "4px", margin: "6px 0 10px" }}>
+                    <span style={{ fontSize: "2rem", fontWeight: 700, color: "var(--color-text-primary)" }}>
+                        {totalWaterMl.toLocaleString()}
+                    </span>
+                    <span style={{ fontSize: "0.9rem", color: "var(--color-text-muted)" }}>ml</span>
+                    <span style={{ fontSize: "0.8rem", color: "var(--color-text-muted)", marginLeft: "6px" }}>
+                        / {waterTargetMl.toLocaleString()}ml
+                    </span>
                 </div>
-                <div className="metric-bar-track">
+                <div style={{ background: "var(--color-border)", borderRadius: "4px", height: "8px", overflow: "hidden" }}>
                     <div
-                        className="metric-bar-fill"
-                        style={{ width: `${clampedPercent}%` }}
+                        style={{
+                            width: `${waterPercent}%`,
+                            height: "100%",
+                            background: "var(--color-accent)",
+                            borderRadius: "4px",
+                            transition: "width 0.3s ease",
+                        }}
+                    />
+                </div>
+                <div style={{ fontSize: "0.72rem", color: "var(--color-text-muted)", marginTop: "4px", textAlign: "right" }}>
+                    {waterPercent}%
+                </div>
+            </div>
+
+            {/* 2. 月次水分グラフ（1枠） */}
+            <MonthlyWaterChart />
+
+            {/* 3. 運動（1枠） */}
+            <div className="card">
+                <div className="section-label">🏃 運動</div>
+                <div style={{
+                    fontSize: "0.9rem",
+                    color: record.exerciseText?.trim() ? "var(--color-text-primary)" : "var(--color-text-muted)",
+                    marginTop: "6px",
+                }}>
+                    {record.exerciseText?.trim() || "未記録"}
+                </div>
+            </div>
+
+            {/* 4. かゆみ / 糖質 / 塩分（1枠・3列） */}
+            <div className="card">
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", textAlign: "center" }}>
+                    <MetricColumn
+                        label="かゆみ"
+                        value={record.itchScore}
+                        unit="/10"
+                        percent={(record.itchScore / MAX_ITCH_SCORE) * 100}
+                        barColor="#FF3B30"
+                    />
+                    <MetricColumn
+                        label="糖質"
+                        value={record.carbsG !== undefined ? record.carbsG : "—"}
+                        unit="g"
+                        percent={record.carbsG !== undefined ? (record.carbsG / carbsTargetG) * 100 : 0}
+                        barColor="#FF9500"
+                    />
+                    <MetricColumn
+                        label="塩分"
+                        value={record.saltG !== undefined ? record.saltG : "—"}
+                        unit="g"
+                        percent={record.saltG !== undefined ? (record.saltG / saltTargetG) * 100 : 0}
+                        barColor="#34C759"
                     />
                 </div>
             </div>
         </div>
     );
-});
+}
 
-export default function SummaryCard({ record }: SummaryCardProps) {
-    const waterTargetMl = useAppStore((state) => state.waterTargetMl);
-    const totalWaterMl = calcTotalWaterMl(record.waterLogs);
+interface MetricColumnProps {
+    label: string;
+    value: string | number;
+    unit: string;
+    percent: number;
+    barColor: string;
+}
 
+function MetricColumn({ label, value, unit, percent, barColor }: MetricColumnProps) {
+    const clamped = Math.min(100, Math.max(0, percent));
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {/* かゆみ・水分・糖質・塩分 の4指標グリッド */}
-            <div className="metric-grid">
-                <MetricCard
-                    label="かゆみ"
-                    value={record.itchScore}
-                    unit="/10"
-                    barPercent={(record.itchScore / MAX_ITCH_SCORE) * 100}
-                />
-                <MetricCard
-                    label="水分"
-                    value={totalWaterMl.toLocaleString()}
-                    unit="ml"
-                    barPercent={(totalWaterMl / waterTargetMl) * 100}
-                />
-                <MetricCard
-                    label="糖質"
-                    value={record.carbsG !== undefined ? record.carbsG : "—"}
-                    unit="g"
-                    barPercent={record.carbsG !== undefined ? (record.carbsG / CARBS_TARGET_G) * 100 : 0}
-                />
-                <MetricCard
-                    label="塩分"
-                    value={record.saltG !== undefined ? record.saltG : "—"}
-                    unit="g"
-                    barPercent={record.saltG !== undefined ? (record.saltG / SALT_TARGET_G) * 100 : 0}
-                />
+        <div>
+            <div style={{ fontSize: "0.72rem", color: "var(--color-text-muted)", marginBottom: "4px" }}>
+                {label}
             </div>
-
-            {/* 運動内容（記録がある場合のみ表示） */}
-            {record.exerciseText?.trim() ? (
-                <div
-                    className="card"
-                    style={{
-                        fontSize: "0.82rem",
-                        color: "var(--color-text-secondary)",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "12px 14px",
-                    }}
-                >
-                    <span>🏃</span>
-                    <span>運動: {record.exerciseText}</span>
-                </div>
-            ) : null}
+            <div style={{ fontSize: "1.4rem", fontWeight: 700, color: "var(--color-text-primary)" }}>
+                {value}
+            </div>
+            <div style={{ fontSize: "0.72rem", color: "var(--color-text-muted)" }}>{unit}</div>
+            <div style={{
+                background: "var(--color-border)",
+                borderRadius: "4px",
+                height: "4px",
+                overflow: "hidden",
+                marginTop: "6px",
+            }}>
+                <div style={{
+                    width: `${clamped}%`,
+                    height: "100%",
+                    background: barColor,
+                    borderRadius: "4px",
+                }} />
+            </div>
         </div>
     );
 }

@@ -6,10 +6,17 @@ import { z } from "zod";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/AuthOptions";
 import { fetchUserSettings, upsertUserSettings } from "@/lib/UserSettingsRepository";
-import { MIN_WATER_TARGET_ML, MAX_WATER_TARGET_ML } from "@/constants/AppConstants";
+import {
+    MIN_WATER_TARGET_ML, MAX_WATER_TARGET_ML,
+    MIN_CARBS_TARGET_G, MAX_CARBS_TARGET_G,
+    MIN_SALT_TARGET_G, MAX_SALT_TARGET_G,
+} from "@/constants/AppConstants";
 
+// 各フィールドはオプション（更新したい項目だけ送信できる）
 const settingsSchema = z.object({
-    waterTargetMl: z.number().int().min(MIN_WATER_TARGET_ML).max(MAX_WATER_TARGET_ML),
+    waterTargetMl: z.number().min(MIN_WATER_TARGET_ML).max(MAX_WATER_TARGET_ML).optional(),
+    carbsTargetG: z.number().min(MIN_CARBS_TARGET_G).max(MAX_CARBS_TARGET_G).optional(),
+    saltTargetG: z.number().min(MIN_SALT_TARGET_G).max(MAX_SALT_TARGET_G).optional(),
 });
 
 /** ユーザー設定を取得する */
@@ -35,6 +42,6 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
         return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
-    await upsertUserSettings(session.user.id, { waterTargetMl: result.data.waterTargetMl });
+    await upsertUserSettings(session.user.id, result.data);
     return NextResponse.json({ ok: true });
 }
