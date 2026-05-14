@@ -6,6 +6,7 @@
 import { DayRecord, calcTotalWaterMl } from "@/types/DayRecord";
 import { MAX_ITCH_SCORE } from "@/constants/AppConstants";
 import { useAppStore } from "@/store/UseAppStore";
+import { useTranslations } from "@/hooks/UseTranslations";
 import MonthlyWaterChart from "./MonthlyWaterChart";
 
 interface SummaryCardProps {
@@ -16,6 +17,7 @@ export default function SummaryCard({ record }: SummaryCardProps) {
     const waterTargetMl = useAppStore((s) => s.waterTargetMl);
     const carbsTargetG = useAppStore((s) => s.carbsTargetG);
     const saltTargetG = useAppStore((s) => s.saltTargetG);
+    const t = useTranslations();
     const totalWaterMl = calcTotalWaterMl(record.waterLogs);
     const waterPercent = Math.min(100, Math.round((totalWaterMl / waterTargetMl) * 100));
 
@@ -24,7 +26,7 @@ export default function SummaryCard({ record }: SummaryCardProps) {
 
             {/* 1. 水分（1枠） */}
             <div className="card">
-                <div className="section-label">💧 水分</div>
+                <div className="section-label">{t.summary.water}</div>
                 <div style={{ display: "flex", alignItems: "baseline", gap: "4px", margin: "6px 0 10px" }}>
                     <span style={{ fontSize: "2rem", fontWeight: 700, color: "var(--color-text-primary)" }}>
                         {totalWaterMl.toLocaleString()}
@@ -55,13 +57,13 @@ export default function SummaryCard({ record }: SummaryCardProps) {
 
             {/* 3. 運動（1枠） */}
             <div className="card">
-                <div className="section-label">🏃 運動</div>
+                <div className="section-label">{t.summary.exercise}</div>
                 <div style={{
                     fontSize: "0.9rem",
                     color: record.exerciseText?.trim() ? "var(--color-text-primary)" : "var(--color-text-muted)",
                     marginTop: "6px",
                 }}>
-                    {record.exerciseText?.trim() || "未記録"}
+                    {record.exerciseText?.trim() || t.summary.noRecord}
                 </div>
             </div>
 
@@ -69,21 +71,21 @@ export default function SummaryCard({ record }: SummaryCardProps) {
             <div className="card">
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", textAlign: "center" }}>
                     <MetricColumn
-                        label="かゆみ"
+                        label={t.summary.itch}
                         value={record.itchScore}
                         unit="/10"
                         percent={(record.itchScore / MAX_ITCH_SCORE) * 100}
                         barColor="#FF3B30"
                     />
                     <MetricColumn
-                        label="糖質"
+                        label={t.summary.carbs}
                         value={record.carbsG !== undefined ? record.carbsG : "—"}
                         unit="g"
                         percent={record.carbsG !== undefined ? (record.carbsG / carbsTargetG) * 100 : 0}
                         barColor="#FF9500"
                     />
                     <MetricColumn
-                        label="塩分"
+                        label={t.summary.salt}
                         value={record.saltG !== undefined ? record.saltG : "—"}
                         unit="g"
                         percent={record.saltG !== undefined ? (record.saltG / saltTargetG) * 100 : 0}

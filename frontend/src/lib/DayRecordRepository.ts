@@ -172,5 +172,83 @@ export async function fetchDayRecordsByMonth(
     });
 }
 
+/**
+ * ユーザーの全記録を取得する（バックアップ用）。
+ * carbs_g / salt_g を含む全フィールドを返す。
+ * Supabase 未設定の場合は空配列を返す。
+ */
+export async function fetchAllDayRecords(
+    userId: string
+): Promise<Array<{ day: string } & DayRecord>> {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+        .from("day_records")
+        .select("day, itch_area, itch_score, water_logs, exercise_text, note, meals_text, carbs_g, salt_g")
+        .eq("user_id", userId)
+        .order("day", { ascending: true });
+
+    if (error) {
+        logDbError("fetchAllDayRecords", error);
+        return [];
+    }
+
+    return (data ?? []).map((row) => {
+        const waterLogs: WaterLog[] = Array.isArray(row.water_logs)
+            ? (row.water_logs as Array<{ time: unknown; ml: unknown }>)
+                  .filter((log) => typeof log.time === "string" && typeof log.ml === "number")
+                  .map((log) => ({ time: log.time as string, ml: log.ml as number }))
+            : [];
+
+        return {
+            day:          String(row.day),
+            itchArea:     String(row.itch_area ?? ""),
+            itchScore:    Number(row.itch_score ?? 0),
+            waterLogs,
+            exerciseText: String(row.exercise_text ?? ""),
+            note:         String(row.note ?? ""),
+            mealsText:    String(row.meals_text ?? ""),
+            carbsG:       row.carbs_g != null ? Number(row.carbs_g) : undefined,
+            saltG:        row.salt_g  != null ? Number(row.salt_g)  : undefined,
+        };
+    });
+}
+
+/**
+ * 複数日の記録を一括 upsert する（復元用）。
+ * UNIQUE(user_id, day) 制約を利用して重複を上書きする。
+ * Supabase 未設定または空配列の場合は何もしない。
+ */
+export async function batchUpsertDayRecords(
+    userId: string,
+    records: Array<{ day: string } & DayRecord>
+): Promise<void> {
+    if (!supabase || records.length === 0) return;
+
+    const rows = records.map((r) => ({
+        user_id:       userId,
+        day:           r.day,
+        itch_area:     r.itchArea,
+        itch_score:    r.itchScore,
+        water_ml:      calcTotalWaterMl(r.waterLogs),
+        water_logs:    r.waterLogs,
+        exercise_text: r.exerciseText,
+        note:          r.note,
+        meals_text:    r.mealsText,
+        carbs_g:       r.carbsG ?? null,
+        salt_g:        r.saltG  ?? null,
+        updated_at:    new Date().toISOString(),
+    }));
+
+    const { error } = await supabase
+        .from("day_records")
+        .upsert(rows, { onConflict: "user_id,day", ignoreDuplicates: false });
+
+    if (error) {
+        logDbError("batchUpsertDayRecords", error);
+        throw new Error("Batch upsert failed");
+    }
+}
+
 // DayRecord のエクスポート（他ファイルが import しやすいように再エクスポート）
 export { createEmptyDayRecord };

@@ -4,8 +4,10 @@
 // ブランド名・サブタイトル・認証ボタンを表示します。
 
 import AuthButton from "@/components/AuthButton";
+import { useTranslations } from "@/hooks/UseTranslations";
 
 export default function AppHeader() {
+    const t = useTranslations();
     return (
         <header style={{ paddingTop: "24px", paddingBottom: "12px" }}>
             {/* ブランド名 */}
@@ -30,7 +32,7 @@ export default function AppHeader() {
                     marginBottom: "12px",
                 }}
             >
-                アトピーのための毎日の記録をサポート
+                {t.header.tagline}
             </div>
 
             {/* Google ログイン・ログアウトボタン */}

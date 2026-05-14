@@ -3,6 +3,8 @@
 // 有料機能のプレースホルダーカードコンポーネントです。
 // 日次アドバイスなどの未実装有料機能を表示します。
 
+import { useTranslations } from "@/hooks/UseTranslations";
+
 interface PremiumSectionProps {
     /** セクションタイトル */
     title: string;
@@ -11,6 +13,8 @@ interface PremiumSectionProps {
 }
 
 export default function PremiumSection({ title, description }: PremiumSectionProps) {
+    const t = useTranslations();
+
     return (
         <div
             className="card"
@@ -39,7 +43,7 @@ export default function PremiumSection({ title, description }: PremiumSectionPro
             >
                 {description}
                 <br />
-                有料機能・近日公開予定
+                {t.premium.comingSoon}
             </div>
         </div>
     );

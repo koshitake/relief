@@ -17,6 +17,8 @@ const settingsSchema = z.object({
     waterTargetMl: z.number().min(MIN_WATER_TARGET_ML).max(MAX_WATER_TARGET_ML).optional(),
     carbsTargetG: z.number().min(MIN_CARBS_TARGET_G).max(MAX_CARBS_TARGET_G).optional(),
     saltTargetG: z.number().min(MIN_SALT_TARGET_G).max(MAX_SALT_TARGET_G).optional(),
+    locale: z.enum(["ja", "en"]).optional(),
+    plan: z.enum(["free", "standard", "pro"]).optional(),
 });
 
 /** ユーザー設定を取得する */

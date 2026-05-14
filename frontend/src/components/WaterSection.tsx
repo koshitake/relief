@@ -6,6 +6,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { DayRecord, WaterLog, calcTotalWaterMl } from "@/types/DayRecord";
 import { MAX_WATER_ML, MIN_WATER_TARGET_ML, MAX_WATER_TARGET_ML } from "@/constants/AppConstants";
+import { useTranslations } from "@/hooks/UseTranslations";
 
 interface WaterSectionProps {
     record: DayRecord;
@@ -30,6 +31,7 @@ function getCurrentTime(): string {
 }
 
 export default function WaterSection({ record, updateRecord, waterTargetMl, setWaterTargetMl }: WaterSectionProps) {
+    const t = useTranslations();
     // 目標設定の編集モード
     const [editingTarget, setEditingTarget] = useState(false);
     const [targetInput, setTargetInput] = useState(String(waterTargetMl));
@@ -123,7 +125,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
 
     return (
         <div className="card">
-            <div className="section-label">水分</div>
+            <div className="section-label">{t.water.title}</div>
 
             {/* 目標水分量の表示・設定 */}
             <div
@@ -135,7 +137,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                 }}
             >
                 <span style={{ fontSize: "0.8rem", color: "var(--color-text-secondary)" }}>
-                    1日の目標
+                    {t.water.dailyTarget}
                 </span>
 
                 {editingTarget ? (
@@ -165,7 +167,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                                 fontFamily: "inherit",
                             }}
                         >
-                            完了
+                            {t.water.done}
                         </button>
                     </div>
                 ) : (
@@ -181,7 +183,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                             padding: "2px 6px",
                             borderRadius: "var(--radius-input)",
                         }}
-                        aria-label="目標水分量を変更"
+                        aria-label={t.water.changeTargetAriaLabel}
                     >
                         <span style={{ fontSize: "0.88rem", fontWeight: 600, color: "var(--color-accent)" }}>
                             {waterTargetMl.toLocaleString()} ml
@@ -236,7 +238,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                 {/* 時刻入力（現在時刻が初期値・編集可） */}
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <span style={{ fontSize: "0.8rem", color: "var(--color-text-secondary)", minWidth: "28px" }}>
-                        時刻
+                        {t.water.time}
                     </span>
                     <input
                         type="time"
@@ -260,28 +262,28 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                             whiteSpace: "nowrap",
                         }}
                     >
-                        現在時刻
+                        {t.water.currentTime}
                     </button>
                 </div>
 
                 {/* 量の入力: 任意入力 + プリセットボタン */}
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
                     <span style={{ fontSize: "0.8rem", color: "var(--color-text-secondary)", minWidth: "28px" }}>
-                        量
+                        {t.water.amount}
                     </span>
                     <button
                         className="btn-quick"
                         onClick={handleCustomInput}
-                        aria-label="任意の量を入力"
+                        aria-label={t.water.customInputAriaLabel}
                     >
-                        任意入力
+                        {t.water.customInput}
                     </button>
                     {QUICK_ADD_OPTIONS.map((amount) => (
                         <button
                             key={amount}
                             className="btn-quick"
                             onClick={() => handleQuickSelect(amount)}
-                            aria-label={`${amount}ml を選択`}
+                            aria-label={t.water.selectAmountAriaLabel(amount)}
                         >
                             +{amount}ml
                         </button>
@@ -306,7 +308,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                     {entryMl !== "" ? (
                         <button
                             onClick={() => setEntryMl("")}
-                            aria-label="入力をクリア"
+                            aria-label={t.water.clearInputAriaLabel}
                             style={{
                                 border: "none",
                                 background: "none",
@@ -338,7 +340,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                             transition: "background 0.15s",
                         }}
                     >
-                        追加
+                        {t.water.add}
                     </button>
                 </div>
             </div>
@@ -347,7 +349,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
             {record.waterLogs.length > 0 ? (
                 <div>
                     <div style={{ fontSize: "0.72rem", color: "var(--color-text-muted)", marginBottom: "6px" }}>
-                        記録一覧
+                        {t.water.recordList}
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                         {/* reversedLogs は useMemo で記憶済み。元インデックスは全体長から逆算する */}
@@ -388,7 +390,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                                                 fontFamily: "inherit",
                                             }}
                                         >
-                                            保存
+                                            {t.water.save}
                                         </button>
                                         <button
                                             onClick={() => setEditingLogIndex(null)}
@@ -402,7 +404,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                                                 padding: "10px 8px",
                                             }}
                                         >
-                                            キャンセル
+                                            {t.water.cancel}
                                         </button>
                                     </>
                                 ) : (
@@ -410,7 +412,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                                         {/* 時刻をタップで編集モードへ */}
                                         <button
                                             onClick={() => handleEditTimeStart(i, log.time)}
-                                            aria-label={`${log.time} を編集`}
+                                            aria-label={t.water.editTimeAriaLabel(log.time)}
                                             style={{
                                                 border: "none",
                                                 background: "none",
@@ -430,7 +432,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                                         </span>
                                         <button
                                             onClick={() => handleDeleteLog(i)}
-                                            aria-label={`${log.time} の ${log.ml}ml を削除`}
+                                            aria-label={t.water.deleteLogAriaLabel(log.time, log.ml)}
                                             style={{
                                                 border: "none",
                                                 background: "none",

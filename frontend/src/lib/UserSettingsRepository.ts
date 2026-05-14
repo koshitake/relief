@@ -9,6 +9,8 @@ export interface UserSettings {
     waterTargetMl: number;
     carbsTargetG: number;
     saltTargetG: number;
+    locale: "ja" | "en";
+    plan: "free" | "standard" | "pro";
 }
 
 // 本番環境では DB の内部エラー詳細をコンソールに出力しない（情報漏洩対策）
@@ -30,7 +32,7 @@ export async function fetchUserSettings(userId: string): Promise<UserSettings | 
 
     const { data, error } = await supabase
         .from("user_settings")
-        .select("water_target_ml, carbs_target_g, salt_target_g")
+        .select("water_target_ml, carbs_target_g, salt_target_g, locale, plan")
         .eq("user_id", userId)
         .maybeSingle();
 
@@ -44,13 +46,19 @@ export async function fetchUserSettings(userId: string): Promise<UserSettings | 
             waterTargetMl: DEFAULT_WATER_TARGET_ML,
             carbsTargetG: DEFAULT_CARBS_TARGET_G,
             saltTargetG: DEFAULT_SALT_TARGET_G,
+            locale: "ja" as const,
+            plan: "free" as const,
         };
     }
+
+    const plan = (["free", "standard", "pro"] as const).includes(data.plan) ? data.plan : "free";
 
     return {
         waterTargetMl: Number(data.water_target_ml),
         carbsTargetG: data.carbs_target_g != null ? Number(data.carbs_target_g) : DEFAULT_CARBS_TARGET_G,
         saltTargetG: data.salt_target_g != null ? Number(data.salt_target_g) : DEFAULT_SALT_TARGET_G,
+        locale: (data.locale === "en" ? "en" : "ja") as "ja" | "en",
+        plan: plan as "free" | "standard" | "pro",
     };
 }
 
@@ -70,6 +78,8 @@ export async function upsertUserSettings(userId: string, settings: Partial<UserS
     if (settings.waterTargetMl !== undefined) updateData.water_target_ml = settings.waterTargetMl;
     if (settings.carbsTargetG !== undefined) updateData.carbs_target_g = settings.carbsTargetG;
     if (settings.saltTargetG !== undefined) updateData.salt_target_g = settings.saltTargetG;
+    if (settings.locale !== undefined) updateData.locale = settings.locale;
+    if (settings.plan !== undefined) updateData.plan = settings.plan;
 
     const { error } = await supabase
         .from("user_settings")

@@ -5,6 +5,7 @@
 
 import { DayRecord } from "@/types/DayRecord";
 import { MAX_ITCH_SCORE } from "@/constants/AppConstants";
+import { useTranslations } from "@/hooks/UseTranslations";
 
 interface ItchSectionProps {
     record: DayRecord;
@@ -12,6 +13,7 @@ interface ItchSectionProps {
 }
 
 export default function ItchSection({ record, updateRecord }: ItchSectionProps) {
+    const t = useTranslations();
     // スライダーの塗りつぶし率（0〜100%）を計算する
     const fillPercent = (record.itchScore / MAX_ITCH_SCORE) * 100;
 
@@ -28,7 +30,7 @@ export default function ItchSection({ record, updateRecord }: ItchSectionProps) 
                         marginBottom: "6px",
                     }}
                 >
-                    部位（任意）
+                    {t.itch.area}
                 </label>
                 <input
                     id="itch-area"
@@ -37,7 +39,7 @@ export default function ItchSection({ record, updateRecord }: ItchSectionProps) 
                     onChange={(e: { target: { value: string } }) =>
                         updateRecord({ itchArea: e.target.value })
                     }
-                    placeholder="例: ひじ / 首 / 背中"
+                    placeholder={t.itch.areaPlaceholder}
                     maxLength={100}
                 />
             </div>
@@ -56,7 +58,7 @@ export default function ItchSection({ record, updateRecord }: ItchSectionProps) 
                         htmlFor="itch-score"
                         style={{ fontSize: "0.8rem", color: "var(--color-text-secondary)" }}
                     >
-                        かゆみスコア
+                        {t.itch.score}
                     </label>
                     <span>
                         <span
@@ -105,8 +107,8 @@ export default function ItchSection({ record, updateRecord }: ItchSectionProps) 
                         marginTop: "4px",
                     }}
                 >
-                    <span>0（なし）</span>
-                    <span>10（最大）</span>
+                    <span>{t.itch.scoreMin}</span>
+                    <span>{t.itch.scoreMax}</span>
                 </div>
             </div>
         </div>

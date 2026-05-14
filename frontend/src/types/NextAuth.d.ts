@@ -11,6 +11,10 @@ declare module "next-auth" {
             /** Google アカウントの表示名（ニックネーム） */
             name: string;
         };
+        /** Google Drive API 用のアクセストークン */
+        accessToken?: string;
+        /** Google Drive の権限（drive.file スコープ）が付与されているか */
+        hasDriveScope?: boolean;
     }
 }
 
@@ -18,5 +22,11 @@ declare module "next-auth/jwt" {
     interface JWT {
         /** users テーブルの UUID */
         userId?: string;
+        /** Google Drive API 用のアクセストークン */
+        accessToken?: string;
+        /** アクセストークンの期限（ms）*/
+        accessTokenExpires?: number;
+        /** アクセストークン更新用のリフレッシュトークン */
+        refreshToken?: string;
     }
 }

@@ -22,6 +22,8 @@ export function useDayRecord(day: string) {
     const setWaterTargetMl = useAppStore((s) => s.setWaterTargetMl);
     const setCarbsTargetG = useAppStore((s) => s.setCarbsTargetG);
     const setSaltTargetG = useAppStore((s) => s.setSaltTargetG);
+    const setLocale = useAppStore((s) => s.setLocale);
+    const setPlan = useAppStore((s) => s.setPlan);
 
     // DBから読み込んだ直後のrecord更新でDB書き込みが走らないよう制御するフラグ
     const isDirty = useRef(false);
@@ -55,6 +57,8 @@ export function useDayRecord(day: string) {
                     if (settingsData?.waterTargetMl) setWaterTargetMl(settingsData.waterTargetMl);
                     if (settingsData?.carbsTargetG) setCarbsTargetG(settingsData.carbsTargetG);
                     if (settingsData?.saltTargetG) setSaltTargetG(settingsData.saltTargetG);
+                    if (settingsData?.locale) setLocale(settingsData.locale);
+                    if (settingsData?.plan) setPlan(settingsData.plan);
                     const loaded = recordData ?? createEmptyDayRecord();
                     recordRef.current = loaded;
                     setRecord(loaded);
@@ -80,7 +84,7 @@ export function useDayRecord(day: string) {
         return () => {
             cancelled = true;
         };
-    }, [day, userId, setWaterTargetMl, setCarbsTargetG, setSaltTargetG]);
+    }, [day, userId, setWaterTargetMl, setCarbsTargetG, setSaltTargetG, setLocale, setPlan]);
 
     // ユーザーの入力によってrecordを更新する
     const updateRecord = useCallback(
