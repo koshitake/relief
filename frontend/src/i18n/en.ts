@@ -146,7 +146,6 @@ export const en: Messages = {
         planPrice: "Coming soon",
         planFeatures: {
             standard: ["No ads", "Data backup"],
-            pro: ["All Standard features", "AI: 60 uses/month (meal estimation & daily advice)"],
         },
         dataManagement: "Data",
         dataBackup: "Data backup",
@@ -165,7 +164,5 @@ export const en: Messages = {
         restoreRunning: "Restoring...",
         restoreSuccess: "Restore completed",
         restoreError: "Restore failed. Please try again.",
-        restoreNoFiles: "No backup files found",
-        restoreLoadFiles: "Load backup list",
     },
 };

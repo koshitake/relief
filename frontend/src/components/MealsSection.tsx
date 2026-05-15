@@ -6,7 +6,6 @@
 
 import { DayRecord } from "@/types/DayRecord";
 import { useTranslations } from "@/hooks/UseTranslations";
-import { useAppStore } from "@/store/UseAppStore";
 
 interface MealsSectionProps {
     record: DayRecord;
@@ -15,8 +14,6 @@ interface MealsSectionProps {
 
 export default function MealsSection({ record, updateRecord }: MealsSectionProps) {
     const t = useTranslations();
-    const plan = useAppStore((s) => s.plan);
-    const isProPlan = plan === "pro";
 
     return (
         <div>
@@ -135,14 +132,13 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                 </div>
             </div>
 
-            {/* AI推定ボタン（Pro プランで有効化。実処理は準備中） */}
+            {/* AI推定ボタン（有料機能・準備中） */}
             <button
-                className={isProPlan ? undefined : "btn-premium-disabled"}
-                disabled={!isProPlan}
-                onClick={isProPlan ? () => alert(t.meals.aiComingSoonAlert) : undefined}
+                className="btn-premium-disabled"
+                disabled
                 aria-label={t.meals.aiButtonAriaLabel}
             >
-                <span>{isProPlan ? "✨" : "🔒"}</span>
+                <span>🔒</span>
                 <span>{t.meals.aiButtonText}</span>
             </button>
         </div>

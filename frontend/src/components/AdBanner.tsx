@@ -18,8 +18,8 @@ export default function AdBanner({ slot }: AdBannerProps) {
     const t = useTranslations();
     const plan = useAppStore((s) => s.plan);
 
-    // Standard / Pro プランは広告非表示
-    if (plan === "standard" || plan === "pro") return null;
+    // Standard プランは広告非表示
+    if (plan === "standard") return null;
 
     if (IS_ACTIVE) {
         return (

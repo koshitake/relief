@@ -83,6 +83,17 @@ export function useDayRecord(day: string) {
 
         return () => {
             cancelled = true;
+            // 日付切り替え・ページ離脱時に未保存の変更を即座に保存する。
+            // isDirty が true のままデバウンスが走る前に切り替わると保存が
+            // スキップされるため、ここでフラッシュする。
+            if (debounceTimer.current) clearTimeout(debounceTimer.current);
+            if (isDirty.current && userId) {
+                fetch(`/api/records/${day}`, {
+                    method:  "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body:    JSON.stringify(recordRef.current),
+                });
+            }
         };
     }, [day, userId, setWaterTargetMl, setCarbsTargetG, setSaltTargetG, setLocale, setPlan]);
 

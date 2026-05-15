@@ -14,7 +14,6 @@ import { MIN_CARBS_TARGET_G, MAX_CARBS_TARGET_G, MIN_SALT_TARGET_G, MAX_SALT_TAR
 const ALL_PLANS = [
     { key: "free" as const, name: "Free" },
     { key: "standard" as const, name: "Standard" },
-    { key: "pro" as const, name: "Pro" },
 ];
 
 export default function SettingsPage() {
@@ -47,11 +46,8 @@ export default function SettingsPage() {
     useEffect(() => { setNicknameInput(displayName); }, [displayName]);
 
     // バックアップ関連の状態
-    type BackupFile = { fileId: string; name: string; createdTime: string };
     const [backupState, setBackupState] = useState<"idle" | "running" | "success" | "error">("idle");
     const [backupUrl, setBackupUrl] = useState<string | null>(null);
-    const [backupFiles, setBackupFiles] = useState<BackupFile[] | null>(null);
-    const [filesLoading, setFilesLoading] = useState(false);
     const [restoreState, setRestoreState] = useState<"idle" | "running" | "success" | "error">("idle");
 
     async function handleNicknameSave() {
@@ -96,20 +92,6 @@ export default function SettingsPage() {
         }
     }
 
-    // バックアップファイル一覧を Drive から取得する
-    async function loadBackupFiles() {
-        setFilesLoading(true);
-        try {
-            const res = await fetch("/api/backup");
-            if (res.ok) {
-                const data = await res.json() as BackupFile[];
-                setBackupFiles(data);
-            }
-        } finally {
-            setFilesLoading(false);
-        }
-    }
-
     // バックアップを実行する
     async function handleBackup() {
         // Drive スコープ未取得の場合は再サインインを促す
@@ -124,27 +106,21 @@ export default function SettingsPage() {
             const data = await res.json() as { url?: string };
             setBackupUrl(data.url ?? null);
             setBackupState("success");
-            // バックアップ後に一覧を更新する
-            loadBackupFiles();
         } else {
             setBackupState("error");
         }
     }
 
     // バックアップから復元する
-    async function handleRestore(fileId: string) {
+    async function handleRestore() {
         if (!confirm(t.settings.restoreConfirm)) return;
         setRestoreState("running");
-        const res = await fetch("/api/restore", {
-            method:  "POST",
-            headers: { "Content-Type": "application/json" },
-            body:    JSON.stringify({ fileId }),
-        });
+        const res = await fetch("/api/restore", { method: "POST" });
         setRestoreState(res.ok ? "success" : "error");
     }
 
     // プランを切り替えてDBに保存する（決済処理は未実装）
-    function handlePlanChange(next: "free" | "standard" | "pro") {
+    function handlePlanChange(next: "free" | "standard") {
         if (next === plan) return;
         setPlan(next);
         fetch("/api/settings", {
@@ -456,7 +432,7 @@ export default function SettingsPage() {
                         </div>
                     </div>
                 ) : (
-                    /* Standard / Pro プランはバックアップ・復元 UI を表示 */
+                    /* Standard プランはバックアップ・復元 UI を表示 */
                     <div className="card">
                         {/* バックアップ */}
                         <div style={{ marginBottom: "16px" }}>
@@ -513,80 +489,29 @@ export default function SettingsPage() {
                             <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--color-text-primary)", marginBottom: "10px" }}>
                                 {t.settings.restoreTitle}
                             </div>
-
-                            {backupFiles === null ? (
-                                /* 一覧未読み込み: 読み込みボタンを表示 */
-                                <button
-                                    onClick={loadBackupFiles}
-                                    disabled={filesLoading}
-                                    style={{
-                                        width: "100%",
-                                        border: "1px solid var(--color-border)",
-                                        background: "none",
-                                        borderRadius: "var(--radius-pill)",
-                                        padding: "10px",
-                                        fontSize: "0.82rem",
-                                        color: "var(--color-text-secondary)",
-                                        cursor: filesLoading ? "default" : "pointer",
-                                        fontFamily: "inherit",
-                                        opacity: filesLoading ? 0.5 : 1,
-                                    }}
-                                >
-                                    {filesLoading ? t.common.loading : t.settings.restoreLoadFiles}
-                                </button>
-                            ) : backupFiles.length === 0 ? (
-                                <p style={{ fontSize: "0.82rem", color: "var(--color-text-muted)", textAlign: "center", margin: 0 }}>
-                                    {t.settings.restoreNoFiles}
-                                </p>
-                            ) : (
-                                /* ファイル一覧 */
-                                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-                                    {backupFiles.map((file) => (
-                                        <li
-                                            key={file.fileId}
-                                            style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                alignItems: "center",
-                                                padding: "8px 0",
-                                                borderBottom: "1px solid var(--color-border)",
-                                            }}
-                                        >
-                                            <span style={{ fontSize: "0.78rem", color: "var(--color-text-secondary)" }}>
-                                                {file.name}
-                                            </span>
-                                            <button
-                                                onClick={() => handleRestore(file.fileId)}
-                                                disabled={restoreState === "running"}
-                                                style={{
-                                                    border: "1px solid var(--color-accent)",
-                                                    background: "none",
-                                                    borderRadius: "var(--radius-pill)",
-                                                    padding: "6px 14px",
-                                                    fontSize: "0.75rem",
-                                                    color: "var(--color-accent)",
-                                                    cursor: restoreState === "running" ? "default" : "pointer",
-                                                    fontFamily: "inherit",
-                                                    fontWeight: 600,
-                                                    whiteSpace: "nowrap",
-                                                    opacity: restoreState === "running" ? 0.5 : 1,
-                                                }}
-                                            >
-                                                {restoreState === "running" ? t.settings.restoreRunning : t.settings.restoreButton}
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-
+                            <button
+                                onClick={handleRestore}
+                                disabled={restoreState === "running"}
+                                style={{
+                                    width: "100%",
+                                    border: "1px solid var(--color-border)",
+                                    background: "none",
+                                    borderRadius: "var(--radius-pill)",
+                                    padding: "10px",
+                                    fontSize: "0.82rem",
+                                    color: restoreState === "error" ? "#FF3B30" : "var(--color-text-secondary)",
+                                    cursor: restoreState === "running" ? "default" : "pointer",
+                                    fontFamily: "inherit",
+                                    opacity: restoreState === "running" ? 0.5 : 1,
+                                }}
+                            >
+                                {restoreState === "running" ? t.settings.restoreRunning
+                                    : restoreState === "error" ? t.settings.restoreError
+                                    : t.settings.restoreButton}
+                            </button>
                             {restoreState === "success" && (
                                 <p style={{ fontSize: "0.78rem", color: "#34C759", margin: "10px 0 0" }}>
                                     {t.settings.restoreSuccess}
-                                </p>
-                            )}
-                            {restoreState === "error" && (
-                                <p style={{ fontSize: "0.78rem", color: "#FF3B30", margin: "10px 0 0" }}>
-                                    {t.settings.restoreError}
                                 </p>
                             )}
                         </div>

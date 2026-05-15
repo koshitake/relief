@@ -10,7 +10,7 @@ export interface UserSettings {
     carbsTargetG: number;
     saltTargetG: number;
     locale: "ja" | "en";
-    plan: "free" | "standard" | "pro";
+    plan: "free" | "standard";
 }
 
 // 本番環境では DB の内部エラー詳細をコンソールに出力しない（情報漏洩対策）
@@ -51,14 +51,14 @@ export async function fetchUserSettings(userId: string): Promise<UserSettings | 
         };
     }
 
-    const plan = (["free", "standard", "pro"] as const).includes(data.plan) ? data.plan : "free";
+    const plan = (["free", "standard"] as const).includes(data.plan) ? data.plan : "free";
 
     return {
         waterTargetMl: Number(data.water_target_ml),
         carbsTargetG: data.carbs_target_g != null ? Number(data.carbs_target_g) : DEFAULT_CARBS_TARGET_G,
         saltTargetG: data.salt_target_g != null ? Number(data.salt_target_g) : DEFAULT_SALT_TARGET_G,
         locale: (data.locale === "en" ? "en" : "ja") as "ja" | "en",
-        plan: plan as "free" | "standard" | "pro",
+        plan: plan as "free" | "standard",
     };
 }
 

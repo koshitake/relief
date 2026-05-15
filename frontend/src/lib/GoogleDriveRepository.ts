@@ -2,12 +2,7 @@
 // サーバー側（API Route）からのみ呼び出すこと。
 
 import { google } from "googleapis";
-
-export interface BackupFileInfo {
-    fileId: string;
-    name: string;
-    createdTime: string;
-}
+import { Readable } from "stream";
 
 // アクセストークンをセットした Drive クライアントを生成する
 function createDriveClient(accessToken: string) {
@@ -48,7 +43,8 @@ export async function getOrCreateAtologFolder(accessToken: string): Promise<stri
 }
 
 /**
- * バックアップ JSON を Drive にアップロードする。
+ * バックアップファイルを Drive にアップロードする。
+ * content は文字列または Buffer（gzip 圧縮済みなど）を受け付ける。
  * 同名ファイルが存在する場合は上書きする。
  * 返り値: アップロードしたファイルの webViewLink
  */
@@ -56,10 +52,13 @@ export async function uploadBackupFile(
     accessToken: string,
     folderId: string,
     filename: string,
-    content: string,
+    content: string | Buffer,
+    mimeType = "application/json",
 ): Promise<string> {
     const drive = createDriveClient(accessToken);
-    const media = { mimeType: "application/json", body: content };
+    // googleapis の body には Readable を渡す（Buffer は Readable.from で変換）
+    const body = content instanceof Buffer ? Readable.from(content) : content;
+    const media = { mimeType, body };
 
     // 同名ファイルを検索して上書き or 新規作成する
     const { data: existing } = await drive.files.list({
@@ -85,41 +84,37 @@ export async function uploadBackupFile(
 }
 
 /**
- * atolog フォルダ内のバックアップファイル一覧を取得する。
- * 作成日時の降順で返す。
+ * atolog フォルダ内の固定バックアップファイルの ID を返す。
+ * ファイルが存在しない場合は null を返す。
  */
-export async function listBackupFiles(
+export async function findBackupFile(
     accessToken: string,
     folderId: string,
-): Promise<BackupFileInfo[]> {
+): Promise<string | null> {
     const drive = createDriveClient(accessToken);
 
     const { data } = await drive.files.list({
-        q:       `'${folderId}' in parents and name contains 'atolog-backup' and trashed=false`,
-        fields:  "files(id, name, createdTime)",
-        orderBy: "createdTime desc",
+        q:      `name='atolog-backup.json.gz' and '${folderId}' in parents and trashed=false`,
+        fields: "files(id)",
     });
 
-    return (data.files ?? []).map((f) => ({
-        fileId:      f.id!,
-        name:        f.name!,
-        createdTime: f.createdTime!,
-    }));
+    return data.files?.[0]?.id ?? null;
 }
 
 /**
- * 指定したファイルの内容をテキストで取得する。
+ * 指定したファイルの内容を Buffer で取得する。
+ * gzip 圧縮ファイルも raw bytes のまま返す（展開は呼び出し側で行う）。
  */
 export async function downloadBackupFile(
     accessToken: string,
     fileId: string,
-): Promise<string> {
+): Promise<Buffer> {
     const drive = createDriveClient(accessToken);
 
     const res = await drive.files.get(
         { fileId, alt: "media" },
-        { responseType: "text" },
+        { responseType: "arraybuffer" },
     );
 
-    return res.data as string;
+    return Buffer.from(res.data as ArrayBuffer);
 }

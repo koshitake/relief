@@ -1,19 +1,26 @@
 // Google Drive バックアップからデータを復元する API Route です。
-// バックアップ JSON を読み込み、設定と記録を DB に upsert します。
+// 固定名ファイル（atolog-backup.json.gz）をサーバー側で自動検索して復元します。
+// gzip 圧縮ファイルと旧形式の生 JSON（.json）の両方に対応します。
 // plan は復元対象外とし、現在のプランを保持します。
 
-import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import { NextResponse } from "next/server";
+import { promisify } from "util";
+import { gunzip } from "zlib";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/AuthOptions";
 import { fetchUserSettings, upsertUserSettings } from "@/lib/UserSettingsRepository";
 import { batchUpsertDayRecords } from "@/lib/DayRecordRepository";
-import { downloadBackupFile } from "@/lib/GoogleDriveRepository";
+import { getOrCreateAtologFolder, findBackupFile, downloadBackupFile } from "@/lib/GoogleDriveRepository";
 import type { WaterLog } from "@/types/DayRecord";
 
-const bodySchema = z.object({
-    fileId: z.string().min(1).max(300),
-});
+const gunzipAsync = promisify(gunzip);
+
+// ダウンロードファイルの上限（10MB）
+const MAX_DOWNLOAD_BYTES = 10 * 1024 * 1024;
+// gzip 展開後の上限（50MB）。圧縮爆弾攻撃を防ぐ
+const MAX_DECOMPRESSED_BYTES = 50 * 1024 * 1024;
+// 復元レコードの件数上限（約10年分）
+const MAX_RESTORE_RECORDS = 3650;
 
 // バックアップ JSON の最低限の構造を確認する
 function isValidBackup(data: unknown): data is {
@@ -71,7 +78,7 @@ function parseRecord(r: unknown): {
 }
 
 /** バックアップから全データを復元する */
-export async function POST(req: NextRequest): Promise<NextResponse> {
+export async function POST(): Promise<NextResponse> {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -90,15 +97,30 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         return NextResponse.json({ error: "Upgrade required" }, { status: 403 });
     }
 
-    // リクエストボディのバリデーション
-    const parseResult = bodySchema.safeParse(await req.json());
-    if (!parseResult.success) {
-        return NextResponse.json({ error: "Invalid request" }, { status: 400 });
-    }
-
     try {
-        // Drive からバックアップファイルをダウンロードして JSON に変換する
-        const content = await downloadBackupFile(session.accessToken, parseResult.data.fileId);
+        // Drive の atolog フォルダから固定名のバックアップファイルを検索する
+        const folderId = await getOrCreateAtologFolder(session.accessToken);
+        const fileId   = await findBackupFile(session.accessToken, folderId);
+        if (!fileId) {
+            return NextResponse.json({ error: "Backup file not found" }, { status: 404 });
+        }
+
+        // バックアップファイルをダウンロードする（Buffer で返る）
+        const raw = await downloadBackupFile(session.accessToken, fileId);
+
+        if (raw.length > MAX_DOWNLOAD_BYTES) {
+            return NextResponse.json({ error: "Backup file is too large" }, { status: 400 });
+        }
+
+        // gzip マジックバイト（0x1f 0x8b）で圧縮フォーマットを判定して展開する
+        // maxOutputLength で展開後サイズを制限し、圧縮爆弾攻撃を防ぐ
+        // 旧形式（生 JSON）との後方互換性を保つ
+        const isGzip = raw.length >= 2 && raw[0] === 0x1f && raw[1] === 0x8b;
+        const jsonBuffer = isGzip
+            ? await gunzipAsync(raw, { maxOutputLength: MAX_DECOMPRESSED_BYTES })
+            : raw;
+        const content = jsonBuffer.toString("utf-8");
+
         const backup  = JSON.parse(content) as unknown;
 
         if (!isValidBackup(backup)) {
@@ -115,7 +137,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         });
 
         // レコードを変換して一括 upsert する（既存データは上書き）
+        // 件数上限を超えた分は切り捨てる（約10年分以上は想定外のデータとみなす）
         const records = backup.records
+            .slice(0, MAX_RESTORE_RECORDS)
             .map(parseRecord)
             .filter((r): r is NonNullable<ReturnType<typeof parseRecord>> => r !== null);
 

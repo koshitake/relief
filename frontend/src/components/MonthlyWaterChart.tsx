@@ -37,7 +37,7 @@ function nextMonth(year: number, month: number): { year: number; month: number }
 const GRAPH_HEIGHT = 100;
 const GRAPH_PADDING_TOP = 16;    // 目標ラインラベル用
 const GRAPH_PADDING_BOTTOM = 18; // X軸ラベル用
-const GRAPH_PADDING_LEFT = 24;   // Y軸ラベル用
+const GRAPH_PADDING_LEFT = 32;   // Y軸ラベル用
 const BAR_GAP = 1;
 
 export default function MonthlyWaterChart() {
@@ -192,9 +192,9 @@ export default function MonthlyWaterChart() {
                             />
                             <text
                                 x={GRAPH_PADDING_LEFT - 1}
-                                y={y + 1}
+                                y={y + 2}
                                 textAnchor="end"
-                                fontSize={2.5}
+                                fontSize={5}
                                 fontWeight="bold"
                                 fill="#333333"
                             >
@@ -215,9 +215,9 @@ export default function MonthlyWaterChart() {
                     />
                     <text
                         x={GRAPH_PADDING_LEFT - 1}
-                        y={targetY + 1}
+                        y={targetY + 2}
                         textAnchor="end"
-                        fontSize={2.5}
+                        fontSize={5}
                         fill="rgba(255,59,48,0.9)"
                         fontWeight="bold"
                     >

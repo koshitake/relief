@@ -142,7 +142,6 @@ export const ja = {
         planPrice: "準備中",
         planFeatures: {
             standard: ["広告非表示", "データバックアップ"],
-            pro: ["Standard の全機能", "AI機能 月60回（食事推定・日次アドバイス）"],
         },
         dataManagement: "データ管理",
         dataBackup: "データバックアップ",
@@ -161,8 +160,6 @@ export const ja = {
         restoreRunning: "復元中...",
         restoreSuccess: "復元が完了しました",
         restoreError: "復元に失敗しました。再試行してください",
-        restoreNoFiles: "バックアップファイルが見つかりません",
-        restoreLoadFiles: "バックアップ一覧を読み込む",
     },
 };
 

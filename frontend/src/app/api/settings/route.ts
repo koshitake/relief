@@ -18,7 +18,7 @@ const settingsSchema = z.object({
     carbsTargetG: z.number().min(MIN_CARBS_TARGET_G).max(MAX_CARBS_TARGET_G).optional(),
     saltTargetG: z.number().min(MIN_SALT_TARGET_G).max(MAX_SALT_TARGET_G).optional(),
     locale: z.enum(["ja", "en"]).optional(),
-    plan: z.enum(["free", "standard", "pro"]).optional(),
+    plan: z.enum(["free", "standard"]).optional(),
 });
 
 /** ユーザー設定を取得する */

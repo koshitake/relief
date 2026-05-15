@@ -1,35 +1,19 @@
 // Google Drive へのバックアップ操作を提供する API Route です。
-// GET: バックアップファイル一覧を取得する
-// POST: 全データを JSON にしてバックアップする
+// POST: 全データを JSON にして gzip 圧縮し固定名ファイルで上書きバックアップする
 
 import { NextRequest, NextResponse } from "next/server";
+import { promisify } from "util";
+import { gzip } from "zlib";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/AuthOptions";
 import { fetchUserSettings } from "@/lib/UserSettingsRepository";
 import { fetchAllDayRecords } from "@/lib/DayRecordRepository";
-import { getOrCreateAtologFolder, uploadBackupFile, listBackupFiles } from "@/lib/GoogleDriveRepository";
+import { getOrCreateAtologFolder, uploadBackupFile } from "@/lib/GoogleDriveRepository";
 
-/** バックアップファイル一覧を取得する */
-export async function GET(): Promise<NextResponse> {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+const gzipAsync = promisify(gzip);
 
-    // Drive スコープが付与されていない場合は再サインインを促す
-    if (!session.hasDriveScope || !session.accessToken) {
-        return NextResponse.json({ error: "Drive scope not granted" }, { status: 403 });
-    }
-
-    try {
-        const folderId = await getOrCreateAtologFolder(session.accessToken);
-        const files = await listBackupFiles(session.accessToken, folderId);
-        return NextResponse.json(files);
-    } catch (error) {
-        console.error("[Relief] バックアップ一覧取得エラー:", error);
-        return NextResponse.json({ error: "Failed to list backup files" }, { status: 500 });
-    }
-}
+// バックアップファイルの固定名（常に同一ファイルを上書きする）
+const BACKUP_FILENAME = "atolog-backup.json.gz";
 
 /** バックアップを実行する */
 export async function POST(_req: NextRequest): Promise<NextResponse> {
@@ -57,6 +41,8 @@ export async function POST(_req: NextRequest): Promise<NextResponse> {
             fetchAllDayRecords(userId),
         ]);
 
+        console.log(`[Relief] バックアップ: userId=${userId}, records=${records.length}件`);
+
         // plan は復元時に上書きしないため除外する
         const { plan: _plan, ...settingsWithoutPlan } = settings;
 
@@ -67,12 +53,18 @@ export async function POST(_req: NextRequest): Promise<NextResponse> {
             records,
         };
 
-        const content  = JSON.stringify(backup, null, 2);
-        const today    = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-        const filename = `atolog-backup-${today}.json`;
+        const jsonString = JSON.stringify(backup);
+        // JSON を gzip 圧縮してファイルサイズを削減する
+        const compressed = await gzipAsync(Buffer.from(jsonString, "utf-8"));
 
         const folderId = await getOrCreateAtologFolder(session.accessToken);
-        const url      = await uploadBackupFile(session.accessToken, folderId, filename, content);
+        const url      = await uploadBackupFile(
+            session.accessToken,
+            folderId,
+            BACKUP_FILENAME,
+            compressed,
+            "application/gzip",
+        );
 
         return NextResponse.json({ url });
     } catch (error) {
