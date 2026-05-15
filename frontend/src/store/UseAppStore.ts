@@ -21,6 +21,10 @@ interface AppState {
     activeTab: "summary" | "input";
     /** ログイン中ユーザーの表示名。設定変更後に即時反映するためストアで管理する */
     displayName: string;
+    /** 表示言語。ログイン後に user_settings から復元する */
+    locale: "ja" | "en";
+    /** 加入プラン。ログイン後に user_settings から復元する */
+    plan: "free" | "standard";
 }
 
 interface AppActions {
@@ -36,11 +40,21 @@ interface AppActions {
     setActiveTab: (tab: "summary" | "input") => void;
     /** 表示名を更新する */
     setDisplayName: (name: string) => void;
+    /** 表示言語を更新する */
+    setLocale: (locale: "ja" | "en") => void;
+    /** 加入プランを更新する */
+    setPlan: (plan: "free" | "standard") => void;
 }
 
 // 今日の日付を YYYY-MM-DD 形式で返す
 function getTodayString(): string {
     return new Date().toISOString().slice(0, 10);
+}
+
+// 端末の言語設定から初期ロケールを決定する（SSR時は ja にフォールバック）
+function detectLocale(): "ja" | "en" {
+    if (typeof window === "undefined") return "ja";
+    return navigator.language.startsWith("ja") ? "ja" : "en";
 }
 
 export const useAppStore = create<AppState & AppActions>()((set) => ({
@@ -50,6 +64,8 @@ export const useAppStore = create<AppState & AppActions>()((set) => ({
     saltTargetG: DEFAULT_SALT_TARGET_G,
     activeTab: "summary",
     displayName: "",
+    locale: detectLocale(),
+    plan: "free",
 
     setSelectedDay: (day: string) => set({ selectedDay: day }),
 
@@ -71,4 +87,7 @@ export const useAppStore = create<AppState & AppActions>()((set) => ({
     setActiveTab: (tab: "summary" | "input") => set({ activeTab: tab }),
 
     setDisplayName: (name: string) => set({ displayName: name }),
+
+    setLocale: (locale: "ja" | "en") => set({ locale }),
+    setPlan: (plan: "free" | "standard") => set({ plan }),
 }));

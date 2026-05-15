@@ -1,38 +1,35 @@
 "use client";
 
-// 設定画面です。ニックネーム変更と有料プランへのアップグレードができます。
+// 設定画面です。ニックネーム変更、目標設定、言語切り替え、有料プランへのアップグレードができます。
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { useAppStore } from "@/store/UseAppStore";
 import { useAuth } from "@/hooks/UseAuth";
 import { useUserSettings } from "@/hooks/UseUserSettings";
+import { useTranslations } from "@/hooks/UseTranslations";
 import { MIN_CARBS_TARGET_G, MAX_CARBS_TARGET_G, MIN_SALT_TARGET_G, MAX_SALT_TARGET_G } from "@/constants/AppConstants";
 
-// 有料プランの定義
-const PLANS = [
-    {
-        key: "standard",
-        name: "Standard",
-        price: "準備中",
-        features: ["広告非表示", "データバックアップ"],
-    },
-    {
-        key: "pro",
-        name: "Pro",
-        price: "準備中",
-        features: ["Standard の全機能", "AI機能 月60回（食事推定・日次アドバイス）"],
-    },
-] as const;
+// プラン定義（名称は言語共通、Free を含む全プランを管理する）
+const ALL_PLANS = [
+    { key: "free" as const, name: "Free" },
+    { key: "standard" as const, name: "Standard" },
+];
 
 export default function SettingsPage() {
-    const { update } = useSession();
+    const { data: session, update } = useSession();
     const { user, loading } = useAuth();
     const { saveNutritionTargets } = useUserSettings();
+    const t = useTranslations();
+
     const displayName = useAppStore((s) => s.displayName);
     const setDisplayName = useAppStore((s) => s.setDisplayName);
     const carbsTargetG = useAppStore((s) => s.carbsTargetG);
     const saltTargetG = useAppStore((s) => s.saltTargetG);
+    const locale = useAppStore((s) => s.locale);
+    const setLocale = useAppStore((s) => s.setLocale);
+    const plan = useAppStore((s) => s.plan);
+    const setPlan = useAppStore((s) => s.setPlan);
 
     const [nicknameInput, setNicknameInput] = useState(displayName);
     const [saving, setSaving] = useState(false);
@@ -46,11 +43,12 @@ export default function SettingsPage() {
     // DBからストアに設定が読み込まれたら入力欄を同期する
     useEffect(() => { setCarbsInput(carbsTargetG); }, [carbsTargetG]);
     useEffect(() => { setSaltInput(saltTargetG); }, [saltTargetG]);
+    useEffect(() => { setNicknameInput(displayName); }, [displayName]);
 
-    // ストアのニックネームが更新されたら入力欄を同期する
-    useEffect(() => {
-        setNicknameInput(displayName);
-    }, [displayName]);
+    // バックアップ関連の状態
+    const [backupState, setBackupState] = useState<"idle" | "running" | "success" | "error">("idle");
+    const [backupUrl, setBackupUrl] = useState<string | null>(null);
+    const [restoreState, setRestoreState] = useState<"idle" | "running" | "success" | "error">("idle");
 
     async function handleNicknameSave() {
         const trimmed = nicknameInput.trim();
@@ -94,10 +92,59 @@ export default function SettingsPage() {
         }
     }
 
+    // バックアップを実行する
+    async function handleBackup() {
+        // Drive スコープ未取得の場合は再サインインを促す
+        if (!session?.hasDriveScope) {
+            signIn("google");
+            return;
+        }
+        setBackupState("running");
+        setBackupUrl(null);
+        const res = await fetch("/api/backup", { method: "POST" });
+        if (res.ok) {
+            const data = await res.json() as { url?: string };
+            setBackupUrl(data.url ?? null);
+            setBackupState("success");
+        } else {
+            setBackupState("error");
+        }
+    }
+
+    // バックアップから復元する
+    async function handleRestore() {
+        if (!confirm(t.settings.restoreConfirm)) return;
+        setRestoreState("running");
+        const res = await fetch("/api/restore", { method: "POST" });
+        setRestoreState(res.ok ? "success" : "error");
+    }
+
+    // プランを切り替えてDBに保存する（決済処理は未実装）
+    function handlePlanChange(next: "free" | "standard") {
+        if (next === plan) return;
+        setPlan(next);
+        fetch("/api/settings", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plan: next }),
+        });
+    }
+
+    // 言語を切り替えてDBに保存する
+    function handleLocaleChange(next: "ja" | "en") {
+        if (next === locale) return;
+        setLocale(next);
+        fetch("/api/settings", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ locale: next }),
+        });
+    }
+
     if (loading) {
         return (
             <div style={{ textAlign: "center", paddingTop: "40vh", color: "var(--color-text-muted)" }}>
-                読み込み中...
+                {t.common.loading}
             </div>
         );
     }
@@ -105,7 +152,7 @@ export default function SettingsPage() {
     if (!user) {
         return (
             <div style={{ textAlign: "center", paddingTop: "40vh", color: "var(--color-text-muted)" }}>
-                ログインが必要です
+                {t.common.loginRequired}
             </div>
         );
     }
@@ -115,13 +162,13 @@ export default function SettingsPage() {
             {/* ページタイトル */}
             <div style={{ paddingTop: "24px", paddingBottom: "16px" }}>
                 <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--color-text-primary)" }}>
-                    設定
+                    {t.settings.title}
                 </div>
             </div>
 
             {/* プロフィール */}
             <div className="card" style={{ marginBottom: "12px" }}>
-                <div className="section-label">プロフィール</div>
+                <div className="section-label">{t.settings.profile}</div>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <input
                         type="text"
@@ -131,7 +178,7 @@ export default function SettingsPage() {
                             setSaveResult(null);
                         }}
                         maxLength={50}
-                        placeholder="ニックネーム"
+                        placeholder={t.settings.nickname}
                         style={{ flex: 1, fontSize: "0.9rem" }}
                     />
                     <button
@@ -151,24 +198,24 @@ export default function SettingsPage() {
                             opacity: (saving || !nicknameInput.trim() || nicknameInput.trim() === displayName) ? 0.4 : 1,
                         }}
                     >
-                        {saving ? "保存中…" : "変更"}
+                        {saving ? t.settings.saving : t.settings.change}
                     </button>
                 </div>
                 {saveResult === "success" ? (
                     <p style={{ fontSize: "0.75rem", color: "#34C759", marginTop: "8px", margin: "8px 0 0" }}>
-                        ニックネームを変更しました
+                        {t.settings.nicknameChanged}
                     </p>
                 ) : null}
                 {saveResult === "error" ? (
                     <p style={{ fontSize: "0.75rem", color: "#FF3B30", marginTop: "8px", margin: "8px 0 0" }}>
-                        変更に失敗しました。もう一度お試しください
+                        {t.settings.nicknameError}
                     </p>
                 ) : null}
             </div>
 
             {/* 目標設定 */}
             <div className="card" style={{ marginBottom: "12px" }}>
-                <div className="section-label">目標設定</div>
+                <div className="section-label">{t.settings.goals}</div>
 
                 {/* 糖質目標 */}
                 <div style={{ marginBottom: "12px" }}>
@@ -176,7 +223,7 @@ export default function SettingsPage() {
                         htmlFor="carbs-target"
                         style={{ display: "block", fontSize: "0.8rem", color: "var(--color-text-secondary)", marginBottom: "6px" }}
                     >
-                        糖質 1日の目標
+                        {t.settings.carbsGoal}
                     </label>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         <input
@@ -199,7 +246,7 @@ export default function SettingsPage() {
                         htmlFor="salt-target"
                         style={{ display: "block", fontSize: "0.8rem", color: "var(--color-text-secondary)", marginBottom: "6px" }}
                     >
-                        塩分 1日の目標
+                        {t.settings.saltGoal}
                     </label>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         <input
@@ -233,18 +280,31 @@ export default function SettingsPage() {
                         opacity: nutritionSaving ? 0.4 : 1,
                     }}
                 >
-                    {nutritionSaving ? "保存中…" : "目標を保存"}
+                    {nutritionSaving ? t.settings.saving : t.settings.saveGoals}
                 </button>
                 {nutritionSaveResult === "success" && (
                     <p style={{ fontSize: "0.75rem", color: "#34C759", margin: "8px 0 0" }}>
-                        目標を保存しました
+                        {t.settings.goalsSaved}
                     </p>
                 )}
                 {nutritionSaveResult === "error" && (
                     <p style={{ fontSize: "0.75rem", color: "#FF3B30", margin: "8px 0 0" }}>
-                        保存に失敗しました。もう一度お試しください
+                        {t.settings.goalsError}
                     </p>
                 )}
+            </div>
+
+            {/* 言語 / Language */}
+            <div className="card" style={{ marginBottom: "12px" }}>
+                <div className="section-label">{t.settings.language}</div>
+                <select
+                    value={locale}
+                    onChange={(e) => handleLocaleChange(e.target.value as "ja" | "en")}
+                    style={{ marginTop: "4px", fontSize: "0.9rem", width: "100%" }}
+                >
+                    <option value="ja">日本語</option>
+                    <option value="en">English</option>
+                </select>
             </div>
 
             {/* プラン */}
@@ -256,65 +316,83 @@ export default function SettingsPage() {
                     letterSpacing: "0.05em",
                     marginBottom: "8px",
                 }}>
-                    プラン
+                    {t.settings.plan}
                 </div>
 
-                {/* 現在のプラン */}
-                <div className="card" style={{ marginBottom: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--color-text-primary)" }}>
-                        無料プラン
-                    </span>
-                    <span style={{ fontSize: "0.72rem", color: "var(--color-text-muted)" }}>
-                        広告表示
-                    </span>
-                </div>
+                {ALL_PLANS.map((p) => {
+                    const isCurrentPlan = p.key === plan;
+                    const features = p.key === "free"
+                        ? [t.settings.freeFeatures]
+                        : t.settings.planFeatures[p.key];
 
-                {/* 有料プランカード */}
-                {PLANS.map((plan) => (
-                    <div key={plan.key} className="card" style={{ marginBottom: "8px" }}>
-                        <div style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            marginBottom: "8px",
-                        }}>
-                            <span style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--color-text-primary)" }}>
-                                {plan.name}
-                            </span>
-                            <span style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
-                                {plan.price}
-                            </span>
-                        </div>
-                        <ul style={{ margin: "0 0 12px", paddingLeft: "16px" }}>
-                            {plan.features.map((f) => (
-                                <li key={f} style={{
-                                    fontSize: "0.78rem",
-                                    color: "var(--color-text-secondary)",
-                                    lineHeight: 1.9,
-                                }}>
-                                    {f}
-                                </li>
-                            ))}
-                        </ul>
-                        <button
-                            onClick={() => alert("現在準備中です。しばらくお待ちください。")}
+                    return (
+                        <div
+                            key={p.key}
+                            className="card"
                             style={{
-                                width: "100%",
-                                border: "none",
-                                background: "var(--color-accent)",
-                                color: "#fff",
-                                borderRadius: "var(--radius-pill)",
-                                padding: "12px",
-                                fontSize: "0.85rem",
-                                fontWeight: 600,
-                                cursor: "pointer",
-                                fontFamily: "inherit",
+                                marginBottom: "8px",
+                                border: isCurrentPlan ? "1.5px solid var(--color-accent)" : undefined,
                             }}
                         >
-                            {plan.name} にアップグレード
-                        </button>
-                    </div>
-                ))}
+                            <div style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                marginBottom: "8px",
+                            }}>
+                                <span style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--color-text-primary)" }}>
+                                    {p.name}
+                                </span>
+                                {isCurrentPlan ? (
+                                    <span style={{
+                                        fontSize: "0.68rem",
+                                        color: "var(--color-accent)",
+                                        fontWeight: 600,
+                                        border: "1px solid var(--color-accent)",
+                                        borderRadius: "var(--radius-pill)",
+                                        padding: "2px 8px",
+                                    }}>
+                                        {t.settings.currentPlanBadge}
+                                    </span>
+                                ) : (
+                                    <span style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
+                                        {p.key === "free" ? "" : t.settings.planPrice}
+                                    </span>
+                                )}
+                            </div>
+                            <ul style={{ margin: "0 0 12px", paddingLeft: "16px" }}>
+                                {features.map((f) => (
+                                    <li key={f} style={{
+                                        fontSize: "0.78rem",
+                                        color: "var(--color-text-secondary)",
+                                        lineHeight: 1.9,
+                                    }}>
+                                        {f}
+                                    </li>
+                                ))}
+                            </ul>
+                            {!isCurrentPlan && (
+                                <button
+                                    onClick={() => handlePlanChange(p.key)}
+                                    style={{
+                                        width: "100%",
+                                        border: "none",
+                                        background: "var(--color-accent)",
+                                        color: "#fff",
+                                        borderRadius: "var(--radius-pill)",
+                                        padding: "12px",
+                                        fontSize: "0.85rem",
+                                        fontWeight: 600,
+                                        cursor: "pointer",
+                                        fontFamily: "inherit",
+                                    }}
+                                >
+                                    {t.settings.selectPlan(p.name)}
+                                </button>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
 
             {/* データ管理 */}
@@ -326,41 +404,124 @@ export default function SettingsPage() {
                     letterSpacing: "0.05em",
                     marginBottom: "8px",
                 }}>
-                    データ管理
+                    {t.settings.dataManagement}
                 </div>
-                <div className="card">
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <div>
-                            <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--color-text-primary)" }}>
-                                データバックアップ
+
+                {/* 無料プランはロック表示 */}
+                {plan === "free" ? (
+                    <div className="card">
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <div>
+                                <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--color-text-primary)" }}>
+                                    {t.settings.dataBackup}
+                                </div>
+                                <div style={{ fontSize: "0.72rem", color: "var(--color-text-muted)", marginTop: "2px" }}>
+                                    {t.settings.backupAvailability}
+                                </div>
                             </div>
-                            <div style={{ fontSize: "0.72rem", color: "var(--color-text-muted)", marginTop: "2px" }}>
-                                Standard プラン以上で利用可能
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => alert("Standard プラン以上でご利用いただけます。")}
-                            style={{
-                                border: "1px solid #C7C7CC",
-                                background: "none",
-                                borderRadius: "var(--radius-pill)",
-                                padding: "8px 14px",
+                            <span style={{
                                 fontSize: "0.78rem",
                                 color: "var(--color-text-muted)",
-                                cursor: "pointer",
-                                fontFamily: "inherit",
+                                border: "1px solid #C7C7CC",
+                                borderRadius: "var(--radius-pill)",
+                                padding: "8px 14px",
                                 whiteSpace: "nowrap",
-                            }}
-                        >
-                            🔒 準備中
-                        </button>
+                            }}>
+                                {t.settings.preparingBadge}
+                            </span>
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    /* Standard プランはバックアップ・復元 UI を表示 */
+                    <div className="card">
+                        {/* バックアップ */}
+                        <div style={{ marginBottom: "16px" }}>
+                            <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--color-text-primary)", marginBottom: "10px" }}>
+                                {t.settings.dataBackup}
+                            </div>
+                            <button
+                                onClick={handleBackup}
+                                disabled={backupState === "running"}
+                                style={{
+                                    width: "100%",
+                                    border: "none",
+                                    background: backupState === "error" ? "#FF3B30" : "var(--color-accent)",
+                                    color: "#fff",
+                                    borderRadius: "var(--radius-pill)",
+                                    padding: "12px",
+                                    fontSize: "0.85rem",
+                                    fontWeight: 600,
+                                    cursor: backupState === "running" ? "default" : "pointer",
+                                    fontFamily: "inherit",
+                                    opacity: backupState === "running" ? 0.6 : 1,
+                                }}
+                            >
+                                {backupState === "running" ? t.settings.backupRunning
+                                    : backupState === "success" ? t.settings.backupSuccess
+                                    : backupState === "error"   ? t.settings.backupError
+                                    : !session?.hasDriveScope  ? t.settings.backupNeedAuth
+                                    : t.settings.backupButton}
+                            </button>
+                            {backupState === "success" && backupUrl && (
+                                <a
+                                    href={backupUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                        display: "block",
+                                        textAlign: "center",
+                                        marginTop: "8px",
+                                        fontSize: "0.78rem",
+                                        color: "var(--color-accent)",
+                                        textDecoration: "underline",
+                                    }}
+                                >
+                                    {t.settings.backupSuccessLink}
+                                </a>
+                            )}
+                        </div>
+
+                        {/* 区切り線 */}
+                        <hr style={{ border: "none", borderTop: "1px solid var(--color-border)", margin: "0 0 16px" }} />
+
+                        {/* 復元 */}
+                        <div>
+                            <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--color-text-primary)", marginBottom: "10px" }}>
+                                {t.settings.restoreTitle}
+                            </div>
+                            <button
+                                onClick={handleRestore}
+                                disabled={restoreState === "running"}
+                                style={{
+                                    width: "100%",
+                                    border: "1px solid var(--color-border)",
+                                    background: "none",
+                                    borderRadius: "var(--radius-pill)",
+                                    padding: "10px",
+                                    fontSize: "0.82rem",
+                                    color: restoreState === "error" ? "#FF3B30" : "var(--color-text-secondary)",
+                                    cursor: restoreState === "running" ? "default" : "pointer",
+                                    fontFamily: "inherit",
+                                    opacity: restoreState === "running" ? 0.5 : 1,
+                                }}
+                            >
+                                {restoreState === "running" ? t.settings.restoreRunning
+                                    : restoreState === "error" ? t.settings.restoreError
+                                    : t.settings.restoreButton}
+                            </button>
+                            {restoreState === "success" && (
+                                <p style={{ fontSize: "0.78rem", color: "#34C759", margin: "10px 0 0" }}>
+                                    {t.settings.restoreSuccess}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* 免責フッター */}
             <p className="disclaimer-footer">
-                ※ 医療行為ではありません。症状が続く場合は主治医・皮膚科へご相談ください。
+                {t.common.disclaimer}
             </p>
         </>
     );

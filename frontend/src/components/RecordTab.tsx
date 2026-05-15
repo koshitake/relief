@@ -6,6 +6,7 @@
 import { useAppStore } from "@/store/UseAppStore";
 import { useDayRecord } from "@/hooks/UseDayRecord";
 import { useUserSettings } from "@/hooks/UseUserSettings";
+import { useTranslations } from "@/hooks/UseTranslations";
 import SummaryCard from "./SummaryCard";
 import ItchSection from "./ItchSection";
 import WaterSection from "./WaterSection";
@@ -24,6 +25,7 @@ export default function RecordTab({ day }: RecordTabProps) {
     const activeTab = useAppStore((s) => s.activeTab);
     const { record, updateRecord } = useDayRecord(day);
     const { saveWaterTargetMl } = useUserSettings();
+    const t = useTranslations();
 
     return (
         // rendering-conditional-render: ternary を使って && を避ける
@@ -47,16 +49,16 @@ export default function RecordTab({ day }: RecordTabProps) {
                 />
 
                 {/* 任意入力のセクション: デフォルト折りたたみ */}
-                <AccordionCard title="運動">
+                <AccordionCard title={t.record.exercise}>
                     <ExerciseSection record={record} updateRecord={updateRecord} />
                 </AccordionCard>
-                <AccordionCard title="食事">
+                <AccordionCard title={t.record.meals}>
                     <MealsSection record={record} updateRecord={updateRecord} />
                 </AccordionCard>
-                <AccordionCard title="かゆみ">
+                <AccordionCard title={t.record.itch}>
                     <ItchSection record={record} updateRecord={updateRecord} />
                 </AccordionCard>
-                <AccordionCard title="メモ（症状・気づき）">
+                <AccordionCard title={t.record.note}>
                     <NoteSection record={record} updateRecord={updateRecord} />
                 </AccordionCard>
             </div>

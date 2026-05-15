@@ -4,6 +4,7 @@
 // 運動内容を自由記述で入力するカードです。
 
 import { DayRecord } from "@/types/DayRecord";
+import { useTranslations } from "@/hooks/UseTranslations";
 
 interface ExerciseSectionProps {
     record: DayRecord;
@@ -11,6 +12,8 @@ interface ExerciseSectionProps {
 }
 
 export default function ExerciseSection({ record, updateRecord }: ExerciseSectionProps) {
+    const t = useTranslations();
+
     return (
         <div>
             <label
@@ -22,7 +25,7 @@ export default function ExerciseSection({ record, updateRecord }: ExerciseSectio
                     marginBottom: "6px",
                 }}
             >
-                運動内容（任意）
+                {t.exercise.label}
             </label>
             <input
                 id="exercise-text"
@@ -31,7 +34,7 @@ export default function ExerciseSection({ record, updateRecord }: ExerciseSectio
                 onChange={(e: { target: { value: string } }) =>
                     updateRecord({ exerciseText: e.target.value })
                 }
-                placeholder="例: ウォーキング30分、ストレッチ10分"
+                placeholder={t.exercise.placeholder}
                 maxLength={200}
                 style={{ background: "var(--color-input-bg)" }}
             />

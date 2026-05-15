@@ -5,6 +5,7 @@
 // AI推定は有料機能のため現時点では未実装です。
 
 import { DayRecord } from "@/types/DayRecord";
+import { useTranslations } from "@/hooks/UseTranslations";
 
 interface MealsSectionProps {
     record: DayRecord;
@@ -12,6 +13,8 @@ interface MealsSectionProps {
 }
 
 export default function MealsSection({ record, updateRecord }: MealsSectionProps) {
+    const t = useTranslations();
+
     return (
         <div>
             {/* 食事内容テキスト入力 */}
@@ -24,7 +27,7 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                     marginBottom: "6px",
                 }}
             >
-                食事内容
+                {t.meals.title}
             </label>
             <textarea
                 id="meals-text"
@@ -32,7 +35,7 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                 onChange={(e: { target: { value: string } }) =>
                     updateRecord({ mealsText: e.target.value })
                 }
-                placeholder={"例: 朝 玄米・味噌汁\n昼 そば  夜 鶏むね・野菜炒め"}
+                placeholder={t.meals.placeholder}
                 rows={4}
                 maxLength={2000}
                 style={{ resize: "vertical", marginBottom: "16px" }}
@@ -54,7 +57,7 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                         marginBottom: "4px",
                     }}
                 >
-                    糖質・塩分
+                    {t.meals.nutrition}
                 </div>
                 <div
                     style={{
@@ -63,7 +66,7 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                         marginBottom: "10px",
                     }}
                 >
-                    手動で入力できます。AIで推定すると自動で入力されます。
+                    {t.meals.nutritionHint}
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                     {/* 糖質 */}
@@ -77,7 +80,7 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                                 marginBottom: "6px",
                             }}
                         >
-                            糖質（g）
+                            {t.meals.carbs}
                         </label>
                         <input
                             id="carbs-g"
@@ -86,7 +89,7 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                             value={record.carbsG ?? ""}
                             min={0}
                             max={999}
-                            placeholder="例: 68"
+                            placeholder={t.meals.carbsPlaceholder}
                             onChange={(e: { target: { value: string } }) => {
                                 const raw = e.target.value;
                                 updateRecord({
@@ -107,7 +110,7 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                                 marginBottom: "6px",
                             }}
                         >
-                            塩分（g）
+                            {t.meals.salt}
                         </label>
                         <input
                             id="salt-g"
@@ -117,7 +120,7 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                             min={0}
                             max={99}
                             step={0.1}
-                            placeholder="例: 6.2"
+                            placeholder={t.meals.saltPlaceholder}
                             onChange={(e: { target: { value: string } }) => {
                                 const raw = e.target.value;
                                 updateRecord({
@@ -129,14 +132,14 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                 </div>
             </div>
 
-            {/* AI推定ボタン（有料機能 - 現時点では未実装） - カード最下部に配置 */}
+            {/* AI推定ボタン（有料機能・準備中） */}
             <button
                 className="btn-premium-disabled"
                 disabled
-                aria-label="AI糖質・塩分推定（有料機能）"
+                aria-label={t.meals.aiButtonAriaLabel}
             >
                 <span>🔒</span>
-                <span>AIで糖質・塩分を推定する（有料機能）</span>
+                <span>{t.meals.aiButtonText}</span>
             </button>
         </div>
     );

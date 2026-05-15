@@ -4,6 +4,7 @@
 // 今日の気づきを自由記述するカードです。
 
 import { DayRecord } from "@/types/DayRecord";
+import { useTranslations } from "@/hooks/UseTranslations";
 
 interface NoteSectionProps {
     record: DayRecord;
@@ -11,6 +12,8 @@ interface NoteSectionProps {
 }
 
 export default function NoteSection({ record, updateRecord }: NoteSectionProps) {
+    const t = useTranslations();
+
     return (
         <div>
             <textarea
@@ -18,7 +21,7 @@ export default function NoteSection({ record, updateRecord }: NoteSectionProps) 
                 onChange={(e: { target: { value: string } }) =>
                     updateRecord({ note: e.target.value })
                 }
-                placeholder="その日気づいたことを書いてください"
+                placeholder={t.note.placeholder}
                 rows={3}
                 maxLength={1000}
                 style={{ resize: "vertical" }}

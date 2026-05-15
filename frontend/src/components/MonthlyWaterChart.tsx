@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useAppStore } from "@/store/UseAppStore";
+import { useTranslations } from "@/hooks/UseTranslations";
 
 interface DayData {
     day: string;
@@ -36,11 +37,12 @@ function nextMonth(year: number, month: number): { year: number; month: number }
 const GRAPH_HEIGHT = 100;
 const GRAPH_PADDING_TOP = 16;    // 目標ラインラベル用
 const GRAPH_PADDING_BOTTOM = 18; // X軸ラベル用
-const GRAPH_PADDING_LEFT = 24;   // Y軸ラベル用
+const GRAPH_PADDING_LEFT = 32;   // Y軸ラベル用
 const BAR_GAP = 1;
 
 export default function MonthlyWaterChart() {
     const waterTargetMl = useAppStore((s) => s.waterTargetMl);
+    const t = useTranslations();
     const today = getCurrentYearMonth();
 
     const [viewYear, setViewYear] = useState(today.year);
@@ -110,7 +112,7 @@ export default function MonthlyWaterChart() {
 
     return (
         <div className="card" style={{ marginTop: "12px" }}>
-            <div className="section-label">月次水分量</div>
+            <div className="section-label">{t.chart.title}</div>
 
             {/* 月ナビゲーション */}
             <div style={{
@@ -130,12 +132,12 @@ export default function MonthlyWaterChart() {
                         fontSize: "1.1rem", color: "var(--color-accent)",
                         padding: "4px 8px",
                     }}
-                    aria-label="前月"
+                    aria-label={t.chart.prevMonth}
                 >
                     ‹
                 </button>
                 <span style={{ fontSize: "0.88rem", fontWeight: 600, color: "var(--color-text-primary)" }}>
-                    {viewYear}年{viewMonth}月
+                    {t.chart.formatYearMonth(viewYear, viewMonth)}
                 </span>
                 <button
                     onClick={() => {
@@ -153,7 +155,7 @@ export default function MonthlyWaterChart() {
                         padding: "4px 8px",
                         opacity: isCurrentMonth ? 0.3 : 1,
                     }}
-                    aria-label="翌月"
+                    aria-label={t.chart.nextMonth}
                 >
                     ›
                 </button>
@@ -166,7 +168,7 @@ export default function MonthlyWaterChart() {
                     display: "flex", alignItems: "center", justifyContent: "center",
                     color: "var(--color-text-muted)", fontSize: "0.78rem",
                 }}>
-                    読み込み中…
+                    {t.chart.loading}
                 </div>
             ) : (
                 <svg
@@ -174,7 +176,7 @@ export default function MonthlyWaterChart() {
                     width="100%"
                     preserveAspectRatio="none"
                     style={{ display: "block", overflow: "visible" }}
-                    aria-label={`${viewYear}年${viewMonth}月の水分摂取グラフ`}
+                    aria-label={t.chart.formatAriaLabel(viewYear, viewMonth)}
                 >
                     {/* Y軸ラベルと目盛りライン */}
                     {yAxisTicks.map(({ label, y }) => (
@@ -190,9 +192,9 @@ export default function MonthlyWaterChart() {
                             />
                             <text
                                 x={GRAPH_PADDING_LEFT - 1}
-                                y={y + 1}
+                                y={y + 2}
                                 textAnchor="end"
-                                fontSize={2.5}
+                                fontSize={5}
                                 fontWeight="bold"
                                 fill="#333333"
                             >
@@ -213,9 +215,9 @@ export default function MonthlyWaterChart() {
                     />
                     <text
                         x={GRAPH_PADDING_LEFT - 1}
-                        y={targetY + 1}
+                        y={targetY + 2}
                         textAnchor="end"
-                        fontSize={2.5}
+                        fontSize={5}
                         fill="rgba(255,59,48,0.9)"
                         fontWeight="bold"
                     >
@@ -263,11 +265,11 @@ export default function MonthlyWaterChart() {
             <div style={{ display: "flex", gap: "12px", marginTop: "6px", marginBottom: "12px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                     <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: "#007AFF" }} />
-                    <span style={{ fontSize: "0.68rem", color: "var(--color-text-muted)" }}>水分量</span>
+                    <span style={{ fontSize: "0.68rem", color: "var(--color-text-muted)" }}>{t.chart.legend}</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                     <div style={{ width: "12px", height: "1px", background: "rgba(255,59,48,0.7)", borderTop: "1px dashed rgba(255,59,48,0.7)" }} />
-                    <span style={{ fontSize: "0.68rem", color: "var(--color-text-muted)" }}>目標 {waterTargetMl.toLocaleString()}ml</span>
+                    <span style={{ fontSize: "0.68rem", color: "var(--color-text-muted)" }}>{t.chart.formatTargetLabel(waterTargetMl)}</span>
                 </div>
             </div>
 
@@ -275,9 +277,9 @@ export default function MonthlyWaterChart() {
             {stats !== null ? (
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
                     {[
-                        { label: "平均", value: stats.avg },
-                        { label: "最大", value: stats.max },
-                        { label: "最小", value: stats.min },
+                        { label: t.chart.avg, value: stats.avg },
+                        { label: t.chart.max, value: stats.max },
+                        { label: t.chart.min, value: stats.min },
                     ].map(({ label, value }) => (
                         <div
                             key={label}
@@ -302,7 +304,7 @@ export default function MonthlyWaterChart() {
                 </div>
             ) : (
                 <p style={{ fontSize: "0.78rem", color: "var(--color-text-muted)", textAlign: "center", margin: "8px 0 0" }}>
-                    この月の記録はありません
+                    {t.chart.noData}
                 </p>
             )}
         </div>

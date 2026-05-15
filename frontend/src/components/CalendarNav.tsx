@@ -5,9 +5,7 @@
 
 import { useState } from "react";
 import { useAppStore } from "@/store/UseAppStore";
-
-// 日本語の曜日ラベル（日=0）
-const DAY_NAMES = ["日", "月", "火", "水", "木", "金", "土"];
+import { useTranslations } from "@/hooks/UseTranslations";
 
 // 今日の日付を YYYY-MM-DD 形式で返す（ローカル時刻ベースでタイムゾーンずれを防ぐ）
 function getTodayString(): string {
@@ -29,18 +27,6 @@ function shiftDate(dateStr: string, days: number): string {
     // タイムゾーンのずれを防ぐため UTC で計算する
     date.setUTCDate(date.getUTCDate() + days);
     return date.toISOString().slice(0, 10);
-}
-
-// YYYY-MM-DD を「YYYY年M月D日」形式に変換する
-function formatDisplayDate(dateStr: string): string {
-    const [year, month, day] = dateStr.split("-");
-    return `${year}年${Number(month)}月${Number(day)}日`;
-}
-
-// YYYY-MM-DD から「〇曜日」を取得する
-function getDayName(dateStr: string): string {
-    const date = new Date(dateStr + "T00:00:00");
-    return DAY_NAMES[date.getDay()] + "曜日";
 }
 
 // 指定の年月のカレンダーグリッドを生成する（日曜始まり、6週 × 7日 = 最大 42 セル）
@@ -75,6 +61,7 @@ export default function CalendarNav() {
     // セレクターで必要な値だけ購読し、他の状態変化による不要な再レンダリングを防ぐ
     const selectedDay = useAppStore((s) => s.selectedDay);
     const setSelectedDay = useAppStore((s) => s.setSelectedDay);
+    const t = useTranslations();
     const today = getTodayString();
     const isToday = selectedDay === today;
 
@@ -132,7 +119,7 @@ export default function CalendarNav() {
                 <button
                     className="cal-nav-btn"
                     onClick={() => setSelectedDay(shiftDate(selectedDay, -1))}
-                    aria-label="前日"
+                    aria-label={t.calendar.prevDay}
                 >
                     ‹
                 </button>
@@ -149,7 +136,7 @@ export default function CalendarNav() {
                     }}
                     onClick={toggleCalendar}
                     aria-expanded={calOpen}
-                    aria-label="カレンダーを開く"
+                    aria-label={t.calendar.openCalendar}
                 >
                     <div
                         style={{
@@ -159,7 +146,7 @@ export default function CalendarNav() {
                             letterSpacing: "0.02em",
                         }}
                     >
-                        {formatDisplayDate(selectedDay)}
+                        {(() => { const [y, m, d] = selectedDay.split("-").map(Number); return t.calendar.formatDate(y, m, d); })()}
                     </div>
                     <div
                         style={{
@@ -168,7 +155,7 @@ export default function CalendarNav() {
                             marginTop: "2px",
                         }}
                     >
-                        {getDayName(selectedDay)}&nbsp;
+                        {t.calendar.formatWeekday(new Date(selectedDay + "T00:00:00").getDay())}&nbsp;
                         {/* 開閉状態を示すシェブロン */}
                         <span style={{ fontSize: "0.65rem" }}>{calOpen ? "▴" : "▾"}</span>
                     </div>
@@ -177,7 +164,7 @@ export default function CalendarNav() {
                 <button
                     className="cal-nav-btn"
                     onClick={() => setSelectedDay(shiftDate(selectedDay, 1))}
-                    aria-label="翌日"
+                    aria-label={t.calendar.nextDay}
                 >
                     ›
                 </button>
@@ -188,13 +175,13 @@ export default function CalendarNav() {
                 <div className="card cal-popup">
                     {/* 月ナビゲーション */}
                     <div className="cal-header">
-                        <button className="cal-nav-btn" onClick={prevMonth} aria-label="前月">
+                        <button className="cal-nav-btn" onClick={prevMonth} aria-label={t.calendar.prevMonth}>
                             ‹
                         </button>
                         <span style={{ fontSize: "0.95rem", fontWeight: 600 }}>
-                            {viewYear}年{viewMonth + 1}月
+                            {t.calendar.formatYearMonth(viewYear, viewMonth + 1)}
                         </span>
-                        <button className="cal-nav-btn" onClick={nextMonth} aria-label="翌月">
+                        <button className="cal-nav-btn" onClick={nextMonth} aria-label={t.calendar.nextMonth}>
                             ›
                         </button>
                     </div>
@@ -202,7 +189,7 @@ export default function CalendarNav() {
                     {/* カレンダーグリッド */}
                     <div className="cal-grid">
                         {/* 曜日ヘッダー */}
-                        {DAY_NAMES.map((name, i) => (
+                        {t.calendar.weekdays.map((name, i) => (
                             <div
                                 key={name}
                                 className={`cal-weekday ${i === 0 ? "cal-weekday-sun" : i === 6 ? "cal-weekday-sat" : ""}`}
@@ -234,7 +221,7 @@ export default function CalendarNav() {
                                     key={dateStr}
                                     className={classes}
                                     onClick={() => selectDay(dateStr)}
-                                    aria-label={formatDisplayDate(dateStr)}
+                                    aria-label={(() => { const [y, m, d] = dateStr.split("-").map(Number); return t.calendar.formatDate(y, m, d); })()}
                                     aria-pressed={isSelected}
                                 >
                                     {dayNum}
@@ -254,9 +241,9 @@ export default function CalendarNav() {
                             setSelectedDay(today);
                             setCalOpen(false);
                         }}
-                        aria-label="今日の日付へ移動"
+                        aria-label={t.calendar.goToTodayAriaLabel}
                     >
-                        今日
+                        {t.calendar.today}
                     </button>
                 </div>
             ) : null}

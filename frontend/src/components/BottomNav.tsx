@@ -6,6 +6,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useAppStore } from "@/store/UseAppStore";
+import { useTranslations } from "@/hooks/UseTranslations";
 
 export default function BottomNav() {
     const pathname = usePathname();
@@ -14,6 +15,7 @@ export default function BottomNav() {
     // セレクターで必要な値だけ購読し、他の状態変化による不要な再レンダリングを防ぐ
     const activeTab = useAppStore((s) => s.activeTab);
     const setActiveTab = useAppStore((s) => s.setActiveTab);
+    const t = useTranslations();
 
     const isSettings = pathname === "/settings";
 
@@ -24,7 +26,7 @@ export default function BottomNav() {
     }
 
     return (
-        <nav className="bottom-nav" role="tablist" aria-label="メインナビゲーション">
+        <nav className="bottom-nav" role="tablist" aria-label={t.nav.mainAriaLabel}>
             <button
                 className={`bottom-nav-btn ${!isSettings && activeTab === "summary" ? "active" : ""}`}
                 role="tab"
@@ -32,7 +34,7 @@ export default function BottomNav() {
                 onClick={() => handleMainTabClick("summary")}
             >
                 <span className="bottom-nav-icon" aria-hidden="true">📊</span>
-                <span className="bottom-nav-label">まとめ</span>
+                <span className="bottom-nav-label">{t.nav.summary}</span>
             </button>
             <button
                 className={`bottom-nav-btn ${!isSettings && activeTab === "input" ? "active" : ""}`}
@@ -41,7 +43,7 @@ export default function BottomNav() {
                 onClick={() => handleMainTabClick("input")}
             >
                 <span className="bottom-nav-icon" aria-hidden="true">✏️</span>
-                <span className="bottom-nav-label">入力</span>
+                <span className="bottom-nav-label">{t.nav.input}</span>
             </button>
             <button
                 className={`bottom-nav-btn ${isSettings ? "active" : ""}`}
@@ -50,7 +52,7 @@ export default function BottomNav() {
                 onClick={() => router.push("/settings")}
             >
                 <span className="bottom-nav-icon" aria-hidden="true">⚙️</span>
-                <span className="bottom-nav-label">設定</span>
+                <span className="bottom-nav-label">{t.nav.settings}</span>
             </button>
         </nav>
     );

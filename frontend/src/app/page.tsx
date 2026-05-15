@@ -5,6 +5,7 @@
 
 import { useAppStore } from "@/store/UseAppStore";
 import { useAuth } from "@/hooks/UseAuth";
+import { useTranslations } from "@/hooks/UseTranslations";
 import AppHeader from "@/components/AppHeader";
 import CalendarNav from "@/components/CalendarNav";
 import RecordTab from "@/components/RecordTab";
@@ -14,12 +15,13 @@ import AdBanner from "@/components/AdBanner";
 export default function HomePage() {
     const { selectedDay } = useAppStore();
     const { loading } = useAuth();
+    const t = useTranslations();
 
     // セッション確認中はローディング表示
     if (loading) {
         return (
             <div style={{ textAlign: "center", paddingTop: "40vh", color: "var(--color-text-muted)" }}>
-                読み込み中...
+                {t.common.loading}
             </div>
         );
     }
@@ -41,14 +43,14 @@ export default function HomePage() {
             {/* 有料機能プレースホルダー（日次アドバイスのみ） */}
             <div style={{ marginTop: "12px" }}>
                 <PremiumSection
-                    title="日次アドバイス"
-                    description="今日の記録をもとにAIが肌ケアのアドバイスを生成します。"
+                    title={t.premium.dailyAdviceTitle}
+                    description={t.premium.dailyAdviceDescription}
                 />
             </div>
 
             {/* 免責フッター */}
             <p className="disclaimer-footer">
-                ※ 医療行為ではありません。症状が続く場合は主治医・皮膚科へご相談ください。
+                {t.common.disclaimer}
             </p>
         </>
     );
