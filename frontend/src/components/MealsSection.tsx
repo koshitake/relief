@@ -1,8 +1,7 @@
 "use client";
 
 // 食事内容入力セクションコンポーネントです。
-// 食事内容のテキスト入力、糖質・塩分の入力（手動 or AI自動入力）、AI推定ボタンを提供します。
-// AI推定は有料機能のため現時点では未実装です。
+// 食事内容のテキスト入力と糖質・塩分の手動入力を提供します。
 
 import { DayRecord } from "@/types/DayRecord";
 import { useTranslations } from "@/hooks/UseTranslations";
@@ -41,7 +40,7 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                 style={{ resize: "vertical", marginBottom: "16px" }}
             />
 
-            {/* 糖質・塩分入力（手動入力、またはAI推定で自動入力される） */}
+            {/* 糖質・塩分入力（手動入力） */}
             <div
                 style={{
                     borderTop: "1px solid var(--color-border)",
@@ -54,19 +53,10 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                         fontSize: "0.85rem",
                         fontWeight: 600,
                         color: "var(--color-text-secondary)",
-                        marginBottom: "4px",
-                    }}
-                >
-                    {t.meals.nutrition}
-                </div>
-                <div
-                    style={{
-                        fontSize: "0.75rem",
-                        color: "var(--color-text-muted)",
                         marginBottom: "10px",
                     }}
                 >
-                    {t.meals.nutritionHint}
+                    {t.meals.nutrition}
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                     {/* 糖質 */}
@@ -132,15 +122,6 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                 </div>
             </div>
 
-            {/* AI推定ボタン（有料機能・準備中） */}
-            <button
-                className="btn-premium-disabled"
-                disabled
-                aria-label={t.meals.aiButtonAriaLabel}
-            >
-                <span>🔒</span>
-                <span>{t.meals.aiButtonText}</span>
-            </button>
         </div>
     );
 }

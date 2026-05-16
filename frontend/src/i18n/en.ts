@@ -29,11 +29,6 @@ export const en: Messages = {
     ad: {
         label: "Ad",
     },
-    premium: {
-        comingSoon: "Premium feature · Coming soon",
-        dailyAdviceTitle: "Daily Advice",
-        dailyAdviceDescription: "AI generates skin care advice based on today's records.",
-    },
     summary: {
         water: "💧 Water",
         exercise: "🏃 Exercise",
@@ -102,14 +97,10 @@ export const en: Messages = {
         title: "Meals",
         placeholder: "e.g. Breakfast: oatmeal\nLunch: salad  Dinner: chicken & veggies",
         nutrition: "Carbs & Salt",
-        nutritionHint: "Enter manually, or use AI estimation to fill in automatically.",
         carbs: "Carbs (g)",
         carbsPlaceholder: "e.g. 68",
         salt: "Salt (g)",
         saltPlaceholder: "e.g. 6.2",
-        aiButtonAriaLabel: "Estimate carbs & salt with AI (premium feature)",
-        aiButtonText: "Estimate carbs & salt with AI (premium)",
-        aiComingSoonAlert: "AI features are coming soon. Please check back later.",
     },
     itch: {
         area: "Location (optional)",
