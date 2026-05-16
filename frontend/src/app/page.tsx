@@ -9,7 +9,6 @@ import { useTranslations } from "@/hooks/UseTranslations";
 import AppHeader from "@/components/AppHeader";
 import CalendarNav from "@/components/CalendarNav";
 import RecordTab from "@/components/RecordTab";
-import PremiumSection from "@/components/PremiumSection";
 import AdBanner from "@/components/AdBanner";
 
 export default function HomePage() {
@@ -39,14 +38,6 @@ export default function HomePage() {
 
             {/* ダッシュボード（今日のまとめ / 入力 タブ切り替え） */}
             <RecordTab day={selectedDay} />
-
-            {/* 有料機能プレースホルダー（日次アドバイスのみ） */}
-            <div style={{ marginTop: "12px" }}>
-                <PremiumSection
-                    title={t.premium.dailyAdviceTitle}
-                    description={t.premium.dailyAdviceDescription}
-                />
-            </div>
 
             {/* 免責フッター */}
             <p className="disclaimer-footer">

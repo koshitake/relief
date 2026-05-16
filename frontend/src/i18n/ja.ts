@@ -25,11 +25,6 @@ export const ja = {
     ad: {
         label: "広告",
     },
-    premium: {
-        comingSoon: "有料機能・近日公開予定",
-        dailyAdviceTitle: "日次アドバイス",
-        dailyAdviceDescription: "今日の記録をもとにAIが肌ケアのアドバイスを生成します。",
-    },
     summary: {
         water: "💧 水分",
         exercise: "🏃 運動",
@@ -98,14 +93,10 @@ export const ja = {
         title: "食事内容",
         placeholder: "例: 朝 玄米・味噌汁\n昼 そば  夜 鶏むね・野菜炒め",
         nutrition: "糖質・塩分",
-        nutritionHint: "手動で入力できます。AIで推定すると自動で入力されます。",
         carbs: "糖質（g）",
         carbsPlaceholder: "例: 68",
         salt: "塩分（g）",
         saltPlaceholder: "例: 6.2",
-        aiButtonAriaLabel: "AI糖質・塩分推定（有料機能）",
-        aiButtonText: "AIで糖質・塩分を推定する（有料機能）",
-        aiComingSoonAlert: "AI機能は現在準備中です。しばらくお待ちください。",
     },
     itch: {
         area: "部位（任意）",
