@@ -1,9 +1,7 @@
 "use client";
 
 // 有料機能のプレースホルダーカードコンポーネントです。
-// 日次アドバイスなどの未実装有料機能を表示します。
-
-import { useTranslations } from "@/hooks/UseTranslations";
+// AI機能追加時に再利用する予定です。
 
 interface PremiumSectionProps {
     /** セクションタイトル */
@@ -13,8 +11,6 @@ interface PremiumSectionProps {
 }
 
 export default function PremiumSection({ title, description }: PremiumSectionProps) {
-    const t = useTranslations();
-
     return (
         <div
             className="card"
@@ -42,8 +38,6 @@ export default function PremiumSection({ title, description }: PremiumSectionPro
                 }}
             >
                 {description}
-                <br />
-                {t.premium.comingSoon}
             </div>
         </div>
     );
