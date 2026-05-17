@@ -51,7 +51,7 @@ export function useDayRecord(day: string) {
                 fetch(`/api/records/${day}`).then((r) => r.json()),
                 fetch("/api/settings").then((r) => r.json()),
             ])
-                .then(([recordData, settingsData]: [DayRecord | null, { waterTargetMl?: number; carbsTargetG?: number; saltTargetG?: number; locale?: "ja" | "en"; plan?: "free" | "standard" } | null]) => {
+                .then(([recordData, settingsData]: [DayRecord | null, { waterTargetMl?: number; carbsTargetG?: number; saltTargetG?: number; locale?: "ja" | "en"; plan?: "free" | "full" } | null]) => {
                     if (cancelled) return;
                     settingsFetched.current = true;
                     if (settingsData?.waterTargetMl) setWaterTargetMl(settingsData.waterTargetMl);

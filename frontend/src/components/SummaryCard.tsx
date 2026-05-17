@@ -8,6 +8,7 @@ import { MAX_ITCH_SCORE } from "@/constants/AppConstants";
 import { useAppStore } from "@/store/UseAppStore";
 import { useTranslations } from "@/hooks/UseTranslations";
 import MonthlyWaterChart from "./MonthlyWaterChart";
+import ItchTrendChart from "./ItchTrendChart";
 
 interface SummaryCardProps {
     record: DayRecord;
@@ -92,7 +93,23 @@ export default function SummaryCard({ record }: SummaryCardProps) {
                         barColor="#34C759"
                     />
                 </div>
+                {/* 選択されたかゆみ部位を表示する */}
+                {record.itchArea.length > 0 && (
+                    <div style={{
+                        marginTop: "8px",
+                        paddingTop: "8px",
+                        borderTop: "1px solid var(--color-border)",
+                        fontSize: "0.72rem",
+                        color: "var(--color-text-muted)",
+                        textAlign: "left",
+                    }}>
+                        {record.itchArea.join("・")}
+                    </div>
+                )}
             </div>
+
+            {/* 5. かゆみ傾向グラフ（全プラン） */}
+            <ItchTrendChart />
         </div>
     );
 }

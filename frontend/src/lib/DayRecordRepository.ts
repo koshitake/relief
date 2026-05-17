@@ -25,8 +25,14 @@ function rowToDayRecord(row: Record<string, unknown>): DayRecord {
               .map((log) => ({ time: log.time as string, ml: log.ml as number }))
         : [];
 
+    // DBのカンマ区切り文字列を配列に変換する。空文字の場合は空配列にする
+    const rawArea = row.itch_area;
+    const itchArea = typeof rawArea === "string" && rawArea
+        ? rawArea.split(",").filter(Boolean)
+        : [];
+
     return {
-        itchArea:     String(row.itch_area ?? ""),
+        itchArea,
         itchScore:    Number(row.itch_score ?? 0),
         waterLogs,
         exerciseText: String(row.exercise_text ?? ""),
@@ -44,7 +50,8 @@ function dayRecordToRow(
     return {
         day,
         user_id:       userId,
-        itch_area:     record.itchArea,
+        // 配列をカンマ区切り文字列に変換してDBに保存する
+        itch_area:     record.itchArea.join(","),
         itch_score:    record.itchScore,
         // water_ml は集計クエリ用の合計値。water_logs に個別ログを保存する
         water_ml:      calcTotalWaterMl(record.waterLogs),
@@ -183,9 +190,14 @@ function rowToFullRecord(row: Record<string, unknown>): { day: string } & DayRec
               .map((log) => ({ time: log.time as string, ml: log.ml as number }))
         : [];
 
+    const rawAreaFull = row.itch_area;
+    const itchAreaFull = typeof rawAreaFull === "string" && rawAreaFull
+        ? (rawAreaFull as string).split(",").filter(Boolean)
+        : [];
+
     return {
         day:          String(row.day ?? ""),
-        itchArea:     String(row.itch_area ?? ""),
+        itchArea:     itchAreaFull,
         itchScore:    Number(row.itch_score ?? 0),
         waterLogs,
         exerciseText: String(row.exercise_text ?? ""),
@@ -250,7 +262,7 @@ export async function batchUpsertDayRecords(
     const rows = records.map((r) => ({
         user_id:       userId,
         day:           r.day,
-        itch_area:     r.itchArea,
+        itch_area:     r.itchArea.join(","),
         itch_score:    r.itchScore,
         water_ml:      calcTotalWaterMl(r.waterLogs),
         water_logs:    r.waterLogs,

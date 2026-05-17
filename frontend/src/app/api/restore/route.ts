@@ -39,7 +39,7 @@ function isValidBackup(data: unknown): data is {
 // バックアップ内の1件のレコードを安全に変換する
 function parseRecord(r: unknown): {
     day:          string;
-    itchArea:     string;
+    itchArea:     string[];
     itchScore:    number;
     waterLogs:    WaterLog[];
     exerciseText: string;
@@ -64,9 +64,17 @@ function parseRecord(r: unknown): {
               .map((log) => ({ time: log.time, ml: log.ml }))
         : [];
 
+    // 後方互換: 旧バックアップは文字列形式、新バックアップは配列形式
+    const rawArea = row.itchArea;
+    const itchArea: string[] = Array.isArray(rawArea)
+        ? (rawArea as unknown[]).filter((s) => typeof s === "string").map(String)
+        : typeof rawArea === "string" && rawArea
+            ? rawArea.split(",").filter(Boolean)
+            : [];
+
     return {
         day,
-        itchArea:     String(row.itchArea ?? ""),
+        itchArea,
         itchScore:    Number(row.itchScore ?? 0),
         waterLogs,
         exerciseText: String(row.exerciseText ?? ""),

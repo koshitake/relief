@@ -1,7 +1,7 @@
 "use client";
 
 // かゆみセクションコンポーネントです。
-// 部位入力とスライダーを提供します。
+// 部位チップの複数選択とスコアスライダーを提供します。
 
 import { DayRecord } from "@/types/DayRecord";
 import { MAX_ITCH_SCORE } from "@/constants/AppConstants";
@@ -14,34 +14,62 @@ interface ItchSectionProps {
 
 export default function ItchSection({ record, updateRecord }: ItchSectionProps) {
     const t = useTranslations();
-    // スライダーの塗りつぶし率（0〜100%）を計算する
     const fillPercent = (record.itchScore / MAX_ITCH_SCORE) * 100;
+
+    // 部位の選択/解除を切り替える
+    function toggleArea(area: string) {
+        const current = record.itchArea;
+        const next = current.includes(area)
+            ? current.filter((a) => a !== area)
+            : [...current, area];
+        updateRecord({ itchArea: next });
+    }
 
     return (
         <div>
-            {/* かゆみの部位入力 */}
+            {/* かゆみの部位チップ選択 */}
             <div style={{ marginBottom: "14px" }}>
-                <label
-                    htmlFor="itch-area"
+                <div
                     style={{
-                        display: "block",
                         fontSize: "0.8rem",
                         color: "var(--color-text-secondary)",
-                        marginBottom: "6px",
+                        marginBottom: "8px",
                     }}
                 >
-                    {t.itch.area}
-                </label>
-                <input
-                    id="itch-area"
-                    type="text"
-                    value={record.itchArea}
-                    onChange={(e: { target: { value: string } }) =>
-                        updateRecord({ itchArea: e.target.value })
-                    }
-                    placeholder={t.itch.areaPlaceholder}
-                    maxLength={100}
-                />
+                    {t.itch.areaLabel}
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                    {t.itch.areas.map((area) => {
+                        const selected = record.itchArea.includes(area);
+                        return (
+                            <button
+                                key={area}
+                                onClick={() => toggleArea(area)}
+                                style={{
+                                    padding: "6px 12px",
+                                    borderRadius: "var(--radius-pill)",
+                                    border: selected
+                                        ? "1.5px solid var(--color-accent)"
+                                        : "1px solid var(--color-border)",
+                                    background: selected
+                                        ? "rgba(0, 122, 255, 0.1)"
+                                        : "var(--color-input-bg)",
+                                    color: selected
+                                        ? "var(--color-accent)"
+                                        : "var(--color-text-secondary)",
+                                    fontSize: "0.78rem",
+                                    fontWeight: selected ? 600 : 400,
+                                    cursor: "pointer",
+                                    fontFamily: "inherit",
+                                    transition: "all 0.15s ease",
+                                    minHeight: "36px",
+                                }}
+                            >
+                                {area}
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
 
             {/* かゆみスコアスライダー */}

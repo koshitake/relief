@@ -9,8 +9,8 @@ export interface WaterLog {
 }
 
 export interface DayRecord {
-    /** かゆみの部位（例: 腕、首） */
-    itchArea: string;
+    /** かゆみの部位（複数選択可。DBにはカンマ区切り文字列で保存） */
+    itchArea: string[];
     /** かゆみスコア（0〜MAX_ITCH_SCORE） */
     itchScore: number;
     /** 水分摂取ログ（時刻と量を都度記録する方式） */
@@ -35,7 +35,7 @@ export function calcTotalWaterMl(logs: WaterLog[]): number {
 /** DayRecord の初期値を生成するファクトリ関数 */
 export function createEmptyDayRecord(): DayRecord {
     return {
-        itchArea: "",
+        itchArea: [],
         itchScore: 0,
         waterLogs: [],
         exerciseText: "",
