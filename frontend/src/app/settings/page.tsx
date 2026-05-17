@@ -47,7 +47,6 @@ export default function SettingsPage() {
 
     // バックアップ関連の状態
     const [backupState, setBackupState] = useState<"idle" | "running" | "success" | "error">("idle");
-    const [backupUrl, setBackupUrl] = useState<string | null>(null);
     const [restoreState, setRestoreState] = useState<"idle" | "running" | "success" | "error">("idle");
 
     async function handleNicknameSave() {
@@ -100,11 +99,8 @@ export default function SettingsPage() {
             return;
         }
         setBackupState("running");
-        setBackupUrl(null);
         const res = await fetch("/api/backup", { method: "POST" });
         if (res.ok) {
-            const data = await res.json() as { url?: string };
-            setBackupUrl(data.url ?? null);
             setBackupState("success");
         } else {
             setBackupState("error");
@@ -462,23 +458,6 @@ export default function SettingsPage() {
                                     : !session?.hasDriveScope  ? t.settings.backupNeedAuth
                                     : t.settings.backupButton}
                             </button>
-                            {backupState === "success" && backupUrl && (
-                                <a
-                                    href={backupUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{
-                                        display: "block",
-                                        textAlign: "center",
-                                        marginTop: "8px",
-                                        fontSize: "0.78rem",
-                                        color: "var(--color-accent)",
-                                        textDecoration: "underline",
-                                    }}
-                                >
-                                    {t.settings.backupSuccessLink}
-                                </a>
-                            )}
                         </div>
 
                         {/* 区切り線 */}
