@@ -142,7 +142,6 @@ export const ja = {
         backupButton: "Google Drive にバックアップ",
         backupRunning: "バックアップ中...",
         backupSuccess: "バックアップが完了しました",
-        backupSuccessLink: "Drive で確認する",
         backupError: "バックアップに失敗しました。再試行してください",
         backupNeedAuth: "Google Drive の権限が必要です。再サインインしてください",
         restoreTitle: "バックアップから復元",
