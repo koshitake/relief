@@ -146,7 +146,6 @@ export const en: Messages = {
         backupButton: "Back up to Google Drive",
         backupRunning: "Backing up...",
         backupSuccess: "Backup completed",
-        backupSuccessLink: "View in Drive",
         backupError: "Backup failed. Please try again.",
         backupNeedAuth: "Google Drive permission required. Please sign in again.",
         restoreTitle: "Restore from backup",
