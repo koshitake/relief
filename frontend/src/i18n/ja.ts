@@ -162,7 +162,7 @@ export const ja = {
         preparingAlert: "現在準備中です。しばらくお待ちください。",
         planPrice: "準備中",
         planFeatures: {
-            free: ["広告あり", "かゆみ傾向グラフ（週/月別）"],
+            free: ["広告あり"],
             full: ["広告非表示", "データバックアップ", "主治医向けレポート作成"],
         },
         dataManagement: "データ管理",

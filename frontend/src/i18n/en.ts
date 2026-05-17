@@ -166,7 +166,7 @@ export const en: Messages = {
         preparingAlert: "This feature is coming soon. Please check back later.",
         planPrice: "Coming soon",
         planFeatures: {
-            free: ["Ads shown", "Itch trend chart (weekly / monthly)"],
+            free: ["Ads shown"],
             full: ["No ads", "Data backup", "Doctor's report"],
         },
         dataManagement: "Data",
