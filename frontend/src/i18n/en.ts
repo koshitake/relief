@@ -107,8 +107,8 @@ export const en: Messages = {
         areaLabel: "Select area(s) (optional)",
         areas: ["Head", "Face", "Neck", "Arms / Inner elbow", "Hands / Fingers", "Chest / Abdomen", "Back", "Thighs", "Back of knees", "Calves", "Feet"],
         score: "Itch score",
-        scoreMin: "0 (none)",
-        scoreMax: "10 (max)",
+        scoreLabels: ["No itch", "Quite comfortable", "So-so", "Bad", "Terrible"],
+        noRecord: "No record",
     },
     itchChart: {
         title: "Itch trend",

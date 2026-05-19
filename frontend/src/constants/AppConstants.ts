@@ -4,8 +4,11 @@
 // 無料プランで保持する記録の最大日数（1ヶ月分）
 export const MAX_RECORD_DAYS = 31;
 
-// かゆみスコアの最大値
-export const MAX_ITCH_SCORE = 10;
+// かゆみスコアの最大値（1〜5の5段階）
+export const MAX_ITCH_SCORE = 5;
+
+// かゆみスコアのアイコン（インデックス0=未入力、1〜5がスコア値に対応）
+export const ITCH_SCORE_ICONS = ["", "😊", "🙂", "😐", "😟", "😣"] as const;
 
 // 水分入力の設定（ml単位）
 export const MAX_WATER_ML = 5000;

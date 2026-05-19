@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import BottomNav from "@/components/BottomNav";
+import AdBanner from "@/components/AdBanner";
 
 export const metadata: Metadata = {
     title: "Relief - アトピーセルフケア",
@@ -47,8 +48,8 @@ export default function RootLayout({
                         style={{
                             maxWidth: "480px",
                             margin: "0 auto",
-                            /* ボトムナビバー分の余白を確保する */
-                            padding: "0 1rem calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 8px)",
+                            /* ボトムナビ＋広告バナー分の余白を確保する */
+                            padding: "0 1rem calc(var(--bottom-nav-height) + var(--ad-banner-height) + env(safe-area-inset-bottom) + 8px)",
                             minHeight: "100vh",
                             position: "relative",
                             zIndex: 1,
@@ -56,6 +57,8 @@ export default function RootLayout({
                     >
                         {children}
                     </main>
+                    {/* 広告バナー（ボトムナビ直上・固定） */}
+                    <AdBanner />
                     {/* 固定ボトムナビゲーションバー */}
                     <BottomNav />
                 </Providers>

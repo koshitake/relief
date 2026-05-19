@@ -1,35 +1,35 @@
 "use client";
 
 // かゆみ傾向グラフコンポーネント。
-// 部位ごとに折れ線グラフで出現日数の推移を表示します（月次/週次切り替え）。
+// かゆみスコア平均の折れ線グラフを表示します（月次/週次切り替え）。
+// 週次モードは指定月の全週を表示し、月ナビゲーターで月を切り替えられます。
 
 import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "@/hooks/UseTranslations";
 import { useAppStore } from "@/store/UseAppStore";
 import type { ItchStatEntry } from "@/app/api/itch-stats/route";
+import { ITCH_SCORE_ICONS } from "@/constants/AppConstants";
 
-// 表示する最大部位数（多すぎると視認しにくいため上位に絞る）
-const MAX_AREAS = 7;
-
-// 部位ごとの折れ線の色パレット
-const LINE_COLORS = [
-    "#FF3B30", // 赤
-    "#007AFF", // 青
-    "#34C759", // 緑
-    "#FF9500", // オレンジ
-    "#5856D6", // 紫
-    "#FF2D55", // ピンク
-    "#30B0C7", // 水色
-];
+// 折れ線の色
+const LINE_COLOR = "#007AFF";
 
 // グラフの描画定数（SVG単位）。月次水分量グラフと同じ高さ系定数を使う
 const GRAPH_HEIGHT = 100;
-const PADDING_TOP = 16;    // 上部余白
+const PADDING_TOP = 16;
 const PADDING_BOTTOM = 18; // X軸ラベル用
-const PADDING_LEFT = 32;   // Y軸ラベル用
-const PADDING_RIGHT = 32; // 左と同じにすることでデータ描画エリアをセンタリング
-// viewBox の固定幅。左右パディングが同じになるよう PADDING_LEFT*2 分広げた値
-const VIEW_WIDTH = 214;
+const PADDING_LEFT = 44;   // Y軸ラベル用（英語ラベルが長いため広めに確保）
+const PADDING_RIGHT = 32;  // 右側パディング
+const VIEW_WIDTH = 226;    // PADDING_LEFT + 描画幅(150) + PADDING_RIGHT
+
+// 前月に移動する
+function toPrevMonth(year: number, month: number): { year: number; month: number } {
+    return month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
+}
+
+// 翌月に移動する
+function toNextMonth(year: number, month: number): { year: number; month: number } {
+    return month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 };
+}
 
 // ラベルを短く整形する（月次: "5月" / 週次: "5/5"）
 function formatLabel(label: string, granularity: "monthly" | "weekly", locale: "ja" | "en"): string {
@@ -42,20 +42,6 @@ function formatLabel(label: string, granularity: "monthly" | "weekly", locale: "
     return `${Number(parts[1])}/${Number(parts[2])}`;
 }
 
-// データ全体から頻度上位の部位を返す
-function getTopAreas(data: ItchStatEntry[], maxCount: number): string[] {
-    const totals: Record<string, number> = {};
-    for (const entry of data) {
-        for (const [area, count] of Object.entries(entry.areaCounts)) {
-            totals[area] = (totals[area] ?? 0) + count;
-        }
-    }
-    return Object.entries(totals)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, maxCount)
-        .map(([area]) => area);
-}
-
 export default function ItchTrendChart() {
     const t = useTranslations();
     const locale = useAppStore((s) => s.locale);
@@ -64,25 +50,33 @@ export default function ItchTrendChart() {
     const [data, setData] = useState<ItchStatEntry[]>([]);
     const [loading, setLoading] = useState(false);
 
-    // 月次は12ヶ月分、週次は約1ヶ月分（5週）を取得する
-    const count = granularity === "monthly" ? 12 : 5;
+    // 週次モード用の表示月（初期値は今月）
+    const today = useMemo(() => {
+        const now = new Date();
+        return { year: now.getFullYear(), month: now.getMonth() + 1 };
+    }, []);
+    const [viewYear, setViewYear] = useState(today.year);
+    const [viewMonth, setViewMonth] = useState(today.month);
+
+    const isCurrentMonth = viewYear === today.year && viewMonth === today.month;
 
     useEffect(() => {
         setLoading(true);
-        fetch(`/api/itch-stats?granularity=${granularity}&count=${count}`)
+        // 月次: 当年1〜12月固定。週次: 指定月の全週をAPIが自動生成する
+        const url = granularity === "monthly"
+            ? `/api/itch-stats?granularity=monthly`
+            : `/api/itch-stats?granularity=weekly&year=${viewYear}&month=${viewMonth}`;
+        fetch(url)
             .then((r) => r.json())
             .then((json: unknown) => {
                 setData(Array.isArray(json) ? (json as ItchStatEntry[]) : []);
             })
             .catch(() => setData([]))
             .finally(() => setLoading(false));
-    }, [granularity, count]);
+    }, [granularity, viewYear, viewMonth]);
 
-    // 表示する部位（出現頻度上位）
-    const topAreas = useMemo(() => getTopAreas(data, MAX_AREAS), [data]);
-
-    // Y軸最大値はかゆみスコアの最大値である10に固定する
-    const Y_MAX = 10;
+    // Y軸最大値はかゆみスコアの最大値である5に固定する
+    const Y_MAX = 5;
 
     // X座標を計算する。データ点をビュー幅いっぱいに比例配置する
     const plotWidth = VIEW_WIDTH - PADDING_LEFT - PADDING_RIGHT;
@@ -91,13 +85,11 @@ export default function ItchTrendChart() {
         return PADDING_LEFT + (i / (data.length - 1)) * plotWidth;
     };
 
-    // Y座標を計算する（カウント値から）
+    // Y座標を計算する。Y_MAX を超える値は上端にクランプする
     const yOf = (value: number) =>
-        PADDING_TOP + GRAPH_HEIGHT * (1 - value / Y_MAX);
+        PADDING_TOP + GRAPH_HEIGHT * (1 - Math.min(value, Y_MAX) / Y_MAX);
 
     const svgHeight = GRAPH_HEIGHT + PADDING_TOP + PADDING_BOTTOM;
-
-    const hasAreaData = topAreas.length > 0;
 
     return (
         <div className="card" style={{ marginTop: "0" }}>
@@ -133,6 +125,45 @@ export default function ItchTrendChart() {
                 </div>
             </div>
 
+            {/* 週次モード: 月ナビゲーター */}
+            {granularity === "weekly" && (
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                    <button
+                        onClick={() => {
+                            const p = toPrevMonth(viewYear, viewMonth);
+                            setViewYear(p.year);
+                            setViewMonth(p.month);
+                        }}
+                        style={{ border: "none", background: "none", cursor: "pointer", fontSize: "1.1rem", color: "var(--color-accent)", padding: "4px 8px" }}
+                        aria-label={t.chart.prevMonth}
+                    >
+                        ‹
+                    </button>
+                    <span style={{ fontSize: "0.88rem", fontWeight: 600, color: "var(--color-text-primary)" }}>
+                        {t.calendar.formatYearMonth(viewYear, viewMonth)}
+                    </span>
+                    <button
+                        onClick={() => {
+                            const n = toNextMonth(viewYear, viewMonth);
+                            setViewYear(n.year);
+                            setViewMonth(n.month);
+                        }}
+                        disabled={isCurrentMonth}
+                        style={{
+                            border: "none", background: "none",
+                            cursor: isCurrentMonth ? "default" : "pointer",
+                            fontSize: "1.1rem",
+                            color: isCurrentMonth ? "var(--color-text-muted)" : "var(--color-accent)",
+                            padding: "4px 8px",
+                            opacity: isCurrentMonth ? 0.3 : 1,
+                        }}
+                        aria-label={t.chart.nextMonth}
+                    >
+                        ›
+                    </button>
+                </div>
+            )}
+
             {/* グラフ本体 */}
             {loading ? (
                 <div style={{
@@ -147,127 +178,102 @@ export default function ItchTrendChart() {
                     {t.itchChart.noData}
                 </p>
             ) : (
-                <div>
-                    <svg
-                        viewBox={`0 0 ${VIEW_WIDTH} ${svgHeight}`}
-                        width="100%"
-                        preserveAspectRatio="none"
-                        style={{ display: "block", overflow: "visible" }}
-                    >
-                        {/* Y軸ガイドライン（0〜10を1刻み） */}
-                        {Array.from({ length: 11 }, (_, i) => i).map((tick) => {
-                            const y = yOf(tick);
-                            return (
-                                <g key={tick}>
-                                    <line
-                                        x1={PADDING_LEFT} y1={y}
-                                        x2={VIEW_WIDTH - PADDING_RIGHT} y2={y}
-                                        stroke="var(--color-border, #E5E5EA)"
-                                        strokeWidth={0.5}
-                                        opacity={0.7}
-                                    />
+                <svg
+                    viewBox={`0 0 ${VIEW_WIDTH} ${svgHeight}`}
+                    width="100%"
+                    preserveAspectRatio="none"
+                    style={{ display: "block", overflow: "visible" }}
+                >
+                    {/* Y軸ガイドライン（0〜5を1刻み） */}
+                    {Array.from({ length: 6 }, (_, i) => i).map((tick) => {
+                        const y = yOf(tick);
+                        return (
+                            <g key={tick}>
+                                <line
+                                    x1={PADDING_LEFT} y1={y}
+                                    x2={VIEW_WIDTH - PADDING_RIGHT} y2={y}
+                                    stroke="var(--color-border, #E5E5EA)"
+                                    strokeWidth={0.5}
+                                    opacity={0.7}
+                                />
+                                {/* 0: 未記録ラベル / 1〜5: アイコン＋ラベルを2行で表示 */}
+                                {tick === 0 ? (
                                     <text
                                         x={PADDING_LEFT - 2}
                                         y={y + 2}
                                         textAnchor="end"
-                                        fontSize={5}
+                                        fontSize={4}
                                         fontWeight="bold"
                                         fill="#000000"
                                     >
-                                        {tick}
+                                        {t.itch.noRecord}
                                     </text>
-                                </g>
-                            );
-                        })}
+                                ) : (
+                                    <g>
+                                        <text
+                                            x={PADDING_LEFT - 2}
+                                            y={y + 2}
+                                            textAnchor="end"
+                                            fontSize={6}
+                                        >
+                                            {ITCH_SCORE_ICONS[tick]}
+                                        </text>
+                                        <text
+                                            x={PADDING_LEFT - 2}
+                                            y={y + 8}
+                                            textAnchor="end"
+                                            fontSize={4}
+                                            fontWeight="bold"
+                                            fill="#000000"
+                                        >
+                                            {t.itch.scoreLabels[tick - 1]}
+                                        </text>
+                                    </g>
+                                )}
+                            </g>
+                        );
+                    })}
 
-                        {/* X軸ラベル */}
-                        {data.map((entry, i) => {
-                            // 点が多い場合は間引いて表示する
-                            const showLabel = data.length <= 6 || i % 2 === 0 || i === data.length - 1;
-                            return showLabel ? (
-                                <text
-                                    key={entry.label}
-                                    x={xOf(i)}
-                                    y={PADDING_TOP + GRAPH_HEIGHT + PADDING_BOTTOM - 4}
-                                    textAnchor="middle"
-                                    fontSize={4}
-                                    fontWeight="bold"
-                                    fill="#000000"
-                                >
-                                    {formatLabel(entry.label, granularity, locale)}
-                                </text>
-                            ) : null;
-                        })}
+                    {/* X軸ラベル */}
+                    {data.map((entry, i) => {
+                        // 点が多い場合は間引いて表示する
+                        const showLabel = data.length <= 6 || i % 2 === 0 || i === data.length - 1;
+                        return showLabel ? (
+                            <text
+                                key={entry.label}
+                                x={xOf(i)}
+                                y={PADDING_TOP + GRAPH_HEIGHT + PADDING_BOTTOM - 4}
+                                textAnchor="middle"
+                                fontSize={4}
+                                fontWeight="bold"
+                                fill="#000000"
+                            >
+                                {formatLabel(entry.label, granularity, locale)}
+                            </text>
+                        ) : null;
+                    })}
 
-                        {/* 部位ごとの折れ線 */}
-                        {hasAreaData ? topAreas.map((area, areaIdx) => {
-                            const color = LINE_COLORS[areaIdx % LINE_COLORS.length];
-
-                            // 折れ線の座標文字列を組み立てる
-                            const points = data
-                                .map((entry, i) => `${xOf(i)},${yOf(entry.areaCounts[area] ?? 0)}`)
-                                .join(" ");
-
-                            return (
-                                <g key={area}>
-                                    {/* 折れ線 */}
-                                    <polyline
-                                        points={points}
-                                        fill="none"
-                                        stroke={color}
-                                        strokeWidth={0.9}
-                                        strokeDasharray="4 2"
-                                        strokeLinejoin="round"
-                                        strokeLinecap="round"
-                                    />
-                                    {/* 各データ点のドット */}
-                                    {data.map((entry, i) => {
-                                        const count = entry.areaCounts[area] ?? 0;
-                                        return count > 0 ? (
-                                            <circle
-                                                key={entry.label}
-                                                cx={xOf(i)}
-                                                cy={yOf(count)}
-                                                r={1.5}
-                                                fill={color}
-                                            />
-                                        ) : null;
-                                    })}
-                                </g>
-                            );
-                        }) : (
-                            /* 部位データなし：かゆみスコア平均の折れ線を表示 */
-                            <polyline
-                                points={data.map((entry, i) => `${xOf(i)},${yOf(entry.avgScore)}`).join(" ")}
-                                fill="none"
-                                stroke={LINE_COLORS[0]}
-                                strokeWidth={0.9}
-                                strokeDasharray="4 2"
-                                strokeLinejoin="round"
-                            />
-                        )}
-                    </svg>
-                </div>
-            )}
-
-            {/* 凡例（部位名と色） */}
-            {!loading && hasAreaData && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 10px", marginTop: "6px" }}>
-                    {topAreas.map((area, i) => (
-                        <div key={area} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                            <div style={{
-                                width: "10px",
-                                height: "2px",
-                                background: LINE_COLORS[i % LINE_COLORS.length],
-                                borderRadius: "1px",
-                                flexShrink: 0,
-                            }} />
-                            <span style={{ fontSize: "0.65rem", color: "var(--color-text-muted)" }}>
-                                {area}
-                            </span>
-                        </div>
-                    ))}
-                </div>
+                    {/* かゆみスコア平均の折れ線 */}
+                    <polyline
+                        points={data.map((entry, i) => `${xOf(i)},${yOf(entry.avgScore)}`).join(" ")}
+                        fill="none"
+                        stroke={LINE_COLOR}
+                        strokeWidth={0.9}
+                        strokeDasharray="4 2"
+                        strokeLinejoin="round"
+                        strokeLinecap="round"
+                    />
+                    {/* データ点のドット（スコアが0より大きい場合のみ表示） */}
+                    {data.map((entry, i) => entry.avgScore > 0 ? (
+                        <circle
+                            key={entry.label}
+                            cx={xOf(i)}
+                            cy={yOf(entry.avgScore)}
+                            r={1.5}
+                            fill={LINE_COLOR}
+                        />
+                    ) : null)}
+                </svg>
             )}
         </div>
     );
