@@ -12,7 +12,8 @@ import { MAX_ITCH_SCORE, MAX_WATER_ML } from "@/constants/AppConstants";
 const DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 const dayRecordSchema = z.object({
-    itchArea:     z.string().max(100),
+    // 部位は配列で受け取り、各要素は50文字以内・最大11箇所まで
+    itchArea:     z.array(z.string().max(50)).max(11),
     itchScore:    z.number().int().min(0).max(MAX_ITCH_SCORE),
     waterLogs:    z.array(
         z.object({

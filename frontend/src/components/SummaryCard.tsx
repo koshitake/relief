@@ -4,10 +4,11 @@
 // 水分・月次グラフ・運動・かゆみ/糖質/塩分を仕様の順で縦に並べて表示します。
 
 import { DayRecord, calcTotalWaterMl } from "@/types/DayRecord";
-import { MAX_ITCH_SCORE } from "@/constants/AppConstants";
+import { MAX_ITCH_SCORE, ITCH_SCORE_ICONS } from "@/constants/AppConstants";
 import { useAppStore } from "@/store/UseAppStore";
 import { useTranslations } from "@/hooks/UseTranslations";
 import MonthlyWaterChart from "./MonthlyWaterChart";
+import ItchTrendChart from "./ItchTrendChart";
 
 interface SummaryCardProps {
     record: DayRecord;
@@ -72,8 +73,8 @@ export default function SummaryCard({ record }: SummaryCardProps) {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", textAlign: "center" }}>
                     <MetricColumn
                         label={t.summary.itch}
-                        value={record.itchScore}
-                        unit="/10"
+                        value={record.itchScore > 0 ? ITCH_SCORE_ICONS[record.itchScore] : "—"}
+                        unit={record.itchScore > 0 ? t.itch.scoreLabels[record.itchScore - 1] : ""}
                         percent={(record.itchScore / MAX_ITCH_SCORE) * 100}
                         barColor="#FF3B30"
                     />
@@ -92,7 +93,23 @@ export default function SummaryCard({ record }: SummaryCardProps) {
                         barColor="#34C759"
                     />
                 </div>
+                {/* 選択されたかゆみ部位を表示する */}
+                {record.itchArea.length > 0 && (
+                    <div style={{
+                        marginTop: "8px",
+                        paddingTop: "8px",
+                        borderTop: "1px solid var(--color-border)",
+                        fontSize: "0.72rem",
+                        color: "var(--color-text-muted)",
+                        textAlign: "left",
+                    }}>
+                        {record.itchArea.join("・")}
+                    </div>
+                )}
             </div>
+
+            {/* 5. かゆみ傾向グラフ（全プラン） */}
+            <ItchTrendChart />
         </div>
     );
 }

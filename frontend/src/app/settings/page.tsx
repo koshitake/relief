@@ -10,10 +10,10 @@ import { useUserSettings } from "@/hooks/UseUserSettings";
 import { useTranslations } from "@/hooks/UseTranslations";
 import { MIN_CARBS_TARGET_G, MAX_CARBS_TARGET_G, MIN_SALT_TARGET_G, MAX_SALT_TARGET_G } from "@/constants/AppConstants";
 
-// プラン定義（名称は言語共通、Free を含む全プランを管理する）
+// プラン定義（Free / Full の2プラン構成）
 const ALL_PLANS = [
     { key: "free" as const, name: "Free" },
-    { key: "standard" as const, name: "Standard" },
+    { key: "full" as const, name: "Full" },
 ];
 
 export default function SettingsPage() {
@@ -116,7 +116,7 @@ export default function SettingsPage() {
     }
 
     // プランを切り替えてDBに保存する（決済処理は未実装）
-    function handlePlanChange(next: "free" | "standard") {
+    function handlePlanChange(next: "free" | "full") {
         if (next === plan) return;
         setPlan(next);
         fetch("/api/settings", {
@@ -317,9 +317,7 @@ export default function SettingsPage() {
 
                 {ALL_PLANS.map((p) => {
                     const isCurrentPlan = p.key === plan;
-                    const features = p.key === "free"
-                        ? [t.settings.freeFeatures]
-                        : t.settings.planFeatures[p.key];
+                    const features = t.settings.planFeatures[p.key];
 
                     return (
                         <div
@@ -403,7 +401,7 @@ export default function SettingsPage() {
                     {t.settings.dataManagement}
                 </div>
 
-                {/* 無料プランはロック表示 */}
+                {/* Free プランはバックアップ機能をロック表示 */}
                 {plan === "free" ? (
                     <div className="card">
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -428,7 +426,7 @@ export default function SettingsPage() {
                         </div>
                     </div>
                 ) : (
-                    /* Standard プランはバックアップ・復元 UI を表示 */
+                    /* Full プランはバックアップ・復元・レポート UI を表示 */
                     <div className="card">
                         {/* バックアップ */}
                         <div style={{ marginBottom: "16px" }}>
@@ -459,6 +457,39 @@ export default function SettingsPage() {
                                     : t.settings.backupButton}
                             </button>
                         </div>
+
+                        {/* [Full プランのみ] レポートリンク */}
+                        {plan === "full" && (
+                            <>
+                                <hr style={{ border: "none", borderTop: "1px solid var(--color-border)", margin: "0 0 16px" }} />
+                                <div style={{ marginBottom: "16px" }}>
+                                    <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--color-text-primary)", marginBottom: "10px" }}>
+                                        {t.report.title}
+                                    </div>
+                                    <a
+                                        href="/report"
+                                        style={{
+                                            display: "block",
+                                            width: "100%",
+                                            border: "none",
+                                            background: "var(--color-accent)",
+                                            color: "#fff",
+                                            borderRadius: "var(--radius-pill)",
+                                            padding: "12px",
+                                            fontSize: "0.85rem",
+                                            fontWeight: 600,
+                                            cursor: "pointer",
+                                            fontFamily: "inherit",
+                                            textAlign: "center",
+                                            textDecoration: "none",
+                                            boxSizing: "border-box",
+                                        }}
+                                    >
+                                        {t.report.openLink}
+                                    </a>
+                                </div>
+                            </>
+                        )}
 
                         {/* 区切り線 */}
                         <hr style={{ border: "none", borderTop: "1px solid var(--color-border)", margin: "0 0 16px" }} />

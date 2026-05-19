@@ -24,7 +24,7 @@ interface AppState {
     /** 表示言語。ログイン後に user_settings から復元する */
     locale: "ja" | "en";
     /** 加入プラン。ログイン後に user_settings から復元する */
-    plan: "free" | "standard";
+    plan: "free" | "full";
 }
 
 interface AppActions {
@@ -43,7 +43,7 @@ interface AppActions {
     /** 表示言語を更新する */
     setLocale: (locale: "ja" | "en") => void;
     /** 加入プランを更新する */
-    setPlan: (plan: "free" | "standard") => void;
+    setPlan: (plan: "free" | "full") => void;
 }
 
 // 今日の日付を YYYY-MM-DD 形式で返す
@@ -89,5 +89,5 @@ export const useAppStore = create<AppState & AppActions>()((set) => ({
     setDisplayName: (name: string) => set({ displayName: name }),
 
     setLocale: (locale: "ja" | "en") => set({ locale }),
-    setPlan: (plan: "free" | "standard") => set({ plan }),
+    setPlan: (plan: "free" | "full") => set({ plan }),
 }));

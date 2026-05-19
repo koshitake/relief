@@ -9,8 +9,6 @@ import { useTranslations } from "@/hooks/UseTranslations";
 import AppHeader from "@/components/AppHeader";
 import CalendarNav from "@/components/CalendarNav";
 import RecordTab from "@/components/RecordTab";
-import AdBanner from "@/components/AdBanner";
-
 export default function HomePage() {
     const { selectedDay } = useAppStore();
     const { loading } = useAuth();
@@ -32,9 +30,6 @@ export default function HomePage() {
 
             {/* カレンダーナビゲーション */}
             <CalendarNav />
-
-            {/* 広告バナー（AdSense 審査通過後に表示される） */}
-            <AdBanner slot="top" />
 
             {/* ダッシュボード（今日のまとめ / 入力 タブ切り替え） */}
             <RecordTab day={selectedDay} />
