@@ -42,7 +42,9 @@ CREATE TABLE IF NOT EXISTS user_settings (
     carbs_target_g  NUMERIC     NOT NULL DEFAULT 130,
     salt_target_g   NUMERIC     NOT NULL DEFAULT 10,
     locale          TEXT        NOT NULL DEFAULT 'ja' CHECK (locale IN ('ja', 'en')),
-    plan            TEXT        NOT NULL DEFAULT 'free' CHECK (plan IN ('free', 'standard', 'pro')),
+    -- plan は数値 ID で管理する。0=free, 10=full（10刻みで間への新プラン挿入に対応）
+    -- プラン名・階層はコード側（UserSettingsRepository）で管理し、DBは番号のみ保持する
+    plan            INTEGER     NOT NULL DEFAULT 0 CHECK (plan >= 0),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -75,3 +77,24 @@ CREATE OR REPLACE TRIGGER user_settings_updated_at
 
 CREATE INDEX IF NOT EXISTS idx_day_records_user_day ON day_records (user_id, day);
 CREATE INDEX IF NOT EXISTS idx_users_google_sub ON users (google_sub);
+
+-- =====================================================================
+-- マイグレーション履歴
+-- =====================================================================
+
+-- [2026-05-23] user_settings.plan を TEXT → INTEGER に変更
+-- plan 名をコード側で管理し、DB制約・名前変更の影響を受けないようにする
+-- Supabase SQL Editor で実行:
+--
+-- ALTER TABLE user_settings DROP CONSTRAINT user_settings_plan_check;
+-- ALTER TABLE user_settings ALTER COLUMN plan DROP DEFAULT;
+-- ALTER TABLE user_settings ALTER COLUMN plan TYPE INTEGER USING 0;
+-- ALTER TABLE user_settings ALTER COLUMN plan SET DEFAULT 0;
+-- ALTER TABLE user_settings ADD CONSTRAINT user_settings_plan_check CHECK (plan >= 0);
+
+-- [2026-05-23] day_records に carbs_g / salt_g 列を追加
+-- 糖質・塩分の手動入力値を保存する。NULL は未入力を意味する
+-- Supabase SQL Editor で実行:
+--
+-- ALTER TABLE day_records ADD COLUMN IF NOT EXISTS carbs_g NUMERIC;
+-- ALTER TABLE day_records ADD COLUMN IF NOT EXISTS salt_g  NUMERIC;
