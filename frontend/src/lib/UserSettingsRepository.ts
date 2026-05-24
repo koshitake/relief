@@ -13,6 +13,13 @@ export interface UserSettings {
     plan: "free" | "full";
 }
 
+// DB の plan 列は数値 ID で保管する（0, 1, 2... と連番で追加していく）
+// 数値はただの ID であり、プランの順序・階層はコード側で管理する
+// 現在: 0=free, 10=full（間に新プランを挿入しやすいよう10刻み）
+// アプリ内では文字列として扱うため、リポジトリ層で相互変換する
+const PLAN_TO_NUMBER: Record<"free" | "full", number> = { free: 0, full: 10 };
+const NUMBER_TO_PLAN: Record<number, "free" | "full"> = { 0: "free", 10: "full" };
+
 // 本番環境では DB の内部エラー詳細をコンソールに出力しない（情報漏洩対策）
 function logDbError(context: string, error: { message: string }) {
     if (process.env.NODE_ENV !== "production") {
@@ -51,15 +58,15 @@ export async function fetchUserSettings(userId: string): Promise<UserSettings | 
         };
     }
 
-    const validPlans = ["free", "full"] as const;
-    const plan = validPlans.includes(data.plan) ? data.plan : "free";
+    // DB の数値を文字列のプラン名に変換する（未知の値は "free" にフォールバック）
+    const plan: "free" | "full" = NUMBER_TO_PLAN[Number(data.plan)] ?? "free";
 
     return {
         waterTargetMl: Number(data.water_target_ml),
         carbsTargetG: data.carbs_target_g != null ? Number(data.carbs_target_g) : DEFAULT_CARBS_TARGET_G,
         saltTargetG: data.salt_target_g != null ? Number(data.salt_target_g) : DEFAULT_SALT_TARGET_G,
         locale: (data.locale === "en" ? "en" : "ja") as "ja" | "en",
-        plan: plan as "free" | "full",
+        plan,
     };
 }
 
@@ -80,7 +87,8 @@ export async function upsertUserSettings(userId: string, settings: Partial<UserS
     if (settings.carbsTargetG !== undefined) updateData.carbs_target_g = settings.carbsTargetG;
     if (settings.saltTargetG !== undefined) updateData.salt_target_g = settings.saltTargetG;
     if (settings.locale !== undefined) updateData.locale = settings.locale;
-    if (settings.plan !== undefined) updateData.plan = settings.plan;
+    // 文字列のプラン名を DB 用の数値に変換して保存する
+    if (settings.plan !== undefined) updateData.plan = PLAN_TO_NUMBER[settings.plan];
 
     const { error } = await supabase
         .from("user_settings")

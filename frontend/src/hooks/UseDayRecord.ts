@@ -1,13 +1,12 @@
 "use client";
 
 // 指定日の記録をAPIから読み書きするカスタムフックです。
-// 初回ロード時は設定と記録を Promise.all で並列取得してレイアウトシフトを防ぎます。
-// 日付切り替え時は記録のみを再取得します。
+// ユーザー設定（プラン・言語・目標値）の読み込みは UseAuth が担うため、
+// このフックは日次記録の取得・保存のみを担当します。
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { DayRecord, createEmptyDayRecord } from "@/types/DayRecord";
 import { useAuth } from "@/hooks/UseAuth";
-import { useAppStore } from "@/store/UseAppStore";
 
 // DB書き込みまでの待機時間（ms）
 const DEBOUNCE_MS = 800;
@@ -18,68 +17,34 @@ export function useDayRecord(day: string) {
     const userId = user?.id;
     const [record, setRecord] = useState<DayRecord>(createEmptyDayRecord());
 
-    // セレクターで必要な値だけ購読する（rerender-dependencies）
-    const setWaterTargetMl = useAppStore((s) => s.setWaterTargetMl);
-    const setCarbsTargetG = useAppStore((s) => s.setCarbsTargetG);
-    const setSaltTargetG = useAppStore((s) => s.setSaltTargetG);
-    const setLocale = useAppStore((s) => s.setLocale);
-    const setPlan = useAppStore((s) => s.setPlan);
-
     // DBから読み込んだ直後のrecord更新でDB書き込みが走らないよう制御するフラグ
     const isDirty = useRef(false);
     const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     // debounce内で最新のrecordを参照するためのref（rerender-use-ref-transient-values）
     const recordRef = useRef<DayRecord>(record);
-    // settings の初回取得済みフラグ（日付切り替え時に再取得しないようにする）
-    const settingsFetched = useRef(false);
 
-    // 選択日またはユーザーが変わったらAPIから読み込む
+    // 選択日またはユーザーが変わったらAPIから記録を読み込む
     useEffect(() => {
         isDirty.current = false;
 
         if (!userId) {
             setRecord(createEmptyDayRecord());
-            settingsFetched.current = false;
             return;
         }
 
         let cancelled = false;
 
-        if (!settingsFetched.current) {
-            // 初回ロード時: 記録と設定を並列取得してレイアウトシフトを防ぐ（async-parallel）
-            Promise.all([
-                fetch(`/api/records/${day}`).then((r) => r.json()),
-                fetch("/api/settings").then((r) => r.json()),
-            ])
-                .then(([recordData, settingsData]: [DayRecord | null, { waterTargetMl?: number; carbsTargetG?: number; saltTargetG?: number; locale?: "ja" | "en"; plan?: "free" | "full" } | null]) => {
-                    if (cancelled) return;
-                    settingsFetched.current = true;
-                    if (settingsData?.waterTargetMl) setWaterTargetMl(settingsData.waterTargetMl);
-                    if (settingsData?.carbsTargetG) setCarbsTargetG(settingsData.carbsTargetG);
-                    if (settingsData?.saltTargetG) setSaltTargetG(settingsData.saltTargetG);
-                    if (settingsData?.locale) setLocale(settingsData.locale);
-                    if (settingsData?.plan) setPlan(settingsData.plan);
-                    const loaded = recordData ?? createEmptyDayRecord();
-                    recordRef.current = loaded;
-                    setRecord(loaded);
-                })
-                .catch(() => {
-                    if (!cancelled) setRecord(createEmptyDayRecord());
-                });
-        } else {
-            // 日付切り替え時: 記録のみ再取得する
-            fetch(`/api/records/${day}`)
-                .then((r) => r.json())
-                .then((data: DayRecord | null) => {
-                    if (cancelled) return;
-                    const loaded = data ?? createEmptyDayRecord();
-                    recordRef.current = loaded;
-                    setRecord(loaded);
-                })
-                .catch(() => {
-                    if (!cancelled) setRecord(createEmptyDayRecord());
-                });
-        }
+        fetch(`/api/records/${day}`)
+            .then((r) => r.json())
+            .then((data: DayRecord | null) => {
+                if (cancelled) return;
+                const loaded = data ?? createEmptyDayRecord();
+                recordRef.current = loaded;
+                setRecord(loaded);
+            })
+            .catch(() => {
+                if (!cancelled) setRecord(createEmptyDayRecord());
+            });
 
         return () => {
             cancelled = true;
@@ -95,7 +60,7 @@ export function useDayRecord(day: string) {
                 });
             }
         };
-    }, [day, userId, setWaterTargetMl, setCarbsTargetG, setSaltTargetG, setLocale, setPlan]);
+    }, [day, userId]);
 
     // ユーザーの入力によってrecordを更新する
     const updateRecord = useCallback(

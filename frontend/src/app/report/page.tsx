@@ -31,6 +31,9 @@ export default function ReportPage() {
     const locale = useAppStore((s) => s.locale);
     const t = useTranslations();
 
+    // user はレンダリングごとに新オブジェクトになるため、プリミティブの id で依存管理する
+    const userId = user?.id;
+
     const [period, setPeriod] = useState<Period>("1m");
     const [records, setRecords] = useState<ReportRecord[]>([]);
     const [fetching, setFetching] = useState(false);
@@ -46,12 +49,12 @@ export default function ReportPage() {
             .finally(() => setFetching(false));
     }, [period]);
 
-    // 期間が変わるたびに再取得する
+    // userId・plan・period が変わるたびに再取得する
     useEffect(() => {
-        if (user && plan === "full") {
+        if (userId && plan === "full") {
             loadRecords();
         }
-    }, [user, plan, loadRecords]);
+    }, [userId, plan, loadRecords]);
 
     if (loading) {
         return (

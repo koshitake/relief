@@ -2,7 +2,7 @@
 
 // 認証状態を管理するカスタムフックです。
 // NextAuth のセッションを使用します。
-// ログイン時にニックネームを Zustand ストアへ同期します。
+// ログイン時にニックネームと各種設定を Zustand ストアへ同期します。
 
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -17,11 +17,17 @@ interface AuthState {
 
 export function useAuth(): AuthState {
     const { data: session, status } = useSession();
-    const setDisplayName = useAppStore((s) => s.setDisplayName);
+    const setDisplayName    = useAppStore((s) => s.setDisplayName);
+    const setPlan           = useAppStore((s) => s.setPlan);
+    const setLocale         = useAppStore((s) => s.setLocale);
+    const setWaterTargetMl  = useAppStore((s) => s.setWaterTargetMl);
+    const setCarbsTargetG   = useAppStore((s) => s.setCarbsTargetG);
+    const setSaltTargetG    = useAppStore((s) => s.setSaltTargetG);
 
     const loading = status === "loading";
-    const user = session?.user?.id
-        ? { id: session.user.id, name: session.user.name ?? "ユーザー" }
+    const userId = session?.user?.id;
+    const user = userId
+        ? { id: userId, name: session.user.name ?? "ユーザー" }
         : null;
 
     // セッションのニックネームをストアへ同期する（設定画面での即時更新のベースになる）
@@ -32,6 +38,29 @@ export function useAuth(): AuthState {
             setDisplayName("");
         }
     }, [session?.user?.name, status, setDisplayName]);
+
+    // ログイン後、どのページでも正しいプラン・言語・目標値が反映されるよう
+    // DBからユーザー設定を読み込んでストアに反映する。
+    // userId が変わったとき（ログイン・ログアウト）のみ実行する。
+    useEffect(() => {
+        if (!userId) return;
+        fetch("/api/settings")
+            .then((r) => r.json())
+            .then((data: {
+                waterTargetMl?: number;
+                carbsTargetG?: number;
+                saltTargetG?: number;
+                locale?: "ja" | "en";
+                plan?: "free" | "full";
+            } | null) => {
+                if (data?.waterTargetMl) setWaterTargetMl(data.waterTargetMl);
+                if (data?.carbsTargetG)  setCarbsTargetG(data.carbsTargetG);
+                if (data?.saltTargetG)   setSaltTargetG(data.saltTargetG);
+                if (data?.locale)        setLocale(data.locale);
+                if (data?.plan)          setPlan(data.plan);
+            })
+            .catch(() => {});
+    }, [userId, setPlan, setLocale, setWaterTargetMl, setCarbsTargetG, setSaltTargetG]);
 
     return { user, loading };
 }
