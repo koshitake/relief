@@ -91,6 +91,23 @@ export default function ItchTrendChart() {
 
     const svgHeight = GRAPH_HEIGHT + PADDING_TOP + PADDING_BOTTOM;
 
+    // 記録あり（avgScore > 0）の点を連続するセグメントに分割する。
+    // 記録なし（avgScore === 0）の点はセグメントを切断するため線を結ばない。
+    const lineSegments = useMemo(() => {
+        const segments: number[][] = [];
+        let current: number[] = [];
+        data.forEach((entry, i) => {
+            if (entry.avgScore > 0) {
+                current.push(i);
+            } else if (current.length > 0) {
+                segments.push(current);
+                current = [];
+            }
+        });
+        if (current.length > 0) segments.push(current);
+        return segments;
+    }, [data]);
+
     return (
         <div className="card" style={{ marginTop: "0" }}>
             {/* タイトルと月次/週次切り替え */}
@@ -253,16 +270,19 @@ export default function ItchTrendChart() {
                         ) : null;
                     })}
 
-                    {/* かゆみスコア平均の折れ線 */}
-                    <polyline
-                        points={data.map((entry, i) => `${xOf(i)},${yOf(entry.avgScore)}`).join(" ")}
-                        fill="none"
-                        stroke={LINE_COLOR}
-                        strokeWidth={0.9}
-                        strokeDasharray="4 2"
-                        strokeLinejoin="round"
-                        strokeLinecap="round"
-                    />
+                    {/* かゆみスコア平均の折れ線（記録なし点で線を切る） */}
+                    {lineSegments.map((indices, si) => (
+                        <polyline
+                            key={si}
+                            points={indices.map((i) => `${xOf(i)},${yOf(data[i].avgScore)}`).join(" ")}
+                            fill="none"
+                            stroke={LINE_COLOR}
+                            strokeWidth={0.9}
+                            strokeDasharray="4 2"
+                            strokeLinejoin="round"
+                            strokeLinecap="round"
+                        />
+                    ))}
                     {/* データ点のドット（スコアが0より大きい場合のみ表示） */}
                     {data.map((entry, i) => entry.avgScore > 0 ? (
                         <circle
