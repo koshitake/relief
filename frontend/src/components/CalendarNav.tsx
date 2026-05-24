@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { useAppStore } from "@/store/UseAppStore";
 import { useTranslations } from "@/hooks/UseTranslations";
+import WeatherCard from "@/components/WeatherCard";
 
 // 今日の日付を YYYY-MM-DD 形式で返す（ローカル時刻ベースでタイムゾーンずれを防ぐ）
 function getTodayString(): string {
@@ -112,62 +113,66 @@ export default function CalendarNav() {
     return (
         <div style={{ margin: "14px 0" }}>
             {/* 前日 / 日付表示（タップでカレンダー開閉）/ 翌日 */}
-            <div
-                className="card"
-                style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 16px" }}
-            >
-                <button
-                    className="cal-nav-btn"
-                    onClick={() => setSelectedDay(shiftDate(selectedDay, -1))}
-                    aria-label={t.calendar.prevDay}
-                >
-                    ‹
-                </button>
-
-                {/* 日付エリア：タップでカレンダーを開閉する */}
-                <button
-                    style={{
-                        flex: 1,
-                        textAlign: "center",
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        padding: 0,
-                    }}
-                    onClick={toggleCalendar}
-                    aria-expanded={calOpen}
-                    aria-label={t.calendar.openCalendar}
-                >
-                    <div
-                        style={{
-                            fontSize: "0.95rem",
-                            fontWeight: 600,
-                            color: "var(--color-text-primary)",
-                            letterSpacing: "0.02em",
-                        }}
+            <div className="card" style={{ padding: "12px 16px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <button
+                        className="cal-nav-btn"
+                        onClick={() => setSelectedDay(shiftDate(selectedDay, -1))}
+                        aria-label={t.calendar.prevDay}
                     >
-                        {(() => { const [y, m, d] = selectedDay.split("-").map(Number); return t.calendar.formatDate(y, m, d); })()}
-                    </div>
-                    <div
-                        style={{
-                            fontSize: "0.75rem",
-                            color: "var(--color-text-muted)",
-                            marginTop: "2px",
-                        }}
-                    >
-                        {t.calendar.formatWeekday(new Date(selectedDay + "T00:00:00").getDay())}&nbsp;
-                        {/* 開閉状態を示すシェブロン */}
-                        <span style={{ fontSize: "0.65rem" }}>{calOpen ? "▴" : "▾"}</span>
-                    </div>
-                </button>
+                        ‹
+                    </button>
 
-                <button
-                    className="cal-nav-btn"
-                    onClick={() => setSelectedDay(shiftDate(selectedDay, 1))}
-                    aria-label={t.calendar.nextDay}
-                >
-                    ›
-                </button>
+                    {/* 日付エリア：タップでカレンダーを開閉する */}
+                    <button
+                        style={{
+                            flex: 1,
+                            textAlign: "center",
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            padding: 0,
+                        }}
+                        onClick={toggleCalendar}
+                        aria-expanded={calOpen}
+                        aria-label={t.calendar.openCalendar}
+                    >
+                        <div
+                            style={{
+                                fontSize: "0.95rem",
+                                fontWeight: 600,
+                                color: "var(--color-text-primary)",
+                                letterSpacing: "0.02em",
+                            }}
+                        >
+                            {(() => { const [y, m, d] = selectedDay.split("-").map(Number); return t.calendar.formatDate(y, m, d); })()}
+                        </div>
+                        <div
+                            style={{
+                                fontSize: "0.75rem",
+                                color: "var(--color-text-muted)",
+                                marginTop: "2px",
+                            }}
+                        >
+                            {t.calendar.formatWeekday(new Date(selectedDay + "T00:00:00").getDay())}&nbsp;
+                            {/* 開閉状態を示すシェブロン */}
+                            <span style={{ fontSize: "0.65rem" }}>{calOpen ? "▴" : "▾"}</span>
+                        </div>
+                    </button>
+
+                    <button
+                        className="cal-nav-btn"
+                        onClick={() => setSelectedDay(shiftDate(selectedDay, 1))}
+                        aria-label={t.calendar.nextDay}
+                    >
+                        ›
+                    </button>
+                </div>
+
+                {/* 天気：日付の下にセパレーターを挟んで表示 */}
+                <div style={{ borderTop: "0.5px solid var(--color-border)", marginTop: "10px", paddingTop: "8px" }}>
+                    <WeatherCard />
+                </div>
             </div>
 
             {/* カレンダーポップアップ */}

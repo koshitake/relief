@@ -7,6 +7,8 @@ declare const process: {
         NEXT_PUBLIC_SUPABASE_URL?: string;
         NEXT_PUBLIC_SUPABASE_ANON_KEY?: string;
         // サーバーサイド専用（NEXT_PUBLIC_ なし = クライアントバンドルに含まない）
+        OPEN_METEO_FORECAST_URL?: string;
+        OPEN_METEO_ARCHIVE_URL?: string;
         NEXTAUTH_SECRET?: string;
         GOOGLE_CLIENT_ID?: string;
         GOOGLE_CLIENT_SECRET?: string;

@@ -117,6 +117,20 @@ export const ja = {
     note: {
         placeholder: "その日気づいたことを書いてください",
     },
+    weather: {
+        loading: "天気を読み込み中...",
+        permissionDenied: "位置情報を許可すると天気が表示されます",
+        clear: "晴れ",
+        partlyCloudy: "くもり時々晴れ",
+        cloudy: "くもり",
+        fog: "霧",
+        drizzle: "霧雨",
+        rain: "雨",
+        snow: "雪",
+        shower: "にわか雨",
+        snowShower: "にわか雪",
+        thunder: "雷雨",
+    },
     report: {
         title: "主治医向けレポート",
         period: "期間",
