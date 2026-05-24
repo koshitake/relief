@@ -121,6 +121,20 @@ export const en: Messages = {
     note: {
         placeholder: "Write anything you noticed today",
     },
+    weather: {
+        loading: "Loading weather...",
+        permissionDenied: "Allow location to show weather",
+        clear: "Clear",
+        partlyCloudy: "Partly cloudy",
+        cloudy: "Cloudy",
+        fog: "Foggy",
+        drizzle: "Drizzle",
+        rain: "Rain",
+        snow: "Snow",
+        shower: "Showers",
+        snowShower: "Snow showers",
+        thunder: "Thunderstorm",
+    },
     report: {
         title: "Doctor's Report",
         period: "Period",
