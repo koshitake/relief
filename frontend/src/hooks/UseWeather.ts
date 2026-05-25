@@ -11,6 +11,7 @@ interface WeatherData {
     temperatureMin: number;
     humidity: number;
     weatherCode: number;
+    locationName: string | null;
 }
 
 interface WeatherState {
@@ -18,6 +19,7 @@ interface WeatherState {
     temperatureMin: number | null;
     humidity: number | null;
     weatherCode: number | null;
+    locationName: string | null;
     loading: boolean;
     error: "permission_denied" | "fetch_error" | null;
 }
@@ -27,6 +29,7 @@ const INITIAL_STATE: WeatherState = {
     temperatureMin: null,
     humidity: null,
     weatherCode: null,
+    locationName: null,
     loading: true,
     error: null,
 };
@@ -74,7 +77,7 @@ export function useWeather(day: string): WeatherState {
         // 位置情報がまだ取得中なら待機する
         if (!coords) return;
 
-        setState({ temperatureMax: null, temperatureMin: null, humidity: null, weatherCode: null, loading: true, error: null });
+        setState({ temperatureMax: null, temperatureMin: null, humidity: null, weatherCode: null, locationName: null, loading: true, error: null });
 
         const fetchWeather = async () => {
             try {
@@ -84,8 +87,9 @@ export function useWeather(day: string): WeatherState {
                 setState({
                     temperatureMax: data.temperatureMax,
                     temperatureMin: data.temperatureMin,
-                    humidity: data.humidity,
-                    weatherCode: data.weatherCode,
+                    humidity:       data.humidity,
+                    weatherCode:    data.weatherCode,
+                    locationName:   data.locationName,
                     loading: false,
                     error: null,
                 });

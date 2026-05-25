@@ -9,6 +9,7 @@ declare const process: {
         // サーバーサイド専用（NEXT_PUBLIC_ なし = クライアントバンドルに含まない）
         OPEN_METEO_FORECAST_URL?: string;
         OPEN_METEO_ARCHIVE_URL?: string;
+        NOMINATIM_URL?: string;
         NEXTAUTH_SECRET?: string;
         GOOGLE_CLIENT_ID?: string;
         GOOGLE_CLIENT_SECRET?: string;
