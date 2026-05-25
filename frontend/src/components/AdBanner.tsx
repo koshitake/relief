@@ -6,6 +6,7 @@
 
 import { useTranslations } from "@/hooks/UseTranslations";
 import { useAppStore } from "@/store/UseAppStore";
+import { useAuth } from "@/hooks/UseAuth";
 
 // AdSense 審査通過後に true に変更し、<ins> タグを追加する
 const IS_ACTIVE = false;
@@ -13,6 +14,10 @@ const IS_ACTIVE = false;
 export default function AdBanner() {
     const t = useTranslations();
     const plan = useAppStore((s) => s.plan);
+    const { user } = useAuth();
+
+    // 未ログイン時は広告バナーを非表示にする（ボトムナビが存在しないため位置がずれるため）
+    if (!user) return null;
 
     // Full プランは広告非表示
     if (plan === "full") return null;

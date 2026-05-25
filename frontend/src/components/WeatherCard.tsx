@@ -41,7 +41,7 @@ function getWeatherInfo(code: number): WeatherInfo {
 
 export default function WeatherCard() {
     const selectedDay = useAppStore((s) => s.selectedDay);
-    const { temperatureMax, temperatureMin, humidity, weatherCode, loading, error } = useWeather(selectedDay);
+    const { temperatureMax, temperatureMin, humidity, weatherCode, locationName, loading, error } = useWeather(selectedDay);
     const t = useTranslations();
 
     if (loading) {
@@ -60,23 +60,31 @@ export default function WeatherCard() {
         );
     }
 
-    const hasData = temperatureMax !== null && temperatureMin !== null && humidity !== null && weatherCode !== null;
-    const conditionText   = hasData ? `${getWeatherInfo(weatherCode!).icon} ${t.weather[getWeatherInfo(weatherCode!).conditionKey]}` : "—";
+    const hasData     = temperatureMax !== null && temperatureMin !== null && humidity !== null && weatherCode !== null;
+    const weatherInfo = hasData ? getWeatherInfo(weatherCode!) : null;
+    const conditionText   = weatherInfo ? `${weatherInfo.icon} ${t.weather[weatherInfo.conditionKey]}` : "—";
     const temperatureText = hasData ? `🌡 ${temperatureMax}° / ${temperatureMin}°` : "🌡 —";
     const humidityText    = hasData ? `💧 ${humidity}%` : "💧 —";
 
     return (
-        <div style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "20px",
-            fontSize: "0.82rem",
-            color: "var(--color-text-secondary)",
-        }}>
-            <span>{conditionText}</span>
-            <span>{temperatureText}</span>
-            <span>{humidityText}</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            {locationName && (
+                <div style={{ fontSize: "0.72rem", color: "var(--color-text-muted)", textAlign: "center" }}>
+                    📍 {locationName}
+                </div>
+            )}
+            <div style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "20px",
+                fontSize: "0.82rem",
+                color: "var(--color-text-secondary)",
+            }}>
+                <span>{conditionText}</span>
+                <span>{temperatureText}</span>
+                <span>{humidityText}</span>
+            </div>
         </div>
     );
 }

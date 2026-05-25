@@ -9,9 +9,11 @@ import { useTranslations } from "@/hooks/UseTranslations";
 import AppHeader from "@/components/AppHeader";
 import CalendarNav from "@/components/CalendarNav";
 import RecordTab from "@/components/RecordTab";
+import LandingPage from "@/components/LandingPage";
+
 export default function HomePage() {
     const { selectedDay } = useAppStore();
-    const { loading } = useAuth();
+    const { user, loading } = useAuth();
     const t = useTranslations();
 
     // セッション確認中はローディング表示
@@ -21,6 +23,11 @@ export default function HomePage() {
                 {t.common.loading}
             </div>
         );
+    }
+
+    // 未ログイン時はアプリ説明画面を表示
+    if (!user) {
+        return <LandingPage />;
     }
 
     return (

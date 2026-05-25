@@ -7,6 +7,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useAppStore } from "@/store/UseAppStore";
 import { useTranslations } from "@/hooks/UseTranslations";
+import { useAuth } from "@/hooks/UseAuth";
 
 export default function BottomNav() {
     const pathname = usePathname();
@@ -16,8 +17,12 @@ export default function BottomNav() {
     const activeTab = useAppStore((s) => s.activeTab);
     const setActiveTab = useAppStore((s) => s.setActiveTab);
     const t = useTranslations();
+    const { user } = useAuth();
 
     const isSettings = pathname === "/settings";
+
+    // 未ログイン時はナビゲーションバーを非表示にする
+    if (!user) return null;
 
     // まとめ・入力タブは / ページ。設定ページにいる場合はトップへ戻る
     function handleMainTabClick(tab: "summary" | "input") {
