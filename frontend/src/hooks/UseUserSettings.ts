@@ -14,6 +14,7 @@ export function useUserSettings() {
     const setWaterTargetMl = useAppStore((s) => s.setWaterTargetMl);
     const setCarbsTargetG = useAppStore((s) => s.setCarbsTargetG);
     const setSaltTargetG = useAppStore((s) => s.setSaltTargetG);
+    const setProteinTargetG = useAppStore((s) => s.setProteinTargetG);
     const userId = user?.id;
 
     // 目標水分量をAPIに保存しつつストアも更新する
@@ -28,18 +29,19 @@ export function useUserSettings() {
         }
     }, [userId, setWaterTargetMl]);
 
-    // 糖質・塩分目標をAPIに保存しつつストアも更新する
-    const saveNutritionTargets = useCallback((carbsTargetG: number, saltTargetG: number) => {
+    // 糖質・塩分・タンパク質目標をAPIに保存しつつストアも更新する
+    const saveNutritionTargets = useCallback((carbsTargetG: number, saltTargetG: number, proteinTargetG: number) => {
         setCarbsTargetG(carbsTargetG);
         setSaltTargetG(saltTargetG);
+        setProteinTargetG(proteinTargetG);
         if (userId) {
             fetch("/api/settings", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ carbsTargetG, saltTargetG }),
+                body: JSON.stringify({ carbsTargetG, saltTargetG, proteinTargetG }),
             });
         }
-    }, [userId, setCarbsTargetG, setSaltTargetG]);
+    }, [userId, setCarbsTargetG, setSaltTargetG, setProteinTargetG]);
 
     return { saveWaterTargetMl, saveNutritionTargets };
 }

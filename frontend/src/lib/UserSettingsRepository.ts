@@ -3,12 +3,13 @@
 
 // サーバー側（API Route）からのみ呼び出すこと
 import supabase from "@/lib/SupabaseAdmin";
-import { DEFAULT_WATER_TARGET_ML, DEFAULT_CARBS_TARGET_G, DEFAULT_SALT_TARGET_G } from "@/constants/AppConstants";
+import { DEFAULT_WATER_TARGET_ML, DEFAULT_CARBS_TARGET_G, DEFAULT_SALT_TARGET_G, DEFAULT_PROTEIN_TARGET_G } from "@/constants/AppConstants";
 
 export interface UserSettings {
     waterTargetMl: number;
     carbsTargetG: number;
     saltTargetG: number;
+    proteinTargetG: number;
     locale: "ja" | "en";
     plan: "free" | "full";
 }
@@ -39,7 +40,7 @@ export async function fetchUserSettings(userId: string): Promise<UserSettings | 
 
     const { data, error } = await supabase
         .from("user_settings")
-        .select("water_target_ml, carbs_target_g, salt_target_g, locale, plan")
+        .select("water_target_ml, carbs_target_g, salt_target_g, protein_target_g, locale, plan")
         .eq("user_id", userId)
         .maybeSingle();
 
@@ -53,6 +54,7 @@ export async function fetchUserSettings(userId: string): Promise<UserSettings | 
             waterTargetMl: DEFAULT_WATER_TARGET_ML,
             carbsTargetG: DEFAULT_CARBS_TARGET_G,
             saltTargetG: DEFAULT_SALT_TARGET_G,
+            proteinTargetG: DEFAULT_PROTEIN_TARGET_G,
             locale: "ja" as const,
             plan: "free" as const,
         };
@@ -65,6 +67,7 @@ export async function fetchUserSettings(userId: string): Promise<UserSettings | 
         waterTargetMl: Number(data.water_target_ml),
         carbsTargetG: data.carbs_target_g != null ? Number(data.carbs_target_g) : DEFAULT_CARBS_TARGET_G,
         saltTargetG: data.salt_target_g != null ? Number(data.salt_target_g) : DEFAULT_SALT_TARGET_G,
+        proteinTargetG: data.protein_target_g != null ? Number(data.protein_target_g) : DEFAULT_PROTEIN_TARGET_G,
         locale: (data.locale === "en" ? "en" : "ja") as "ja" | "en",
         plan,
     };
@@ -86,6 +89,7 @@ export async function upsertUserSettings(userId: string, settings: Partial<UserS
     if (settings.waterTargetMl !== undefined) updateData.water_target_ml = settings.waterTargetMl;
     if (settings.carbsTargetG !== undefined) updateData.carbs_target_g = settings.carbsTargetG;
     if (settings.saltTargetG !== undefined) updateData.salt_target_g = settings.saltTargetG;
+    if (settings.proteinTargetG !== undefined) updateData.protein_target_g = settings.proteinTargetG;
     if (settings.locale !== undefined) updateData.locale = settings.locale;
     // 文字列のプラン名を DB 用の数値に変換して保存する
     if (settings.plan !== undefined) updateData.plan = PLAN_TO_NUMBER[settings.plan];

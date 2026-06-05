@@ -18,6 +18,7 @@ export default function SummaryCard({ record }: SummaryCardProps) {
     const waterTargetMl = useAppStore((s) => s.waterTargetMl);
     const carbsTargetG = useAppStore((s) => s.carbsTargetG);
     const saltTargetG = useAppStore((s) => s.saltTargetG);
+    const proteinTargetG = useAppStore((s) => s.proteinTargetG);
     const t = useTranslations();
     const totalWaterMl = calcTotalWaterMl(record.waterLogs);
     const waterPercent = Math.min(100, Math.round((totalWaterMl / waterTargetMl) * 100));
@@ -68,9 +69,9 @@ export default function SummaryCard({ record }: SummaryCardProps) {
                 </div>
             </div>
 
-            {/* 4. かゆみ / 糖質 / 塩分（1枠・3列） */}
+            {/* 4. かゆみ / 糖質 / 塩分 / タンパク質（1枠・4列） */}
             <div className="card">
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", textAlign: "center" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "8px", textAlign: "center" }}>
                     <MetricColumn
                         label={t.summary.itch}
                         value={record.itchScore > 0 ? ITCH_SCORE_ICONS[record.itchScore] : "—"}
@@ -91,6 +92,13 @@ export default function SummaryCard({ record }: SummaryCardProps) {
                         unit="g"
                         percent={record.saltG !== undefined ? (record.saltG / saltTargetG) * 100 : 0}
                         barColor="#34C759"
+                    />
+                    <MetricColumn
+                        label={t.summary.protein}
+                        value={record.proteinG !== undefined ? record.proteinG : "—"}
+                        unit="g"
+                        percent={record.proteinG !== undefined ? (record.proteinG / proteinTargetG) * 100 : 0}
+                        barColor="#5856D6"
                     />
                 </div>
                 {/* 選択されたかゆみ部位を表示する */}

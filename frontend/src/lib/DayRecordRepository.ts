@@ -38,6 +38,9 @@ function rowToDayRecord(row: Record<string, unknown>): DayRecord {
         exerciseText: String(row.exercise_text ?? ""),
         note:         String(row.note ?? ""),
         mealsText:    String(row.meals_text ?? ""),
+        carbsG:       row.carbs_g   != null ? Number(row.carbs_g)   : undefined,
+        saltG:        row.salt_g    != null ? Number(row.salt_g)    : undefined,
+        proteinG:     row.protein_g != null ? Number(row.protein_g) : undefined,
     };
 }
 
@@ -59,6 +62,10 @@ function dayRecordToRow(
         exercise_text: record.exerciseText,
         note:          record.note,
         meals_text:    record.mealsText,
+        // carbs_g / salt_g / protein_g は値がある場合のみ含める（NULL = 未入力）
+        ...(record.carbsG   != null ? { carbs_g:   record.carbsG   } : { carbs_g:   null }),
+        ...(record.saltG    != null ? { salt_g:    record.saltG    } : { salt_g:    null }),
+        ...(record.proteinG != null ? { protein_g: record.proteinG } : { protein_g: null }),
         updated_at:    new Date().toISOString(),
     };
 }
@@ -203,8 +210,9 @@ function rowToFullRecord(row: Record<string, unknown>): { day: string } & DayRec
         exerciseText: String(row.exercise_text ?? ""),
         note:         String(row.note ?? ""),
         mealsText:    String(row.meals_text ?? ""),
-        carbsG:       row.carbs_g != null ? Number(row.carbs_g) : undefined,
-        saltG:        row.salt_g  != null ? Number(row.salt_g)  : undefined,
+        carbsG:       row.carbs_g   != null ? Number(row.carbs_g)   : undefined,
+        saltG:        row.salt_g    != null ? Number(row.salt_g)    : undefined,
+        proteinG:     row.protein_g != null ? Number(row.protein_g) : undefined,
     };
 }
 
@@ -269,10 +277,9 @@ export async function batchUpsertDayRecords(
         exercise_text: r.exerciseText,
         note:          r.note,
         meals_text:    r.mealsText,
-        // carbs_g / salt_g は値がある場合のみ含める。
-        // カラムが DB に存在しない環境でも失敗しないようにするため。
-        ...(r.carbsG != null ? { carbs_g: r.carbsG } : {}),
-        ...(r.saltG  != null ? { salt_g:  r.saltG  } : {}),
+        ...(r.carbsG   != null ? { carbs_g:   r.carbsG   } : {}),
+        ...(r.saltG    != null ? { salt_g:    r.saltG    } : {}),
+        ...(r.proteinG != null ? { protein_g: r.proteinG } : {}),
         updated_at:    new Date().toISOString(),
     }));
 

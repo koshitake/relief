@@ -17,6 +17,7 @@ export interface ReportRecord {
     mealsText:    string;
     carbsG:       number | null;
     saltG:        number | null;
+    proteinG:     number | null;
     note:         string;
 }
 
@@ -58,7 +59,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     const { data, error } = await supabase
         .from("day_records")
-        .select("day, itch_score, itch_area, water_logs, meals_text, carbs_g, salt_g, note")
+        .select("day, itch_score, itch_area, water_logs, meals_text, carbs_g, salt_g, protein_g, note")
         .eq("user_id", userId)
         .gte("day", startDateStr)
         .lte("day", endDateStr)
@@ -85,8 +86,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
             itchArea,
             waterMl:   calcTotalWaterMl(waterLogs),
             mealsText: String(row.meals_text ?? ""),
-            carbsG:    row.carbs_g != null ? Number(row.carbs_g) : null,
-            saltG:     row.salt_g  != null ? Number(row.salt_g)  : null,
+            carbsG:    row.carbs_g   != null ? Number(row.carbs_g)   : null,
+            saltG:     row.salt_g    != null ? Number(row.salt_g)    : null,
+            proteinG:  row.protein_g != null ? Number(row.protein_g) : null,
             note:      String(row.note ?? ""),
         };
     });

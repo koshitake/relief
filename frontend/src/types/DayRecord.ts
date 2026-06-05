@@ -25,6 +25,8 @@ export interface DayRecord {
     carbsG?: number;
     /** 塩分（g）手動入力（AI推定は有料機能のため未実装） */
     saltG?: number;
+    /** タンパク質（g）手動入力（AI推定は有料機能のため未実装） */
+    proteinG?: number;
 }
 
 /** waterLogs の合計水分量（ml）を計算する */
