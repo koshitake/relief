@@ -95,6 +95,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         .eq("user_id", userId)
         .gte("day", startDateStr)
         .lte("day", endDateStr)
+        // itch_score が 0 のレコードはかゆみ未入力（削除後のデフォルト値）のため除外する
+        .gt("itch_score", 0)
         .order("day", { ascending: true });
 
     if (error) {
@@ -116,7 +118,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
             groups.set(label, { scores: [], areaCounts: {} });
         }
         const group = groups.get(label)!;
-        group.scores.push(row.itch_score ?? 0);
+        group.scores.push(row.itch_score);
 
         if (row.itch_area) {
             row.itch_area.split(",").filter(Boolean).forEach((area) => {

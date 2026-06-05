@@ -13,7 +13,9 @@ type WeatherConditionKey =
     | "cloudy"
     | "fog"
     | "drizzle"
+    | "lightRain"
     | "rain"
+    | "heavyRain"
     | "snow"
     | "shower"
     | "snowShower"
@@ -31,8 +33,10 @@ function getWeatherInfo(code: number): WeatherInfo {
     if (code <= 2)         return { icon: "⛅",  conditionKey: "partlyCloudy" };
     if (code === 3)        return { icon: "☁️",  conditionKey: "cloudy" };
     if (code <= 48)        return { icon: "🌫️", conditionKey: "fog" };
-    if (code <= 57)        return { icon: "🌦️", conditionKey: "drizzle" };
-    if (code <= 67)        return { icon: "🌧️", conditionKey: "rain" };
+    if (code <= 57)        return { icon: "🌧️", conditionKey: "drizzle" };
+    if (code === 61)       return { icon: "🌂",  conditionKey: "lightRain" };
+    if (code === 63)       return { icon: "🌧️", conditionKey: "rain" };
+    if (code <= 67)        return { icon: "☔",  conditionKey: "heavyRain" };
     if (code <= 77)        return { icon: "❄️",  conditionKey: "snow" };
     if (code <= 82)        return { icon: "🌦️", conditionKey: "shower" };
     if (code <= 86)        return { icon: "🌨️", conditionKey: "snowShower" };

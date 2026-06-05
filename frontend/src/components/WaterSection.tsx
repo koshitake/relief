@@ -42,9 +42,10 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
     // 任意入力ボタン押下時に量フィールドへフォーカスするための ref
     const mlInputRef = useRef<HTMLInputElement>(null);
 
-    // ログ時刻の編集状態
+    // ログの編集状態（時刻・水分量）
     const [editingLogIndex, setEditingLogIndex] = useState<number | null>(null);
     const [editingTime, setEditingTime] = useState("");
+    const [editingMl, setEditingMl] = useState("");
 
     // 目標水分量の保存
     function handleTargetSave() {
@@ -88,19 +89,22 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
         setEntryTime(getCurrentTime());
     }
 
-    // ログ時刻の編集開始
-    function handleEditTimeStart(index: number, currentTime: string) {
+    // ログの編集開始（時刻と水分量を同時に編集できる）
+    function handleEditLogStart(index: number, currentTime: string, currentMl: number) {
         setEditingLogIndex(index);
         setEditingTime(currentTime);
+        setEditingMl(String(currentMl));
     }
 
-    // ログ時刻の保存
-    function handleEditTimeSave() {
+    // ログの保存（時刻と水分量を更新する）
+    function handleEditLogSave() {
         if (editingLogIndex === null || !editingTime) return;
+        const ml = Number(editingMl);
+        if (isNaN(ml) || ml <= 0) return;
         const idx = editingLogIndex;
         const time = editingTime;
         updateRecord((prev) => ({
-            waterLogs: sortLogsByTime(prev.waterLogs.map((log, i) => (i === idx ? { ...log, time } : log))),
+            waterLogs: sortLogsByTime(prev.waterLogs.map((log, i) => (i === idx ? { ...log, time, ml } : log))),
         }));
         setEditingLogIndex(null);
     }
@@ -369,16 +373,29 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                             >
                                 {editingLogIndex === i ? (
                                     <>
+                                        {/* 時刻フィールド */}
                                         <input
                                             type="time"
                                             value={editingTime}
                                             onChange={(e) => setEditingTime(e.target.value)}
-                                            onKeyDown={(e) => e.key === "Enter" && handleEditTimeSave()}
+                                            onKeyDown={(e) => e.key === "Enter" && handleEditLogSave()}
                                             style={{ fontSize: "0.85rem", flex: "none" }}
                                             autoFocus
                                         />
+                                        {/* 水分量フィールド */}
+                                        <input
+                                            type="number"
+                                            inputMode="numeric"
+                                            value={editingMl}
+                                            min={1}
+                                            max={MAX_WATER_ML}
+                                            onChange={(e) => setEditingMl(e.target.value)}
+                                            onKeyDown={(e) => e.key === "Enter" && handleEditLogSave()}
+                                            style={{ width: "90px", fontSize: "0.85rem", textAlign: "right" }}
+                                        />
+                                        <span style={{ fontSize: "0.8rem", color: "var(--color-text-muted)" }}>ml</span>
                                         <button
-                                            onClick={handleEditTimeSave}
+                                            onClick={handleEditLogSave}
                                             style={{
                                                 border: "none",
                                                 background: "var(--color-accent)",
@@ -411,7 +428,7 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                                     <>
                                         {/* 時刻をタップで編集モードへ */}
                                         <button
-                                            onClick={() => handleEditTimeStart(i, log.time)}
+                                            onClick={() => handleEditLogStart(i, log.time, log.ml)}
                                             aria-label={t.water.editTimeAriaLabel(log.time)}
                                             style={{
                                                 border: "none",
@@ -427,9 +444,26 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
                                         >
                                             {log.time}
                                         </button>
-                                        <span style={{ fontSize: "0.88rem", fontWeight: 600, color: "var(--color-text-primary)", flex: 1, textAlign: "right", marginRight: "4px" }}>
+                                        {/* 水分量をタップで編集モードへ */}
+                                        <button
+                                            onClick={() => handleEditLogStart(i, log.time, log.ml)}
+                                            aria-label={t.water.editAmountAriaLabel(log.ml)}
+                                            style={{
+                                                border: "none",
+                                                background: "none",
+                                                cursor: "pointer",
+                                                fontSize: "0.88rem",
+                                                fontWeight: 600,
+                                                color: "var(--color-accent)",
+                                                flex: 1,
+                                                textAlign: "right",
+                                                marginRight: "4px",
+                                                fontFamily: "inherit",
+                                                textDecoration: "underline dotted",
+                                            }}
+                                        >
                                             {log.ml} ml
-                                        </span>
+                                        </button>
                                         <button
                                             onClick={() => handleDeleteLog(i)}
                                             aria-label={t.water.deleteLogAriaLabel(log.time, log.ml)}
