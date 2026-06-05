@@ -35,6 +35,7 @@ export const en: Messages = {
         itch: "Itch",
         carbs: "Carbs",
         salt: "Salt",
+        protein: "Protein",
         noRecord: "Not recorded",
     },
     chart: {
@@ -97,11 +98,13 @@ export const en: Messages = {
     meals: {
         title: "Meals",
         placeholder: "e.g. Breakfast: oatmeal\nLunch: salad  Dinner: chicken & veggies",
-        nutrition: "Carbs & Salt",
+        nutrition: "Carbs, Salt & Protein",
         carbs: "Carbs (g)",
         carbsPlaceholder: "e.g. 68",
         salt: "Salt (g)",
         saltPlaceholder: "e.g. 6.2",
+        protein: "Protein (g)",
+        proteinPlaceholder: "e.g. 60",
     },
     itch: {
         area: "Itch area",
@@ -154,6 +157,7 @@ export const en: Messages = {
         meals: "Meals",
         carbs: "Carbs (g)",
         salt: "Salt (g)",
+        protein: "Protein (g)",
         note: "Notes",
         disclaimer: "※ This report is a self-care log, not a medical diagnosis. Please consult your doctor or dermatologist if symptoms persist.",
         generatedAt: (date: string) => `Generated: ${date}`,
@@ -171,6 +175,7 @@ export const en: Messages = {
         goals: "Goals",
         carbsGoal: "Daily carbs target",
         saltGoal: "Daily salt target",
+        proteinGoal: "Daily protein target",
         saveGoals: "Save goals",
         goalsSaved: "Goals saved",
         goalsError: "Save failed. Please try again.",

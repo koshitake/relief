@@ -27,6 +27,11 @@ export const DEFAULT_SALT_TARGET_G = 10;
 export const MIN_SALT_TARGET_G = 0.5;
 export const MAX_SALT_TARGET_G = 30;
 
+// タンパク質目標のデフォルト・入力範囲（ユーザーが設定可能）
+export const DEFAULT_PROTEIN_TARGET_G = 60;
+export const MIN_PROTEIN_TARGET_G = 10;
+export const MAX_PROTEIN_TARGET_G = 300;
+
 // 水分目標の入力範囲
 export const MIN_WATER_TARGET_ML = 100;
 export const MAX_WATER_TARGET_ML = 5000;

@@ -6,6 +6,7 @@ import {
     DEFAULT_WATER_TARGET_ML, MIN_WATER_TARGET_ML, MAX_WATER_TARGET_ML,
     DEFAULT_CARBS_TARGET_G, MIN_CARBS_TARGET_G, MAX_CARBS_TARGET_G,
     DEFAULT_SALT_TARGET_G, MIN_SALT_TARGET_G, MAX_SALT_TARGET_G,
+    DEFAULT_PROTEIN_TARGET_G, MIN_PROTEIN_TARGET_G, MAX_PROTEIN_TARGET_G,
 } from "@/constants/AppConstants";
 
 interface AppState {
@@ -17,6 +18,8 @@ interface AppState {
     carbsTargetG: number;
     /** 1日の塩分目標（g）。ユーザーが設定可能 */
     saltTargetG: number;
+    /** 1日のタンパク質目標（g）。ユーザーが設定可能 */
+    proteinTargetG: number;
     /** 現在アクティブなタブ */
     activeTab: "summary" | "input";
     /** ログイン中ユーザーの表示名。設定変更後に即時反映するためストアで管理する */
@@ -36,6 +39,8 @@ interface AppActions {
     setCarbsTargetG: (g: number) => void;
     /** 1日の塩分目標を更新する */
     setSaltTargetG: (g: number) => void;
+    /** 1日のタンパク質目標を更新する */
+    setProteinTargetG: (g: number) => void;
     /** タブを切り替える */
     setActiveTab: (tab: "summary" | "input") => void;
     /** 表示名を更新する */
@@ -62,6 +67,7 @@ export const useAppStore = create<AppState & AppActions>()((set) => ({
     waterTargetMl: DEFAULT_WATER_TARGET_ML,
     carbsTargetG: DEFAULT_CARBS_TARGET_G,
     saltTargetG: DEFAULT_SALT_TARGET_G,
+    proteinTargetG: DEFAULT_PROTEIN_TARGET_G,
     activeTab: "summary",
     displayName: "",
     locale: detectLocale(),
@@ -82,6 +88,11 @@ export const useAppStore = create<AppState & AppActions>()((set) => ({
     setSaltTargetG: (g: number) => {
         const clamped = Math.min(MAX_SALT_TARGET_G, Math.max(MIN_SALT_TARGET_G, g));
         set({ saltTargetG: clamped });
+    },
+
+    setProteinTargetG: (g: number) => {
+        const clamped = Math.min(MAX_PROTEIN_TARGET_G, Math.max(MIN_PROTEIN_TARGET_G, g));
+        set({ proteinTargetG: clamped });
     },
 
     setActiveTab: (tab: "summary" | "input") => set({ activeTab: tab }),

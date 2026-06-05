@@ -27,6 +27,7 @@ const dayRecordSchema = z.object({
     mealsText:    z.string().max(500),
     carbsG:       z.number().min(0).max(9999).optional(),
     saltG:        z.number().min(0).max(999).optional(),
+    proteinG:     z.number().min(0).max(9999).optional(),
 });
 
 /** 指定日の記録を取得する */

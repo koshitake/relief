@@ -31,6 +31,7 @@ export const ja = {
         itch: "かゆみ",
         carbs: "糖質",
         salt: "塩分",
+        protein: "タンパク質",
         noRecord: "未記録",
     },
     chart: {
@@ -93,11 +94,13 @@ export const ja = {
     meals: {
         title: "食事内容",
         placeholder: "例: 朝 玄米・味噌汁\n昼 そば  夜 鶏むね・野菜炒め",
-        nutrition: "糖質・塩分",
+        nutrition: "糖質・塩分・タンパク質",
         carbs: "糖質（g）",
         carbsPlaceholder: "例: 68",
         salt: "塩分（g）",
         saltPlaceholder: "例: 6.2",
+        protein: "タンパク質（g）",
+        proteinPlaceholder: "例: 60",
     },
     itch: {
         area: "かゆみの部位",
@@ -150,6 +153,7 @@ export const ja = {
         meals: "食事",
         carbs: "糖質(g)",
         salt: "塩分(g)",
+        protein: "タンパク(g)",
         note: "メモ",
         disclaimer: "※ このレポートは自己管理の記録です。医療診断ではありません。症状が続く場合は主治医・皮膚科にご相談ください。",
         generatedAt: (date: string) => `作成日: ${date}`,
@@ -167,6 +171,7 @@ export const ja = {
         goals: "目標設定",
         carbsGoal: "糖質 1日の目標",
         saltGoal: "塩分 1日の目標",
+        proteinGoal: "タンパク質 1日の目標",
         saveGoals: "目標を保存",
         goalsSaved: "目標を保存しました",
         goalsError: "保存に失敗しました。もう一度お試しください",

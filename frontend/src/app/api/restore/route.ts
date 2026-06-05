@@ -47,6 +47,7 @@ function parseRecord(r: unknown): {
     mealsText:    string;
     carbsG?:      number;
     saltG?:       number;
+    proteinG?:    number;
 } | null {
     if (typeof r !== "object" || r === null) return null;
     const row = r as Record<string, unknown>;
@@ -80,8 +81,9 @@ function parseRecord(r: unknown): {
         exerciseText: String(row.exerciseText ?? ""),
         note:         String(row.note ?? ""),
         mealsText:    String(row.mealsText ?? ""),
-        carbsG:       typeof row.carbsG === "number" ? row.carbsG : undefined,
-        saltG:        typeof row.saltG  === "number" ? row.saltG  : undefined,
+        carbsG:    typeof row.carbsG   === "number" ? row.carbsG   : undefined,
+        saltG:     typeof row.saltG    === "number" ? row.saltG    : undefined,
+        proteinG:  typeof row.proteinG === "number" ? row.proteinG : undefined,
     };
 }
 
@@ -138,9 +140,10 @@ export async function POST(): Promise<NextResponse> {
         // 設定を復元する（plan は現在の値を保持するため除外）
         const s = backup.settings;
         await upsertUserSettings(userId, {
-            ...(typeof s.waterTargetMl === "number" && { waterTargetMl: s.waterTargetMl }),
-            ...(typeof s.carbsTargetG  === "number" && { carbsTargetG:  s.carbsTargetG }),
-            ...(typeof s.saltTargetG   === "number" && { saltTargetG:   s.saltTargetG }),
+            ...(typeof s.waterTargetMl  === "number" && { waterTargetMl:  s.waterTargetMl }),
+            ...(typeof s.carbsTargetG   === "number" && { carbsTargetG:   s.carbsTargetG }),
+            ...(typeof s.saltTargetG    === "number" && { saltTargetG:    s.saltTargetG }),
+            ...(typeof s.proteinTargetG === "number" && { proteinTargetG: s.proteinTargetG }),
             ...(s.locale === "ja" || s.locale === "en" ? { locale: s.locale } : {}),
         });
 

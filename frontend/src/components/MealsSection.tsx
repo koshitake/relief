@@ -40,7 +40,7 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                 style={{ resize: "vertical", marginBottom: "16px" }}
             />
 
-            {/* 糖質・塩分入力（手動入力） */}
+            {/* 糖質・塩分・タンパク質入力（手動入力） */}
             <div
                 style={{
                     borderTop: "1px solid var(--color-border)",
@@ -58,7 +58,7 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                 >
                     {t.meals.nutrition}
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
                     {/* 糖質 */}
                     <div>
                         <label
@@ -115,6 +115,36 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                                 const raw = e.target.value;
                                 updateRecord({
                                     saltG: raw === "" ? undefined : Math.min(99, Math.max(0, Number(raw))),
+                                });
+                            }}
+                        />
+                    </div>
+
+                    {/* タンパク質 */}
+                    <div>
+                        <label
+                            htmlFor="protein-g"
+                            style={{
+                                display: "block",
+                                fontSize: "0.8rem",
+                                color: "var(--color-text-secondary)",
+                                marginBottom: "6px",
+                            }}
+                        >
+                            {t.meals.protein}
+                        </label>
+                        <input
+                            id="protein-g"
+                            type="number"
+                            inputMode="decimal"
+                            value={record.proteinG ?? ""}
+                            min={0}
+                            max={999}
+                            placeholder={t.meals.proteinPlaceholder}
+                            onChange={(e: { target: { value: string } }) => {
+                                const raw = e.target.value;
+                                updateRecord({
+                                    proteinG: raw === "" ? undefined : Math.min(999, Math.max(0, Number(raw))),
                                 });
                             }}
                         />

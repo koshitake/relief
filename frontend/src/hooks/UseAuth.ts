@@ -23,6 +23,7 @@ export function useAuth(): AuthState {
     const setWaterTargetMl  = useAppStore((s) => s.setWaterTargetMl);
     const setCarbsTargetG   = useAppStore((s) => s.setCarbsTargetG);
     const setSaltTargetG    = useAppStore((s) => s.setSaltTargetG);
+    const setProteinTargetG = useAppStore((s) => s.setProteinTargetG);
 
     const loading = status === "loading";
     const userId = session?.user?.id;
@@ -50,17 +51,19 @@ export function useAuth(): AuthState {
                 waterTargetMl?: number;
                 carbsTargetG?: number;
                 saltTargetG?: number;
+                proteinTargetG?: number;
                 locale?: "ja" | "en";
                 plan?: "free" | "full";
             } | null) => {
-                if (data?.waterTargetMl) setWaterTargetMl(data.waterTargetMl);
-                if (data?.carbsTargetG)  setCarbsTargetG(data.carbsTargetG);
-                if (data?.saltTargetG)   setSaltTargetG(data.saltTargetG);
-                if (data?.locale)        setLocale(data.locale);
-                if (data?.plan)          setPlan(data.plan);
+                if (data?.waterTargetMl)  setWaterTargetMl(data.waterTargetMl);
+                if (data?.carbsTargetG)   setCarbsTargetG(data.carbsTargetG);
+                if (data?.saltTargetG)    setSaltTargetG(data.saltTargetG);
+                if (data?.proteinTargetG) setProteinTargetG(data.proteinTargetG);
+                if (data?.locale)         setLocale(data.locale);
+                if (data?.plan)           setPlan(data.plan);
             })
             .catch(() => {});
-    }, [userId, setPlan, setLocale, setWaterTargetMl, setCarbsTargetG, setSaltTargetG]);
+    }, [userId, setPlan, setLocale, setWaterTargetMl, setCarbsTargetG, setSaltTargetG, setProteinTargetG]);
 
     return { user, loading };
 }

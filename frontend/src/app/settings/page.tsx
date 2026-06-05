@@ -8,7 +8,7 @@ import { useAppStore } from "@/store/UseAppStore";
 import { useAuth } from "@/hooks/UseAuth";
 import { useUserSettings } from "@/hooks/UseUserSettings";
 import { useTranslations } from "@/hooks/UseTranslations";
-import { MIN_CARBS_TARGET_G, MAX_CARBS_TARGET_G, MIN_SALT_TARGET_G, MAX_SALT_TARGET_G } from "@/constants/AppConstants";
+import { MIN_CARBS_TARGET_G, MAX_CARBS_TARGET_G, MIN_SALT_TARGET_G, MAX_SALT_TARGET_G, MIN_PROTEIN_TARGET_G, MAX_PROTEIN_TARGET_G } from "@/constants/AppConstants";
 
 // プラン定義（Free / Full の2プラン構成）
 const ALL_PLANS = [
@@ -26,6 +26,7 @@ export default function SettingsPage() {
     const setDisplayName = useAppStore((s) => s.setDisplayName);
     const carbsTargetG = useAppStore((s) => s.carbsTargetG);
     const saltTargetG = useAppStore((s) => s.saltTargetG);
+    const proteinTargetG = useAppStore((s) => s.proteinTargetG);
     const locale = useAppStore((s) => s.locale);
     const setLocale = useAppStore((s) => s.setLocale);
     const plan = useAppStore((s) => s.plan);
@@ -37,12 +38,14 @@ export default function SettingsPage() {
 
     const [carbsInput, setCarbsInput] = useState(carbsTargetG);
     const [saltInput, setSaltInput] = useState(saltTargetG);
+    const [proteinInput, setProteinInput] = useState(proteinTargetG);
     const [nutritionSaving, setNutritionSaving] = useState(false);
     const [nutritionSaveResult, setNutritionSaveResult] = useState<"success" | "error" | null>(null);
 
     // DBからストアに設定が読み込まれたら入力欄を同期する
     useEffect(() => { setCarbsInput(carbsTargetG); }, [carbsTargetG]);
     useEffect(() => { setSaltInput(saltTargetG); }, [saltTargetG]);
+    useEffect(() => { setProteinInput(proteinTargetG); }, [proteinTargetG]);
     useEffect(() => { setNicknameInput(displayName); }, [displayName]);
 
     // バックアップ関連の状態
@@ -76,13 +79,15 @@ export default function SettingsPage() {
     async function handleNutritionTargetSave() {
         const carbs = Number(carbsInput);
         const salt = Number(saltInput);
+        const protein = Number(proteinInput);
         if (carbs < MIN_CARBS_TARGET_G || carbs > MAX_CARBS_TARGET_G) return;
         if (salt < MIN_SALT_TARGET_G || salt > MAX_SALT_TARGET_G) return;
+        if (protein < MIN_PROTEIN_TARGET_G || protein > MAX_PROTEIN_TARGET_G) return;
 
         setNutritionSaving(true);
         setNutritionSaveResult(null);
         try {
-            saveNutritionTargets(carbs, salt);
+            saveNutritionTargets(carbs, salt, protein);
             setNutritionSaveResult("success");
         } catch {
             setNutritionSaveResult("error");
@@ -253,6 +258,29 @@ export default function SettingsPage() {
                             min={MIN_SALT_TARGET_G}
                             max={MAX_SALT_TARGET_G}
                             step={0.5}
+                            style={{ flex: 1, fontSize: "0.9rem" }}
+                        />
+                        <span style={{ fontSize: "0.9rem", color: "var(--color-text-muted)" }}>g</span>
+                    </div>
+                </div>
+
+                {/* タンパク質目標 */}
+                <div style={{ marginBottom: "12px" }}>
+                    <label
+                        htmlFor="protein-target"
+                        style={{ display: "block", fontSize: "0.8rem", color: "var(--color-text-secondary)", marginBottom: "6px" }}
+                    >
+                        {t.settings.proteinGoal}
+                    </label>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <input
+                            id="protein-target"
+                            type="number"
+                            value={proteinInput}
+                            onChange={(e) => { setProteinInput(Number(e.target.value)); setNutritionSaveResult(null); }}
+                            min={MIN_PROTEIN_TARGET_G}
+                            max={MAX_PROTEIN_TARGET_G}
+                            step={1}
                             style={{ flex: 1, fontSize: "0.9rem" }}
                         />
                         <span style={{ fontSize: "0.9rem", color: "var(--color-text-muted)" }}>g</span>
