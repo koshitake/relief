@@ -1,7 +1,8 @@
 "use client";
 
 // 主治医向けレポートページです（Full プラン専用）。
-// 期間を選択してブラウザの印刷機能でPDF保存または印刷できます。
+// 月単位で表示し、前月・翌月ボタンで月を切り替えられます。
+// ブラウザの印刷機能でPDF保存または印刷できます。
 
 import { useState, useEffect, useCallback } from "react";
 import { useAppStore } from "@/store/UseAppStore";
@@ -9,70 +10,109 @@ import { useAuth } from "@/hooks/UseAuth";
 import { useTranslations } from "@/hooks/UseTranslations";
 import type { ReportRecord } from "@/app/api/report/route";
 
-type Period = "1m" | "3m" | "6m";
+// かゆみスコアに対応する色を返す
+function itchColor(score: number): string {
+    if (score === 0) return "var(--color-text-placeholder)";
+    if (score <= 2)  return "#34C759";
+    if (score === 3) return "#FF9500";
+    return "#FF3B30";
+}
 
-// 日付を見やすい形式に変換する（例: "2026-05-17" → "2026年5月17日"）
-function formatDay(day: string, locale: "ja" | "en"): string {
+// 日付を "5/1(月)" 形式に変換する
+function formatDayShort(day: string, locale: "ja" | "en"): string {
     const [y, m, d] = day.split("-").map(Number);
-    return locale === "ja"
-        ? `${y}年${m}月${d}日`
-        : `${y}/${String(m).padStart(2, "0")}/${String(d).padStart(2, "0")}`;
+    const date = new Date(y, m - 1, d);
+    if (locale === "ja") {
+        const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+        return `${m}/${d}(${weekdays[date.getDay()]})`;
+    }
+    const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    return `${m}/${d}(${weekdays[date.getDay()]})`;
 }
 
 // 今日の日付を整形する
 function formatToday(locale: "ja" | "en"): string {
     const now = new Date();
-    return formatDay(now.toISOString().slice(0, 10), locale);
+    const [y, m, d] = [now.getFullYear(), now.getMonth() + 1, now.getDate()];
+    return locale === "ja"
+        ? `${y}年${m}月${d}日`
+        : `${y}/${String(m).padStart(2, "0")}/${String(d).padStart(2, "0")}`;
+}
+
+// テーブルヘッダーセルのスタイル
+const thStyle: React.CSSProperties = {
+    padding: "8px 10px",
+    textAlign: "left",
+    background: "var(--color-input-bg)",
+    borderBottom: "2px solid #D1D1D6",
+    whiteSpace: "nowrap",
+    color: "var(--color-text-muted)",
+    fontSize: "0.68rem",
+    fontWeight: 700,
+    letterSpacing: "0.04em",
+    textTransform: "uppercase",
+};
+
+// テーブルデータセルのスタイル
+function tdStyle(align: "left" | "center" | "right" = "left"): React.CSSProperties {
+    return {
+        padding: "8px 10px",
+        textAlign: align,
+        color: "var(--color-text-primary)",
+        fontSize: "0.8rem",
+        borderBottom: "1px solid var(--color-input-bg)",
+        verticalAlign: "top",
+    };
 }
 
 export default function ReportPage() {
     const { user, loading } = useAuth();
-    const plan = useAppStore((s) => s.plan);
+    const plan   = useAppStore((s) => s.plan);
     const locale = useAppStore((s) => s.locale);
-    const t = useTranslations();
-
-    // user はレンダリングごとに新オブジェクトになるため、プリミティブの id で依存管理する
+    const t      = useTranslations();
     const userId = user?.id;
 
-    const [period, setPeriod] = useState<Period>("1m");
-    const [records, setRecords] = useState<ReportRecord[]>([]);
+    // 現在表示中の年・月（デフォルト：今月）
+    const now = new Date();
+    const [year,  setYear]  = useState(now.getFullYear());
+    const [month, setMonth] = useState(now.getMonth() + 1);
+    const [records,  setRecords]  = useState<ReportRecord[]>([]);
     const [fetching, setFetching] = useState(false);
+
+    // 翌月ボタンを無効にする（今月より先には進まない）
+    const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1;
+
+    function goToPrevMonth() {
+        if (month === 1) { setYear((y) => y - 1); setMonth(12); }
+        else setMonth((m) => m - 1);
+    }
+
+    function goToNextMonth() {
+        if (isCurrentMonth) return;
+        if (month === 12) { setYear((y) => y + 1); setMonth(1); }
+        else setMonth((m) => m + 1);
+    }
 
     const loadRecords = useCallback(() => {
         setFetching(true);
-        fetch(`/api/report?period=${period}`)
+        fetch(`/api/report?year=${year}&month=${month}`)
             .then((r) => r.json())
-            .then((json: unknown) => {
-                setRecords(Array.isArray(json) ? (json as ReportRecord[]) : []);
-            })
+            .then((json: unknown) => setRecords(Array.isArray(json) ? (json as ReportRecord[]) : []))
             .catch(() => setRecords([]))
             .finally(() => setFetching(false));
-    }, [period]);
+    }, [year, month]);
 
-    // userId・plan・period が変わるたびに再取得する
     useEffect(() => {
-        if (userId && plan === "full") {
-            loadRecords();
-        }
+        if (userId && plan === "full") loadRecords();
     }, [userId, plan, loadRecords]);
 
+    // --- ローディング / 未ログイン / プランチェック ---
     if (loading) {
-        return (
-            <div style={{ textAlign: "center", paddingTop: "40vh", color: "var(--color-text-muted)" }}>
-                {t.common.loading}
-            </div>
-        );
+        return <div style={centerStyle}>{t.common.loading}</div>;
     }
-
     if (!user) {
-        return (
-            <div style={{ textAlign: "center", paddingTop: "40vh", color: "var(--color-text-muted)" }}>
-                {t.common.loginRequired}
-            </div>
-        );
+        return <div style={centerStyle}>{t.common.loginRequired}</div>;
     }
-
-    // Full プラン以外はアクセス不可
     if (plan !== "full") {
         return (
             <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--color-text-muted)" }}>
@@ -82,168 +122,185 @@ export default function ReportPage() {
         );
     }
 
+    // --- サマリー計算 ---
+    const recordCount = records.length;
+    const avgItch = recordCount > 0
+        ? (records.reduce((s, r) => s + r.itchScore, 0) / recordCount).toFixed(1)
+        : "—";
+    const waterRecords = records.filter((r) => r.waterMl > 0);
+    const avgWater = waterRecords.length > 0
+        ? Math.round(waterRecords.reduce((s, r) => s + r.waterMl, 0) / waterRecords.length)
+        : null;
+
+    const monthLabel = t.chart.formatYearMonth(year, month);
+
     return (
         <>
-            {/* 印刷時に非表示にするヘッダー・操作エリア */}
             <style>{`
                 @media print {
                     .no-print, .bottom-nav, header { display: none !important; }
                     .print-only { display: block !important; }
-                    body { background: white !important; font-size: 11pt; }
-                    table { border-collapse: collapse; width: 100%; font-size: 9pt; }
-                    th, td { border: 1px solid #ccc; padding: 4px 6px; vertical-align: top; }
-                    th { background: #f0f0f0; font-weight: bold; }
+                    body { background: white !important; padding: 0 !important; font-size: 10pt; }
+                    .report-table th { background: #f0f0f0 !important; }
+                    .report-table td, .report-table th { border: 1px solid #bbb !important; }
+                    @page { margin: 15mm; size: A4 landscape; }
                 }
                 .print-only { display: none; }
+                .report-table tr:hover td { background: rgba(0,122,255,0.04); }
             `}</style>
 
-            {/* 画面上の操作エリア（印刷時非表示） */}
-            <div className="no-print" style={{ paddingTop: "24px", paddingBottom: "16px" }}>
-                <div style={{ fontSize: "1.3rem", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "16px" }}>
-                    {t.report.title}
+            {/* ===== 印刷時のみ表示するヘッダー ===== */}
+            <div className="print-only" style={{ marginBottom: "20px", borderBottom: "2px solid #333", paddingBottom: "12px" }}>
+                <div style={{ fontSize: "16pt", fontWeight: 700, marginBottom: "4px" }}>
+                    アトピー管理レポート — {monthLabel}
                 </div>
-
-                {/* 期間選択 */}
-                <div style={{ marginBottom: "16px" }}>
-                    <div style={{ fontSize: "0.8rem", color: "var(--color-text-secondary)", marginBottom: "8px" }}>
-                        {t.report.period}
-                    </div>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                        {(["1m", "3m", "6m"] as Period[]).map((p) => {
-                            const label = p === "1m" ? t.report.period1m
-                                : p === "3m" ? t.report.period3m : t.report.period6m;
-                            return (
-                                <button
-                                    key={p}
-                                    onClick={() => setPeriod(p)}
-                                    style={{
-                                        padding: "8px 16px",
-                                        borderRadius: "var(--radius-pill)",
-                                        border: period === p
-                                            ? "1.5px solid var(--color-accent)"
-                                            : "1px solid var(--color-border)",
-                                        background: period === p
-                                            ? "rgba(0,122,255,0.1)"
-                                            : "var(--color-input-bg)",
-                                        color: period === p
-                                            ? "var(--color-accent)"
-                                            : "var(--color-text-secondary)",
-                                        fontSize: "0.82rem",
-                                        fontWeight: period === p ? 600 : 400,
-                                        cursor: "pointer",
-                                        fontFamily: "inherit",
-                                    }}
-                                >
-                                    {label}
-                                </button>
-                            );
-                        })}
-                    </div>
+                <div style={{ fontSize: "9pt", color: "#555" }}>
+                    {t.report.generatedAt(formatToday(locale))}
+                    {" "}／ 記録日数: {recordCount}日
+                    {" "}／ 平均かゆみ: {avgItch}
+                    {avgWater !== null && ` ／ 平均水分: ${avgWater.toLocaleString()}ml`}
                 </div>
+            </div>
 
-                {/* 印刷ボタン */}
+            {/* ===== 月ナビゲーション ===== */}
+            <div className="no-print" style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingTop: "20px",
+                paddingBottom: "16px",
+                gap: "8px",
+            }}>
+                <button onClick={goToPrevMonth} style={navBtnStyle} aria-label={t.report.prevMonth}>
+                    ‹
+                </button>
+                <span style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--color-text-primary)", flex: 1, textAlign: "center" }}>
+                    {monthLabel}
+                </span>
+                <button
+                    onClick={goToNextMonth}
+                    disabled={isCurrentMonth}
+                    style={{ ...navBtnStyle, opacity: isCurrentMonth ? 0.3 : 1 }}
+                    aria-label={t.report.nextMonth}
+                >
+                    ›
+                </button>
                 <button
                     onClick={() => window.print()}
-                    disabled={fetching || records.length === 0}
+                    disabled={fetching || recordCount === 0}
                     style={{
-                        width: "100%",
-                        border: "none",
-                        background: "var(--color-accent)",
-                        color: "#fff",
+                        padding: "8px 18px",
                         borderRadius: "var(--radius-pill)",
-                        padding: "12px",
-                        fontSize: "0.85rem",
+                        border: "none",
+                        background: (fetching || recordCount === 0) ? "#E5E5EA" : "var(--color-accent)",
+                        color: (fetching || recordCount === 0) ? "var(--color-text-muted)" : "#fff",
+                        fontSize: "0.82rem",
                         fontWeight: 600,
-                        cursor: (fetching || records.length === 0) ? "default" : "pointer",
+                        cursor: (fetching || recordCount === 0) ? "default" : "pointer",
                         fontFamily: "inherit",
-                        opacity: (fetching || records.length === 0) ? 0.4 : 1,
-                        marginBottom: "16px",
+                        whiteSpace: "nowrap",
+                        flexShrink: 0,
                     }}
                 >
                     {t.report.print}
                 </button>
             </div>
 
-            {/* 印刷時のみ表示するヘッダー */}
-            <div className="print-only" style={{ marginBottom: "16px" }}>
-                <h2 style={{ margin: "0 0 4px", fontSize: "14pt" }}>{t.report.title}</h2>
-                <div style={{ fontSize: "9pt", color: "#666" }}>
-                    {t.report.generatedAt(formatToday(locale))}
+            {/* ===== サマリーバー（画面のみ） ===== */}
+            {!fetching && recordCount > 0 && (
+                <div className="no-print" style={{
+                    display: "flex",
+                    gap: "12px",
+                    flexWrap: "wrap",
+                    padding: "10px 14px",
+                    background: "var(--color-card)",
+                    borderRadius: "var(--radius-card)",
+                    marginBottom: "12px",
+                    boxShadow: "var(--shadow-card)",
+                }}>
+                    <SummaryItem label={t.report.recordDays} value={`${recordCount}${t.report.daysUnit}`} />
+                    <Divider />
+                    <SummaryItem label={t.report.avgItch} value={avgItch} color={itchColor(parseFloat(avgItch) || 0)} />
+                    {avgWater !== null && (
+                        <>
+                            <Divider />
+                            <SummaryItem label={t.report.avgWater} value={`${avgWater.toLocaleString()}ml`} />
+                        </>
+                    )}
                 </div>
-            </div>
+            )}
 
-            {/* レコードテーブル */}
+            {/* ===== 記録テーブル ===== */}
             {fetching ? (
-                <div className="no-print" style={{ textAlign: "center", color: "var(--color-text-muted)", padding: "24px" }}>
+                <div style={{ textAlign: "center", color: "var(--color-text-muted)", padding: "40px" }}>
                     {t.report.loading}
                 </div>
-            ) : records.length === 0 ? (
-                <p style={{ color: "var(--color-text-muted)", textAlign: "center", fontSize: "0.85rem" }}>
+            ) : recordCount === 0 ? (
+                <div style={{ textAlign: "center", color: "var(--color-text-muted)", padding: "40px", fontSize: "0.85rem" }}>
                     {t.report.noData}
-                </p>
+                </div>
             ) : (
-                <div style={{ overflowX: "auto" }}>
-                    <table style={{
-                        width: "100%",
-                        borderCollapse: "collapse",
-                        fontSize: "0.78rem",
-                    }}>
+                <div style={{ overflowX: "auto", borderRadius: "var(--radius-card)", boxShadow: "var(--shadow-card)" }}>
+                    <table className="report-table" style={{ width: "100%", borderCollapse: "collapse", background: "var(--color-card)" }}>
                         <thead>
                             <tr>
-                                {[
-                                    t.report.date,
-                                    t.report.itchScore,
-                                    t.report.itchArea,
-                                    t.report.water,
-                                    t.report.carbs,
-                                    t.report.salt,
-                                    t.report.meals,
-                                    t.report.note,
-                                ].map((header) => (
-                                    <th
-                                        key={header}
-                                        style={{
-                                            padding: "6px 8px",
-                                            textAlign: "left",
-                                            background: "var(--color-input-bg)",
-                                            borderBottom: "2px solid var(--color-border)",
-                                            whiteSpace: "nowrap",
-                                            color: "var(--color-text-secondary)",
-                                            fontSize: "0.7rem",
-                                            fontWeight: 600,
-                                        }}
-                                    >
-                                        {header}
-                                    </th>
-                                ))}
+                                <th style={thStyle}>{t.report.date}</th>
+                                <th style={{ ...thStyle, textAlign: "center" }}>{t.report.itchScore}</th>
+                                <th style={thStyle}>{t.report.itchArea}</th>
+                                <th style={{ ...thStyle, textAlign: "right" }}>{t.report.water}</th>
+                                <th style={{ ...thStyle, textAlign: "right" }}>{t.report.carbs}</th>
+                                <th style={{ ...thStyle, textAlign: "right" }}>{t.report.salt}</th>
+                                <th style={{ ...thStyle, textAlign: "right" }}>{t.report.protein}</th>
+                                <th style={thStyle}>{t.report.meals}</th>
+                                <th style={thStyle}>{t.report.note}</th>
                             </tr>
                         </thead>
                         <tbody>
                             {records.map((rec) => (
-                                <tr key={rec.day} style={{ borderBottom: "1px solid var(--color-border)" }}>
-                                    <td style={{ padding: "6px 8px", whiteSpace: "nowrap", color: "var(--color-text-primary)" }}>
-                                        {formatDay(rec.day, locale)}
+                                <tr key={rec.day}>
+                                    <td style={{ ...tdStyle(), whiteSpace: "nowrap", fontWeight: 500 }}>
+                                        {formatDayShort(rec.day, locale)}
                                     </td>
-                                    <td style={{ padding: "6px 8px", textAlign: "center", fontWeight: 700, color: rec.itchScore >= 5 ? "#FF3B30" : "var(--color-text-primary)" }}>
-                                        {rec.itchScore}
+                                    <td style={{ ...tdStyle("center") }}>
+                                        {rec.itchScore > 0 ? (
+                                            <span style={{
+                                                display: "inline-block",
+                                                width: "28px",
+                                                height: "28px",
+                                                lineHeight: "28px",
+                                                borderRadius: "50%",
+                                                background: itchColor(rec.itchScore),
+                                                color: "#fff",
+                                                fontWeight: 700,
+                                                fontSize: "0.82rem",
+                                                textAlign: "center",
+                                            }}>
+                                                {rec.itchScore}
+                                            </span>
+                                        ) : (
+                                            <span style={{ color: "var(--color-text-placeholder)" }}>—</span>
+                                        )}
                                     </td>
-                                    <td style={{ padding: "6px 8px", color: "var(--color-text-secondary)", fontSize: "0.72rem" }}>
-                                        {rec.itchArea.join("・") || "—"}
+                                    <td style={{ ...tdStyle(), fontSize: "0.72rem", color: "var(--color-text-secondary)", maxWidth: "100px" }}>
+                                        {rec.itchArea.length > 0 ? rec.itchArea.join("・") : "—"}
                                     </td>
-                                    <td style={{ padding: "6px 8px", textAlign: "right", color: "var(--color-text-primary)" }}>
-                                        {rec.waterMl > 0 ? rec.waterMl.toLocaleString() : "—"}
+                                    <td style={tdStyle("right")}>
+                                        {rec.waterMl > 0 ? rec.waterMl.toLocaleString() : <Dash />}
                                     </td>
-                                    <td style={{ padding: "6px 8px", textAlign: "right", color: "var(--color-text-primary)" }}>
-                                        {rec.carbsG !== null ? rec.carbsG : "—"}
+                                    <td style={tdStyle("right")}>
+                                        {rec.carbsG !== null ? rec.carbsG : <Dash />}
                                     </td>
-                                    <td style={{ padding: "6px 8px", textAlign: "right", color: "var(--color-text-primary)" }}>
-                                        {rec.saltG !== null ? rec.saltG : "—"}
+                                    <td style={tdStyle("right")}>
+                                        {rec.saltG !== null ? rec.saltG : <Dash />}
                                     </td>
-                                    <td style={{ padding: "6px 8px", color: "var(--color-text-secondary)", maxWidth: "120px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                        {rec.mealsText || "—"}
+                                    <td style={tdStyle("right")}>
+                                        {rec.proteinG !== null ? rec.proteinG : <Dash />}
                                     </td>
-                                    <td style={{ padding: "6px 8px", color: "var(--color-text-secondary)", maxWidth: "120px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                        {rec.note || "—"}
+                                    <td style={{ ...tdStyle(), color: "var(--color-text-secondary)", maxWidth: "120px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                        {rec.mealsText || <Dash />}
+                                    </td>
+                                    <td style={{ ...tdStyle(), color: "var(--color-text-secondary)", maxWidth: "120px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                        {rec.note || <Dash />}
                                     </td>
                                 </tr>
                             ))}
@@ -252,16 +309,63 @@ export default function ReportPage() {
                 </div>
             )}
 
-            {/* 免責事項 */}
+            {/* ===== 免責事項 ===== */}
             <p style={{
                 fontSize: "0.7rem",
                 color: "var(--color-text-muted)",
                 marginTop: "24px",
                 lineHeight: 1.7,
-                paddingBottom: "32px",
+                paddingBottom: "80px",
             }}>
                 {t.report.disclaimer}
             </p>
         </>
     );
 }
+
+// ===== 小コンポーネント =====
+
+function SummaryItem({ label, value, color }: { label: string; value: string; color?: string }) {
+    return (
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            <span style={{ fontSize: "0.68rem", color: "var(--color-text-muted)", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+                {label}
+            </span>
+            <span style={{ fontSize: "1rem", fontWeight: 700, color: color ?? "var(--color-text-primary)" }}>
+                {value}
+            </span>
+        </div>
+    );
+}
+
+function Divider() {
+    return <div style={{ width: "1px", background: "var(--color-input-bg)", alignSelf: "stretch", margin: "0 4px" }} />;
+}
+
+function Dash() {
+    return <span style={{ color: "var(--color-text-placeholder)" }}>—</span>;
+}
+
+// ===== スタイル定数 =====
+
+const centerStyle: React.CSSProperties = {
+    textAlign: "center",
+    paddingTop: "40vh",
+    color: "var(--color-text-muted)",
+};
+
+const navBtnStyle: React.CSSProperties = {
+    width: "40px",
+    height: "40px",
+    borderRadius: "50%",
+    border: "none",
+    background: "var(--color-input-bg)",
+    cursor: "pointer",
+    fontSize: "1.5rem",
+    lineHeight: "1",
+    color: "var(--color-accent)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+};

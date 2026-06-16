@@ -1,5 +1,5 @@
 // 主治医向けレポートデータを返す API Route です（Full プラン専用）。
-// 指定期間の記録を日付昇順で返します。
+// 指定した年・月の記録を日付昇順で返します。
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
@@ -10,25 +10,18 @@ import { WaterLog, calcTotalWaterMl } from "@/types/DayRecord";
 
 // 1件のレポート行
 export interface ReportRecord {
-    day:          string;
-    itchScore:    number;
-    itchArea:     string[];
-    waterMl:      number;
-    mealsText:    string;
-    carbsG:       number | null;
-    saltG:        number | null;
-    proteinG:     number | null;
-    note:         string;
+    day:       string;
+    itchScore: number;
+    itchArea:  string[];
+    waterMl:   number;
+    mealsText: string;
+    carbsG:    number | null;
+    saltG:     number | null;
+    proteinG:  number | null;
+    note:      string;
 }
 
-// 期間のオフセット（月数）を返す
-function periodToMonths(period: string): number {
-    if (period === "3m") return 3;
-    if (period === "6m") return 6;
-    return 1; // デフォルト1ヶ月
-}
-
-/** レポートデータを取得する */
+/** レポートデータを取得する（year・month クエリパラメータで月を指定） */
 export async function GET(req: NextRequest): Promise<NextResponse> {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -44,16 +37,15 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     }
 
     const { searchParams } = new URL(req.url);
-    const period = searchParams.get("period") ?? "1m";
-    const months = periodToMonths(period);
+    const now = new Date();
+    const year  = parseInt(searchParams.get("year")  ?? String(now.getFullYear()), 10);
+    const month = parseInt(searchParams.get("month") ?? String(now.getMonth() + 1), 10);
 
-    const endDate = new Date();
-    const startDate = new Date(endDate);
-    startDate.setMonth(endDate.getMonth() - months);
-    startDate.setDate(startDate.getDate() + 1);
-
-    const startDateStr = startDate.toISOString().slice(0, 10);
-    const endDateStr   = endDate.toISOString().slice(0, 10);
+    // 月の最初と最後の日付を算出する
+    const mm = String(month).padStart(2, "0");
+    const startDate = `${year}-${mm}-01`;
+    const lastDay   = new Date(year, month, 0).getDate();
+    const endDate   = `${year}-${mm}-${String(lastDay).padStart(2, "0")}`;
 
     if (!supabase) return NextResponse.json([], { status: 200 });
 
@@ -61,8 +53,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         .from("day_records")
         .select("day, itch_score, itch_area, water_logs, meals_text, carbs_g, salt_g, protein_g, note")
         .eq("user_id", userId)
-        .gte("day", startDateStr)
-        .lte("day", endDateStr)
+        .gte("day", startDate)
+        .lte("day", endDate)
         .order("day", { ascending: true });
 
     if (error) {
