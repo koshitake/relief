@@ -191,7 +191,7 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                             textAlign: "center",
                         }}
                     >
-                        🔒 Full プランでご利用いただけます
+                        {t.meals.aiPlanRequired}
                     </p>
                 )}
                 {isFull && !canEstimate && (

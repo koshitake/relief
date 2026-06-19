@@ -111,6 +111,7 @@ export const en: Messages = {
         aiPremiumBadge: "Premium",
         aiEstimateDisabledHint: "Enter meal details to estimate",
         aiEstimateApplied: "Estimated values applied",
+        aiPlanRequired: "🔒 Available on Full plan",
     },
     itch: {
         area: "Itch area",

@@ -102,7 +102,7 @@ export default function SummaryCard({ record }: SummaryCardProps) {
                     />
                 </div>
                 {/* 選択されたかゆみ部位を表示する */}
-                {record.itchArea.length > 0 && (
+                {record.itchArea.length > 0 ? (
                     <div style={{
                         marginTop: "8px",
                         paddingTop: "8px",
@@ -113,7 +113,7 @@ export default function SummaryCard({ record }: SummaryCardProps) {
                     }}>
                         {record.itchArea.join("・")}
                     </div>
-                )}
+                ) : null}
             </div>
 
             {/* 5. かゆみ傾向グラフ（全プラン） */}
