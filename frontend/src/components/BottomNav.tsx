@@ -19,32 +19,33 @@ export default function BottomNav() {
     const t = useTranslations();
     const { user } = useAuth();
 
+    const isHome = pathname === "/";
     const isSettings = pathname === "/settings";
 
     // 未ログイン時はナビゲーションバーを非表示にする
     if (!user) return null;
 
-    // まとめ・入力タブは / ページ。設定ページにいる場合はトップへ戻る
+    // まとめ・入力タブは / ページ。/ 以外（設定・レポート等）にいる場合はトップへ戻る
     function handleMainTabClick(tab: "summary" | "input") {
-        if (isSettings) router.push("/");
+        if (!isHome) router.push("/");
         setActiveTab(tab);
     }
 
     return (
         <nav className="bottom-nav" role="tablist" aria-label={t.nav.mainAriaLabel}>
             <button
-                className={`bottom-nav-btn ${!isSettings && activeTab === "summary" ? "active" : ""}`}
+                className={`bottom-nav-btn ${isHome && activeTab === "summary" ? "active" : ""}`}
                 role="tab"
-                aria-selected={!isSettings && activeTab === "summary"}
+                aria-selected={isHome && activeTab === "summary"}
                 onClick={() => handleMainTabClick("summary")}
             >
                 <span className="bottom-nav-icon" aria-hidden="true">📊</span>
                 <span className="bottom-nav-label">{t.nav.summary}</span>
             </button>
             <button
-                className={`bottom-nav-btn ${!isSettings && activeTab === "input" ? "active" : ""}`}
+                className={`bottom-nav-btn ${isHome && activeTab === "input" ? "active" : ""}`}
                 role="tab"
-                aria-selected={!isSettings && activeTab === "input"}
+                aria-selected={isHome && activeTab === "input"}
                 onClick={() => handleMainTabClick("input")}
             >
                 <span className="bottom-nav-icon" aria-hidden="true">✏️</span>
