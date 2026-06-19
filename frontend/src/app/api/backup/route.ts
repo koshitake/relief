@@ -36,10 +36,7 @@ export async function POST(_req: NextRequest): Promise<NextResponse> {
     }
 
     try {
-        // 設定と記録を並列取得する
-        const [records] = await Promise.all([
-            fetchAllDayRecords(userId),
-        ]);
+        const records = await fetchAllDayRecords(userId);
 
         console.log(`[Relief] バックアップ: userId=${userId}, records=${records.length}件`);
 

@@ -24,7 +24,7 @@ const dayRecordSchema = z.object({
     ).max(100),
     exerciseText: z.string().max(500),
     note:         z.string().max(1000),
-    mealsText:    z.string().max(500),
+    mealsText:    z.string().max(2000),
     carbsG:       z.number().min(0).max(9999).optional(),
     saltG:        z.number().min(0).max(999).optional(),
     proteinG:     z.number().min(0).max(9999).optional(),

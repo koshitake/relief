@@ -107,6 +107,7 @@ export const ja = {
         aiPremiumBadge: "有料機能",
         aiEstimateDisabledHint: "食事内容を入力すると推定できます",
         aiEstimateApplied: "推定値を反映しました",
+        aiPlanRequired: "🔒 Full プランでご利用いただけます",
     },
     itch: {
         area: "かゆみの部位",
