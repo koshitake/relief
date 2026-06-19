@@ -10,15 +10,16 @@ import { WaterLog, calcTotalWaterMl } from "@/types/DayRecord";
 
 // 1件のレポート行
 export interface ReportRecord {
-    day:       string;
-    itchScore: number;
-    itchArea:  string[];
-    waterMl:   number;
-    mealsText: string;
-    carbsG:    number | null;
-    saltG:     number | null;
-    proteinG:  number | null;
-    note:      string;
+    day:          string;
+    waterMl:      number;
+    exerciseText: string;
+    carbsG:       number | null;
+    saltG:        number | null;
+    proteinG:     number | null;
+    mealsText:    string;
+    itchScore:    number;
+    itchArea:     string[];
+    note:         string;
 }
 
 /** レポートデータを取得する（year・month クエリパラメータで月を指定） */
@@ -51,7 +52,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     const { data, error } = await supabase
         .from("day_records")
-        .select("day, itch_score, itch_area, water_logs, meals_text, carbs_g, salt_g, protein_g, note")
+        .select("day, itch_score, itch_area, water_logs, exercise_text, meals_text, carbs_g, salt_g, protein_g, note")
         .eq("user_id", userId)
         .gte("day", startDate)
         .lte("day", endDate)
@@ -73,15 +74,16 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         const itchArea = rawArea ? rawArea.split(",").filter(Boolean) : [];
 
         return {
-            day:       row.day as string,
-            itchScore: Number(row.itch_score ?? 0),
+            day:          row.day as string,
+            waterMl:      calcTotalWaterMl(waterLogs),
+            exerciseText: String(row.exercise_text ?? ""),
+            carbsG:       row.carbs_g   != null ? Number(row.carbs_g)   : null,
+            saltG:        row.salt_g    != null ? Number(row.salt_g)    : null,
+            proteinG:     row.protein_g != null ? Number(row.protein_g) : null,
+            mealsText:    String(row.meals_text ?? ""),
+            itchScore:    Number(row.itch_score ?? 0),
             itchArea,
-            waterMl:   calcTotalWaterMl(waterLogs),
-            mealsText: String(row.meals_text ?? ""),
-            carbsG:    row.carbs_g   != null ? Number(row.carbs_g)   : null,
-            saltG:     row.salt_g    != null ? Number(row.salt_g)    : null,
-            proteinG:  row.protein_g != null ? Number(row.protein_g) : null,
-            note:      String(row.note ?? ""),
+            note:         String(row.note ?? ""),
         };
     });
 

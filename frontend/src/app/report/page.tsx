@@ -1,8 +1,7 @@
 "use client";
 
 // 主治医向けレポートページです（Full プラン専用）。
-// 月単位で表示し、前月・翌月ボタンで月を切り替えられます。
-// ブラウザの印刷機能でPDF保存または印刷できます。
+// 月単位で表示し、前月・翌月ボタンで月を切り替えられます。スマホで直接主治医に見せる形式です。
 
 import { useState, useEffect, useCallback } from "react";
 import { useAppStore } from "@/store/UseAppStore";
@@ -30,21 +29,22 @@ function formatDayShort(day: string, locale: "ja" | "en"): string {
     return `${m}/${d}(${weekdays[date.getDay()]})`;
 }
 
-// 今日の日付を整形する
-function formatToday(locale: "ja" | "en"): string {
-    const now = new Date();
-    const [y, m, d] = [now.getFullYear(), now.getMonth() + 1, now.getDate()];
-    return locale === "ja"
-        ? `${y}年${m}月${d}日`
-        : `${y}/${String(m).padStart(2, "0")}/${String(d).padStart(2, "0")}`;
+// 土日の文字色を返す（日:赤 / 土:青 / 平日:デフォルト）
+function dayColor(day: string): string | undefined {
+    const [y, m, d] = day.split("-").map(Number);
+    const dow = new Date(y, m - 1, d).getDay();
+    if (dow === 0) return "#FF3B30";
+    if (dow === 6) return "#007AFF";
+    return undefined;
 }
 
+
 // テーブルヘッダーセルのスタイル
+// padding / border は CSS クラス (.report-table th / .report-table td) で管理する
+// inline style に含めると印刷時に @media print の !important で上書きできないため
 const thStyle: React.CSSProperties = {
-    padding: "8px 10px",
     textAlign: "left",
     background: "var(--color-input-bg)",
-    borderBottom: "2px solid #D1D1D6",
     whiteSpace: "nowrap",
     color: "var(--color-text-muted)",
     fontSize: "0.68rem",
@@ -56,11 +56,9 @@ const thStyle: React.CSSProperties = {
 // テーブルデータセルのスタイル
 function tdStyle(align: "left" | "center" | "right" = "left"): React.CSSProperties {
     return {
-        padding: "8px 10px",
         textAlign: align,
         color: "var(--color-text-primary)",
         fontSize: "0.8rem",
-        borderBottom: "1px solid var(--color-input-bg)",
         verticalAlign: "top",
     };
 }
@@ -137,33 +135,40 @@ export default function ReportPage() {
     return (
         <>
             <style>{`
-                @media print {
-                    .no-print, .bottom-nav, header { display: none !important; }
-                    .print-only { display: block !important; }
-                    body { background: white !important; padding: 0 !important; font-size: 10pt; }
-                    .report-table th { background: #f0f0f0 !important; }
-                    .report-table td, .report-table th { border: 1px solid #bbb !important; }
-                    @page { margin: 15mm; size: A4 landscape; }
+                /* テーブルセル共通スタイル */
+                .report-table th {
+                    padding: 8px 10px;
+                    border-bottom: 2px solid #D1D1D6;
                 }
-                .print-only { display: none; }
-                .report-table tr:hover td { background: rgba(0,122,255,0.04); }
+                .report-table td {
+                    padding: 8px 10px;
+                    border-bottom: 1px solid var(--color-input-bg);
+                }
+                .report-table tr:active td { background: rgba(0,122,255,0.04); }
+
+                /* テキスト列は折り返して全文表示 */
+                .report-table .col-wrap {
+                    white-space: normal;
+                    word-break: break-all;
+                    min-width: 120px;
+                }
+                /* 日付列を左端に固定 */
+                .report-table .col-sticky {
+                    position: sticky;
+                    left: 0;
+                    z-index: 1;
+                }
+                .report-table thead .col-sticky {
+                    z-index: 2;
+                    background: var(--color-input-bg);
+                }
+                .report-table tbody .col-sticky {
+                    background: var(--color-card);
+                }
             `}</style>
 
-            {/* ===== 印刷時のみ表示するヘッダー ===== */}
-            <div className="print-only" style={{ marginBottom: "20px", borderBottom: "2px solid #333", paddingBottom: "12px" }}>
-                <div style={{ fontSize: "16pt", fontWeight: 700, marginBottom: "4px" }}>
-                    アトピー管理レポート — {monthLabel}
-                </div>
-                <div style={{ fontSize: "9pt", color: "#555" }}>
-                    {t.report.generatedAt(formatToday(locale))}
-                    {" "}／ 記録日数: {recordCount}日
-                    {" "}／ 平均かゆみ: {avgItch}
-                    {avgWater !== null && ` ／ 平均水分: ${avgWater.toLocaleString()}ml`}
-                </div>
-            </div>
-
             {/* ===== 月ナビゲーション ===== */}
-            <div className="no-print" style={{
+            <div style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
@@ -185,30 +190,11 @@ export default function ReportPage() {
                 >
                     ›
                 </button>
-                <button
-                    onClick={() => window.print()}
-                    disabled={fetching || recordCount === 0}
-                    style={{
-                        padding: "8px 18px",
-                        borderRadius: "var(--radius-pill)",
-                        border: "none",
-                        background: (fetching || recordCount === 0) ? "#E5E5EA" : "var(--color-accent)",
-                        color: (fetching || recordCount === 0) ? "var(--color-text-muted)" : "#fff",
-                        fontSize: "0.82rem",
-                        fontWeight: 600,
-                        cursor: (fetching || recordCount === 0) ? "default" : "pointer",
-                        fontFamily: "inherit",
-                        whiteSpace: "nowrap",
-                        flexShrink: 0,
-                    }}
-                >
-                    {t.report.print}
-                </button>
             </div>
 
-            {/* ===== サマリーバー（画面のみ） ===== */}
+            {/* ===== サマリーバー ===== */}
             {!fetching && recordCount > 0 && (
-                <div className="no-print" style={{
+                <div style={{
                     display: "flex",
                     gap: "12px",
                     flexWrap: "wrap",
@@ -242,24 +228,56 @@ export default function ReportPage() {
             ) : (
                 <div style={{ overflowX: "auto", borderRadius: "var(--radius-card)", boxShadow: "var(--shadow-card)" }}>
                     <table className="report-table" style={{ width: "100%", borderCollapse: "collapse", background: "var(--color-card)" }}>
+                        {/* 列順: 日付 / 水分量 / 運動 / 糖質 / 塩分 / タンパク質 / 食事 / かゆみ / 部位 / メモ */}
+                        <colgroup>
+                            <col style={{ width: "80px" }} />
+                            <col style={{ width: "68px" }} />
+                            <col style={{ minWidth: "140px" }} />
+                            <col style={{ width: "60px" }} />
+                            <col style={{ width: "60px" }} />
+                            <col style={{ width: "72px" }} />
+                            <col style={{ minWidth: "180px" }} />
+                            <col style={{ width: "60px" }} />
+                            <col style={{ minWidth: "140px" }} />
+                            <col style={{ minWidth: "180px" }} />
+                        </colgroup>
                         <thead>
                             <tr>
-                                <th style={thStyle}>{t.report.date}</th>
-                                <th style={{ ...thStyle, textAlign: "center" }}>{t.report.itchScore}</th>
-                                <th style={thStyle}>{t.report.itchArea}</th>
+                                <th className="col-sticky" style={thStyle}>{t.report.date}</th>
                                 <th style={{ ...thStyle, textAlign: "right" }}>{t.report.water}</th>
+                                <th style={thStyle}>{t.report.exercise}</th>
                                 <th style={{ ...thStyle, textAlign: "right" }}>{t.report.carbs}</th>
                                 <th style={{ ...thStyle, textAlign: "right" }}>{t.report.salt}</th>
                                 <th style={{ ...thStyle, textAlign: "right" }}>{t.report.protein}</th>
                                 <th style={thStyle}>{t.report.meals}</th>
+                                <th style={{ ...thStyle, textAlign: "center" }}>{t.report.itchScore}</th>
+                                <th style={thStyle}>{t.report.itchArea}</th>
                                 <th style={thStyle}>{t.report.note}</th>
                             </tr>
                         </thead>
                         <tbody>
                             {records.map((rec) => (
                                 <tr key={rec.day}>
-                                    <td style={{ ...tdStyle(), whiteSpace: "nowrap", fontWeight: 500 }}>
+                                    <td className="col-sticky" style={{ ...tdStyle(), whiteSpace: "nowrap", fontWeight: 500, color: dayColor(rec.day) ?? "var(--color-text-primary)" }}>
                                         {formatDayShort(rec.day, locale)}
+                                    </td>
+                                    <td style={tdStyle("right")}>
+                                        {rec.waterMl > 0 ? rec.waterMl.toLocaleString() : <Dash />}
+                                    </td>
+                                    <td className="col-wrap" style={{ ...tdStyle(), color: "var(--color-text-secondary)" }}>
+                                        {rec.exerciseText || <Dash />}
+                                    </td>
+                                    <td style={tdStyle("right")}>
+                                        {rec.carbsG !== null ? rec.carbsG : <Dash />}
+                                    </td>
+                                    <td style={tdStyle("right")}>
+                                        {rec.saltG !== null ? rec.saltG : <Dash />}
+                                    </td>
+                                    <td style={tdStyle("right")}>
+                                        {rec.proteinG !== null ? rec.proteinG : <Dash />}
+                                    </td>
+                                    <td className="col-wrap" style={{ ...tdStyle(), color: "var(--color-text-secondary)" }}>
+                                        {rec.mealsText || <Dash />}
                                     </td>
                                     <td style={{ ...tdStyle("center") }}>
                                         {rec.itchScore > 0 ? (
@@ -281,25 +299,10 @@ export default function ReportPage() {
                                             <span style={{ color: "var(--color-text-placeholder)" }}>—</span>
                                         )}
                                     </td>
-                                    <td style={{ ...tdStyle(), fontSize: "0.72rem", color: "var(--color-text-secondary)", maxWidth: "100px" }}>
+                                    <td className="col-wrap" style={{ ...tdStyle(), fontSize: "0.72rem", color: "var(--color-text-secondary)" }}>
                                         {rec.itchArea.length > 0 ? rec.itchArea.join("・") : "—"}
                                     </td>
-                                    <td style={tdStyle("right")}>
-                                        {rec.waterMl > 0 ? rec.waterMl.toLocaleString() : <Dash />}
-                                    </td>
-                                    <td style={tdStyle("right")}>
-                                        {rec.carbsG !== null ? rec.carbsG : <Dash />}
-                                    </td>
-                                    <td style={tdStyle("right")}>
-                                        {rec.saltG !== null ? rec.saltG : <Dash />}
-                                    </td>
-                                    <td style={tdStyle("right")}>
-                                        {rec.proteinG !== null ? rec.proteinG : <Dash />}
-                                    </td>
-                                    <td style={{ ...tdStyle(), color: "var(--color-text-secondary)", maxWidth: "120px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                        {rec.mealsText || <Dash />}
-                                    </td>
-                                    <td style={{ ...tdStyle(), color: "var(--color-text-secondary)", maxWidth: "120px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    <td className="col-wrap" style={{ ...tdStyle(), color: "var(--color-text-secondary)" }}>
                                         {rec.note || <Dash />}
                                     </td>
                                 </tr>

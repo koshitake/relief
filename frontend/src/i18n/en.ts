@@ -97,7 +97,7 @@ export const en: Messages = {
     },
     meals: {
         title: "Meals",
-        placeholder: "e.g. Breakfast: oatmeal\nLunch: salad  Dinner: chicken & veggies",
+        placeholder: "e.g.\nBreakfast: oatmeal, yogurt\nLunch: grilled chicken salad\nDinner: salmon, steamed broccoli, red wine",
         nutrition: "Carbs, Salt & Protein",
         carbs: "Carbs (g)",
         carbsPlaceholder: "e.g. 68",
@@ -105,6 +105,12 @@ export const en: Messages = {
         saltPlaceholder: "e.g. 6.2",
         protein: "Protein (g)",
         proteinPlaceholder: "e.g. 60",
+        aiEstimateButton: "Estimate with AI",
+        aiEstimating: "Estimating...",
+        aiEstimateReason: "Estimation basis",
+        aiPremiumBadge: "Premium",
+        aiEstimateDisabledHint: "Enter meal details to estimate",
+        aiEstimateApplied: "Estimated values applied",
     },
     itch: {
         area: "Itch area",
@@ -143,7 +149,8 @@ export const en: Messages = {
     },
     report: {
         title: "Doctor's Report",
-        print: "Print / Save as PDF",
+        openLink: "Open Report",
+        exercise: "Exercise",
         loading: "Loading...",
         noData: "No records for this month",
         prevMonth: "Prev month",

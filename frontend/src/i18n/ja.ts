@@ -93,7 +93,7 @@ export const ja = {
     },
     meals: {
         title: "食事内容",
-        placeholder: "例: 朝 玄米・味噌汁\n昼 そば  夜 鶏むね・野菜炒め",
+        placeholder: "例:\n朝：玄米・味噌汁\n昼：かき揚げそば\n夜：玄米・野菜炒め・ビール",
         nutrition: "糖質・塩分・タンパク質",
         carbs: "糖質（g）",
         carbsPlaceholder: "例: 68",
@@ -101,6 +101,12 @@ export const ja = {
         saltPlaceholder: "例: 6.2",
         protein: "タンパク質（g）",
         proteinPlaceholder: "例: 60",
+        aiEstimateButton: "AI で推定する",
+        aiEstimating: "推定中...",
+        aiEstimateReason: "推定の根拠",
+        aiPremiumBadge: "有料機能",
+        aiEstimateDisabledHint: "食事内容を入力すると推定できます",
+        aiEstimateApplied: "推定値を反映しました",
     },
     itch: {
         area: "かゆみの部位",
@@ -139,7 +145,8 @@ export const ja = {
     },
     report: {
         title: "主治医向けレポート",
-        print: "印刷 / PDF保存",
+        openLink: "レポートを開く",
+        exercise: "運動",
         loading: "読み込み中...",
         noData: "この月の記録はありません",
         prevMonth: "前月",
