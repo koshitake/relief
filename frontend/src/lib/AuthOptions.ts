@@ -6,6 +6,10 @@ import { NextAuthOptions, Session, Account, Profile } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import supabaseAdmin from "@/lib/SupabaseAdmin";
+import { fetchUserSettings } from "@/lib/UserSettingsRepository";
+
+// プラン文字列を AI API 用の数値に変換する（0=Free / 10=Full）
+const PLAN_TO_NUMBER: Record<string, number> = { free: 0, full: 10 };
 
 // NEXTAUTH_SECRET が未設定のままデプロイされると JWT 偽造が可能になるため、起動時に検証する
 function requireSecret(): string {
@@ -61,7 +65,7 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         // JWT 生成・更新時の処理
         async jwt({ token, account, profile, trigger }: { token: JWT; account: Account | null; profile?: Profile; trigger?: string }) {
-            // セッション更新（ニックネーム変更後）: DB から最新の表示名を取得する
+            // セッション更新（ニックネーム変更後）: DB から最新の表示名とプランを取得する
             if (trigger === "update" && supabaseAdmin && token.userId) {
                 const { data } = await supabaseAdmin
                     .from("users")
@@ -69,6 +73,12 @@ export const authOptions: NextAuthOptions = {
                     .eq("id", token.userId as string)
                     .maybeSingle();
                 if (data) token.name = data.display_name as string;
+
+                // プランも最新値に更新する（プラン変更が即時反映されるようにする）
+                const settings = await fetchUserSettings(token.userId as string);
+                if (settings) {
+                    token.plan = PLAN_TO_NUMBER[settings.plan] ?? 0;
+                }
                 return token;
             }
 
@@ -106,6 +116,10 @@ export const authOptions: NextAuthOptions = {
                         token.userId = newUser.id as string;
                         token.name   = googleName;
                     }
+
+                    // AI API 用のプラン値を DB から取得して JWT に保存する
+                    const settings = await fetchUserSettings(token.userId as string);
+                    token.plan = settings ? (PLAN_TO_NUMBER[settings.plan] ?? 0) : 0;
                 }
 
                 token.email = undefined;

@@ -7,6 +7,8 @@ declare const process: {
         NEXT_PUBLIC_SUPABASE_URL?: string;
         NEXT_PUBLIC_SUPABASE_ANON_KEY?: string;
         // サーバーサイド専用（NEXT_PUBLIC_ なし = クライアントバンドルに含まない）
+        /** AI API のベース URL。ローカル開発: http://localhost:8000 */
+        RELIEF_API_URL?: string;
         OPEN_METEO_FORECAST_URL?: string;
         OPEN_METEO_ARCHIVE_URL?: string;
         NOMINATIM_URL?: string;

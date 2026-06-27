@@ -86,6 +86,9 @@ export const ja = {
         meals: "食事",
         itch: "かゆみ",
         note: "メモ（症状・気づき）",
+        save: "保存する",
+        saving: "保存中...",
+        saved: "保存しました",
     },
     exercise: {
         label: "運動内容（任意）",

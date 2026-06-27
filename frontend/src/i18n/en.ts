@@ -90,6 +90,9 @@ export const en: Messages = {
         meals: "Meals",
         itch: "Itch",
         note: "Notes",
+        save: "Save",
+        saving: "Saving...",
+        saved: "Saved",
     },
     exercise: {
         label: "Exercise (optional)",

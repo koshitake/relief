@@ -8,24 +8,24 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { DayRecord, createEmptyDayRecord } from "@/types/DayRecord";
 import { useAuth } from "@/hooks/UseAuth";
 
-// DB書き込みまでの待機時間（ms）
-const DEBOUNCE_MS = 800;
-
 export function useDayRecord(day: string) {
     const { user } = useAuth();
     // user?.id はプリミティブ(string | undefined)として取り出す（rerender-dependencies）
     const userId = user?.id;
     const [record, setRecord] = useState<DayRecord>(createEmptyDayRecord());
+    const [isSaving, setIsSaving] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
+    const [isDirty, setIsDirty] = useState(false);
 
-    // DBから読み込んだ直後のrecord更新でDB書き込みが走らないよう制御するフラグ
-    const isDirty = useRef(false);
-    const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-    // debounce内で最新のrecordを参照するためのref（rerender-use-ref-transient-values）
+    // 日付切り替え時のフラッシュ保存用（最新値を同期的に参照するためのref）
+    const isDirtyRef = useRef(false);
+    // saveRecord・日付切り替え時に最新のrecordを参照するためのref
     const recordRef = useRef<DayRecord>(record);
 
     // 選択日またはユーザーが変わったらAPIから記録を読み込む
     useEffect(() => {
-        isDirty.current = false;
+        isDirtyRef.current = false;
+        setIsDirty(false);
 
         if (!userId) {
             setRecord(createEmptyDayRecord());
@@ -48,11 +48,8 @@ export function useDayRecord(day: string) {
 
         return () => {
             cancelled = true;
-            // 日付切り替え・ページ離脱時に未保存の変更を即座に保存する。
-            // isDirty が true のままデバウンスが走る前に切り替わると保存が
-            // スキップされるため、ここでフラッシュする。
-            if (debounceTimer.current) clearTimeout(debounceTimer.current);
-            if (isDirty.current && userId) {
+            // 日付切り替え・ページ離脱時に未保存の変更を自動保存する（保存忘れ防止）
+            if (isDirtyRef.current && userId) {
                 fetch(`/api/records/${day}`, {
                     method:  "PUT",
                     headers: { "Content-Type": "application/json" },
@@ -62,30 +59,41 @@ export function useDayRecord(day: string) {
         };
     }, [day, userId]);
 
-    // ユーザーの入力によってrecordを更新する
+    // ユーザーの入力によってrecordをメモリ上で更新する（DBへの保存は saveRecord で行う）
     const updateRecord = useCallback(
         (patch: Partial<DayRecord> | ((prev: DayRecord) => Partial<DayRecord>)) => {
-            isDirty.current = true;
+            isDirtyRef.current = true;
+            setIsDirty(true);
+            setIsSaved(false);
             setRecord((prev: DayRecord) => {
                 const resolvedPatch = typeof patch === "function" ? patch(prev) : patch;
                 const next = { ...prev, ...resolvedPatch };
                 recordRef.current = next;
                 return next;
             });
-
-            if (debounceTimer.current) clearTimeout(debounceTimer.current);
-            debounceTimer.current = setTimeout(() => {
-                if (userId && isDirty.current) {
-                    fetch(`/api/records/${day}`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(recordRef.current),
-                    });
-                }
-            }, DEBOUNCE_MS);
         },
-        [day, userId],
+        [],
     );
 
-    return { record, updateRecord };
+    // 保存ボタン押下時にDBへ書き込む
+    const saveRecord = useCallback(async () => {
+        if (!userId) return;
+        setIsSaving(true);
+        try {
+            await fetch(`/api/records/${day}`, {
+                method:  "PUT",
+                headers: { "Content-Type": "application/json" },
+                body:    JSON.stringify(recordRef.current),
+            });
+            isDirtyRef.current = false;
+            setIsDirty(false);
+            setIsSaved(true);
+            // 2秒後に保存済み表示を初期状態に戻す
+            setTimeout(() => setIsSaved(false), 2000);
+        } finally {
+            setIsSaving(false);
+        }
+    }, [day, userId]);
+
+    return { record, updateRecord, saveRecord, isSaving, isSaved, isDirty };
 }

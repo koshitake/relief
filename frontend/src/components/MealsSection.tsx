@@ -13,24 +13,26 @@ interface MealsSectionProps {
     updateRecord: (patch: Partial<DayRecord>) => void;
 }
 
-// AI推定の戻り値の型です。将来 API Route から返す JSON に合わせています。
-interface NutritionEstimate {
-    carbs_g: number;
-    salt_g: number;
-    protein_g: number;
-    reason: string;
+// /api/nutrients が返す JSON の型です。
+interface NutritionResponse {
+    nutrients: {
+        carbo: number;
+        salt: number;
+        protein: number;
+        lipid: number;
+    };
 }
 
-// TODO: 有料機能として実装予定。セッションにこの関数をセットすることで AI 推定に切り替わります。
-// 入力: 食事内容テキスト  出力: JSON (NutritionEstimate)
-async function estimateNutritionStub(_mealsText: string): Promise<NutritionEstimate> {
-    // ロジック未実装のためダミー値を返します
-    return {
-        carbs_g: 0,
-        salt_g: 0,
-        protein_g: 0,
-        reason: "",
-    };
+// /api/nutrients を呼び出して栄養素推定値を取得する
+async function fetchNutrients(mealsText: string): Promise<NutritionResponse> {
+    const response = await fetch(
+        `/api/nutrients?meal=${encodeURIComponent(mealsText)}`,
+    );
+    if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error ?? `AI推定に失敗しました (status: ${response.status})`);
+    }
+    return response.json();
 }
 
 export default function MealsSection({ record, updateRecord }: MealsSectionProps) {
@@ -38,7 +40,7 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
     const plan = useAppStore((s) => s.plan);
 
     const [isEstimating, setIsEstimating] = useState(false);
-    const [estimateReason, setEstimateReason] = useState<string | null>(null);
+    const [estimateError, setEstimateError] = useState<string | null>(null);
     const [applied, setApplied] = useState(false);
 
     const isFull = plan === "full";
@@ -49,18 +51,20 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
         if (!canEstimate) return;
 
         setIsEstimating(true);
-        setEstimateReason(null);
+        setEstimateError(null);
         setApplied(false);
 
         try {
-            const result = await estimateNutritionStub(record.mealsText ?? "");
+            const result = await fetchNutrients(record.mealsText ?? "");
             updateRecord({
-                carbsG: result.carbs_g,
-                saltG: result.salt_g,
-                proteinG: result.protein_g,
+                carbsG:   result.nutrients.carbo,
+                saltG:    result.nutrients.salt,
+                proteinG: result.nutrients.protein,
+                lipidG:   result.nutrients.lipid,
             });
-            setEstimateReason(result.reason || null);
             setApplied(true);
+        } catch (err) {
+            setEstimateError(err instanceof Error ? err.message : "AI推定に失敗しました");
         } finally {
             setIsEstimating(false);
         }
@@ -223,37 +227,19 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                     </p>
                 )}
 
-                {/* 推定理由 */}
-                {estimateReason && (
-                    <div
+                {/* エラーメッセージ */}
+                {estimateError && !isEstimating && (
+                    <p
+                        role="alert"
                         style={{
-                            marginTop: "10px",
-                            padding: "10px",
-                            borderRadius: "8px",
-                            background: "rgba(0,122,255,0.06)",
-                            border: "1px solid rgba(0,122,255,0.15)",
+                            marginTop: "8px",
+                            fontSize: "0.75rem",
+                            color: "#FF3B30",
+                            textAlign: "center",
                         }}
                     >
-                        <p
-                            style={{
-                                fontSize: "0.72rem",
-                                fontWeight: 600,
-                                color: "#007AFF",
-                                marginBottom: "4px",
-                            }}
-                        >
-                            {t.meals.aiEstimateReason}
-                        </p>
-                        <p
-                            style={{
-                                fontSize: "0.78rem",
-                                color: "var(--color-text-secondary)",
-                                lineHeight: 1.5,
-                            }}
-                        >
-                            {estimateReason}
-                        </p>
-                    </div>
+                        {estimateError}
+                    </p>
                 )}
             </div>
 
@@ -366,6 +352,7 @@ export default function MealsSection({ record, updateRecord }: MealsSectionProps
                             }}
                         />
                     </div>
+
                 </div>
             </div>
 
