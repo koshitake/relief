@@ -92,6 +92,8 @@ export const en: Messages = {
         note: "Notes",
         save: "Save",
         saving: "Saving...",
+        formGroupLabel: "Today's Health Notes",
+        formGroupHint: "Save after entering",
         saved: "Saved",
     },
     exercise: {

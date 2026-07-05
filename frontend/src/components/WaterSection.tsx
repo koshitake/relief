@@ -125,7 +125,11 @@ export default function WaterSection({ record, saveWaterLogs, waterTargetMl, set
     const canAdd = entryTime.length > 0 && Number(entryMl) > 0;
 
     return (
-        <div className="card">
+        <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+            {/* 即時反映を示す上部アクセントバー */}
+            <div style={{ height: "4px", background: "var(--color-accent)", borderRadius: "18px 18px 0 0" }} />
+
+            <div style={{ padding: "16px" }}>
             <div className="section-label">{t.water.title}</div>
 
             {/* 目標水分量の表示・設定 */}
@@ -489,6 +493,7 @@ export default function WaterSection({ record, saveWaterLogs, waterTargetMl, set
                     </div>
                 </div>
             ) : null}
+            </div>{/* padding wrapper end */}
         </div>
     );
 }

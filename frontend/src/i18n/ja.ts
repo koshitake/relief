@@ -89,6 +89,8 @@ export const ja = {
         save: "保存する",
         saving: "保存中...",
         saved: "保存しました",
+        formGroupLabel: "今日の健康メモ",
+        formGroupHint: "入力後に保存してください",
     },
     exercise: {
         label: "運動内容（任意）",

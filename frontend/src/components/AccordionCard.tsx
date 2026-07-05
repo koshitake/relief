@@ -2,17 +2,20 @@
 
 // アコーディオン形式のカードコンポーネントです。
 // タイトルをタップすると内容の開閉ができます。
+// flat=true の場合はカードシャドウなし・ボーダーラインのみ（カード内ネスト用）
 
 import React, { useState, startTransition } from "react";
 
 interface AccordionCardProps {
     title: string;
     defaultOpen?: boolean;
+    // flat=true のとき、カードシャドウ・角丸を使わず上部ボーダーのみで区切る（カード内ネスト用）
+    flat?: boolean;
     // React 19 では children は props に自動的に含まれないため明示的に宣言する
     children: React.ReactNode;
 }
 
-export default function AccordionCard({ title, defaultOpen = false, children }: AccordionCardProps) {
+export default function AccordionCard({ title, defaultOpen = false, flat = false, children }: AccordionCardProps) {
     const [isOpen, setIsOpen] = useState(defaultOpen);
 
     function handleToggle() {
@@ -21,8 +24,11 @@ export default function AccordionCard({ title, defaultOpen = false, children }: 
 
     return (
         <div
-            className="card"
-            style={{ padding: 0, overflow: "hidden" }}
+            className={flat ? undefined : "card"}
+            style={flat
+                ? { borderTop: "1px solid var(--color-input-bg)", padding: 0, overflow: "hidden" }
+                : { padding: 0, overflow: "hidden" }
+            }
         >
             {/* ヘッダー（タップで開閉） */}
             <button
@@ -36,7 +42,7 @@ export default function AccordionCard({ title, defaultOpen = false, children }: 
                     padding: "14px 16px",
                     background: "none",
                     border: "none",
-                    borderBottom: isOpen ? "1px solid var(--color-border)" : "none",
+                    borderBottom: isOpen ? "1px solid var(--color-input-bg)" : "none",
                     cursor: "pointer",
                     fontFamily: "inherit",
                     textAlign: "left",
