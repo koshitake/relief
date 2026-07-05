@@ -32,18 +32,27 @@ export function useAuth(): AuthState {
         ? { id: userId, name: session.user.name ?? "ユーザー" }
         : null;
 
-    // セッションのニックネームとアバター URL をストアへ同期する（設定画面での即時更新のベースになる）
+    // セッションのニックネームをストアへ同期する
     useEffect(() => {
         if (session?.user?.name) {
             setDisplayName(session.user.name);
-            // DB が null のとき avatarUrl は undefined になるため、undefined は "" として扱う。
-            // これにより削除後に session が更新された際に Zustand が正しくクリアされる。
-            setAvatarUrl(session.user.avatarUrl ?? "");
         } else if (status === "unauthenticated") {
             setDisplayName("");
             setAvatarUrl("");
         }
-    }, [session?.user?.name, session?.user?.avatarUrl, status, setDisplayName, setAvatarUrl]);
+    }, [session?.user?.name, status, setDisplayName, setAvatarUrl]);
+
+    // ログイン後にAPIからアバターを取得してストアへ反映する。
+    // アバターはBase64 Data URLのためJWTには含めず、APIから都度取得する。
+    useEffect(() => {
+        if (!userId) return;
+        fetch("/api/user/avatar")
+            .then((r) => r.json())
+            .then((data: { avatarUrl?: string | null }) => {
+                setAvatarUrl(data.avatarUrl ?? "");
+            })
+            .catch(() => {});
+    }, [userId, setAvatarUrl]);
 
     // ログイン後、どのページでも正しいプラン・言語・目標値が反映されるよう
     // DBからユーザー設定を読み込んでストアに反映する。

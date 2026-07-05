@@ -1,12 +1,32 @@
-// アバター画像のアップロード (POST) と削除 (DELETE) を行う API Route です。
+// アバター画像の取得 (GET)・アップロード (POST)・削除 (DELETE) を行う API Route です。
 // セッション認証必須。ファイルサイズ上限 5MB、JPEG/PNG/WebP のみ許可します。
 // 画像はBase64 Data URLに変換してDBに直接保存します。
+// JWTのCookieサイズ制限（4KB）を超えないよう、アバターデータはJWTに含めずAPIで取得します。
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/AuthOptions";
 import { validateAvatarFile, toDataUrl } from "@/lib/AvatarStorage";
 import supabaseAdmin from "@/lib/SupabaseAdmin";
+
+/** アバター画像を取得する */
+export async function GET(): Promise<NextResponse> {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (!supabaseAdmin) {
+        return NextResponse.json({ error: "Server error" }, { status: 500 });
+    }
+
+    const { data } = await supabaseAdmin
+        .from("users")
+        .select("avatar_url")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
+    return NextResponse.json({ avatarUrl: data?.avatar_url ?? null });
+}
 
 /** アバター画像をアップロードする */
 export async function POST(req: NextRequest): Promise<NextResponse> {
