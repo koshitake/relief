@@ -2,7 +2,7 @@
 
 // 設定画面です。ニックネーム変更、目標設定、言語切り替え、有料プランへのアップグレードができます。
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { useAppStore } from "@/store/UseAppStore";
 import { useAuth } from "@/hooks/UseAuth";
@@ -24,6 +24,8 @@ export default function SettingsPage() {
 
     const displayName = useAppStore((s) => s.displayName);
     const setDisplayName = useAppStore((s) => s.setDisplayName);
+    const avatarUrl = useAppStore((s) => s.avatarUrl);
+    const setAvatarUrl = useAppStore((s) => s.setAvatarUrl);
     const carbsTargetG = useAppStore((s) => s.carbsTargetG);
     const saltTargetG = useAppStore((s) => s.saltTargetG);
     const proteinTargetG = useAppStore((s) => s.proteinTargetG);
@@ -35,6 +37,12 @@ export default function SettingsPage() {
     const [nicknameInput, setNicknameInput] = useState(displayName);
     const [saving, setSaving] = useState(false);
     const [saveResult, setSaveResult] = useState<"success" | "error" | null>(null);
+
+    // アバター関連の状態
+    const [avatarPreview, setAvatarPreview] = useState<string>("");
+    const [avatarUploading, setAvatarUploading] = useState(false);
+    const [avatarError, setAvatarError] = useState<string>("");
+    const avatarInputRef = useRef<HTMLInputElement>(null);
 
     const [carbsInput, setCarbsInput] = useState(carbsTargetG);
     const [saltInput, setSaltInput] = useState(saltTargetG);
@@ -51,6 +59,58 @@ export default function SettingsPage() {
     // バックアップ関連の状態
     const [backupState, setBackupState] = useState<"idle" | "running" | "success" | "error">("idle");
     const [restoreState, setRestoreState] = useState<"idle" | "running" | "success" | "error">("idle");
+
+    // ファイル選択時にプレビューを表示する
+    function handleAvatarFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setAvatarError("");
+        const objectUrl = URL.createObjectURL(file);
+        setAvatarPreview(objectUrl);
+    }
+
+    // 選択した画像をサーバーにアップロードする
+    async function handleAvatarUpload() {
+        const file = avatarInputRef.current?.files?.[0];
+        if (!file) return;
+
+        setAvatarUploading(true);
+        setAvatarError("");
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("/api/user/avatar", { method: "POST", body: formData });
+        setAvatarUploading(false);
+
+        if (res.ok) {
+            const json = await res.json() as { avatarUrl: string };
+            setAvatarUrl(json.avatarUrl);
+            setAvatarPreview("");
+            if (avatarInputRef.current) avatarInputRef.current.value = "";
+            // JWT を非同期で更新する（await しないことで Zustand の avatarUrl がリセットされるのを防ぐ）
+            update().catch(() => {});
+        } else {
+            setAvatarError(t.settings.avatarUploadError);
+        }
+    }
+
+    // アバター画像を削除する
+    async function handleAvatarDelete() {
+        setAvatarUploading(true);
+        setAvatarError("");
+        const res = await fetch("/api/user/avatar", { method: "DELETE" });
+        setAvatarUploading(false);
+        if (res.ok) {
+            setAvatarUrl("");
+            setAvatarPreview("");
+            // アップロードと同様に非同期で更新する（await すると update() 中の旧セッション流入で
+            // Zustand が旧 URL に戻り、アバターが再表示される問題を防ぐ）
+            update().catch(() => {});
+        } else {
+            setAvatarError(t.settings.avatarDeleteError);
+        }
+    }
 
     async function handleNicknameSave() {
         const trimmed = nicknameInput.trim();
@@ -170,6 +230,113 @@ export default function SettingsPage() {
             {/* プロフィール */}
             <div className="card" style={{ marginBottom: "12px" }}>
                 <div className="section-label">{t.settings.profile}</div>
+
+                {/* アバター */}
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+                    {/* 現在のアバター（プレビューがあればプレビューを表示） */}
+                    <div style={{ position: "relative", width: "80px", height: "80px" }}>
+                        {avatarPreview || avatarUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                src={avatarPreview || avatarUrl}
+                                alt={t.settings.avatar}
+                                style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", border: "2px solid var(--color-border)" }}
+                            />
+                        ) : (
+                            /* 画像がなければニックネームの頭文字を表示 */
+                            <div style={{
+                                width: "80px", height: "80px", borderRadius: "50%",
+                                background: "var(--color-accent-bg)",
+                                border: "2px solid rgba(217,107,95,0.3)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                fontSize: "2rem", color: "var(--color-accent)", fontWeight: 700,
+                            }}>
+                                {(displayName || "U").charAt(0).toUpperCase()}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* アバター操作ボタン */}
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                        {/* ファイル選択ボタン（hidden input を参照） */}
+                        <button
+                            onClick={() => avatarInputRef.current?.click()}
+                            disabled={avatarUploading}
+                            style={{
+                                border: "1px solid var(--color-accent)",
+                                background: "none",
+                                color: "var(--color-accent)",
+                                borderRadius: "var(--radius-pill)",
+                                padding: "8px 14px",
+                                fontSize: "0.8rem",
+                                fontWeight: 600,
+                                cursor: "pointer",
+                                fontFamily: "inherit",
+                                opacity: avatarUploading ? 0.5 : 1,
+                            }}
+                        >
+                            {t.settings.avatarChange}
+                        </button>
+                        <input
+                            ref={avatarInputRef}
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={handleAvatarFileChange}
+                            style={{ display: "none" }}
+                        />
+
+                        {/* プレビューがある場合はアップロードボタンを表示 */}
+                        {avatarPreview ? (
+                            <button
+                                onClick={handleAvatarUpload}
+                                disabled={avatarUploading}
+                                style={{
+                                    border: "none",
+                                    background: "var(--color-accent)",
+                                    color: "#fff",
+                                    borderRadius: "var(--radius-pill)",
+                                    padding: "8px 14px",
+                                    fontSize: "0.8rem",
+                                    fontWeight: 600,
+                                    cursor: "pointer",
+                                    fontFamily: "inherit",
+                                    opacity: avatarUploading ? 0.5 : 1,
+                                }}
+                            >
+                                {avatarUploading ? t.settings.avatarUploading : "保存"}
+                            </button>
+                        ) : null}
+
+                        {/* 既存のアバターがある場合は削除ボタンを表示 */}
+                        {avatarUrl && !avatarPreview ? (
+                            <button
+                                onClick={handleAvatarDelete}
+                                disabled={avatarUploading}
+                                style={{
+                                    border: "1px solid #FF3B30",
+                                    background: "none",
+                                    color: "#FF3B30",
+                                    borderRadius: "var(--radius-pill)",
+                                    padding: "8px 14px",
+                                    fontSize: "0.8rem",
+                                    cursor: "pointer",
+                                    fontFamily: "inherit",
+                                    opacity: avatarUploading ? 0.5 : 1,
+                                }}
+                            >
+                                {t.settings.avatarDelete}
+                            </button>
+                        ) : null}
+                    </div>
+
+                    {avatarError ? (
+                        <p style={{ fontSize: "0.75rem", color: "#FF3B30", margin: 0, textAlign: "center" }}>
+                            {avatarError}
+                        </p>
+                    ) : null}
+                </div>
+
+                {/* ニックネーム */}
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <input
                         type="text"

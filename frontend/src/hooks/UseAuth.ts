@@ -18,6 +18,7 @@ interface AuthState {
 export function useAuth(): AuthState {
     const { data: session, status } = useSession();
     const setDisplayName    = useAppStore((s) => s.setDisplayName);
+    const setAvatarUrl      = useAppStore((s) => s.setAvatarUrl);
     const setPlan           = useAppStore((s) => s.setPlan);
     const setLocale         = useAppStore((s) => s.setLocale);
     const setWaterTargetMl  = useAppStore((s) => s.setWaterTargetMl);
@@ -31,14 +32,18 @@ export function useAuth(): AuthState {
         ? { id: userId, name: session.user.name ?? "ユーザー" }
         : null;
 
-    // セッションのニックネームをストアへ同期する（設定画面での即時更新のベースになる）
+    // セッションのニックネームとアバター URL をストアへ同期する（設定画面での即時更新のベースになる）
     useEffect(() => {
         if (session?.user?.name) {
             setDisplayName(session.user.name);
+            // DB が null のとき avatarUrl は undefined になるため、undefined は "" として扱う。
+            // これにより削除後に session が更新された際に Zustand が正しくクリアされる。
+            setAvatarUrl(session.user.avatarUrl ?? "");
         } else if (status === "unauthenticated") {
             setDisplayName("");
+            setAvatarUrl("");
         }
-    }, [session?.user?.name, status, setDisplayName]);
+    }, [session?.user?.name, session?.user?.avatarUrl, status, setDisplayName, setAvatarUrl]);
 
     // ログイン後、どのページでも正しいプラン・言語・目標値が反映されるよう
     // DBからユーザー設定を読み込んでストアに反映する。

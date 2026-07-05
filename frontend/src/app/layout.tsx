@@ -36,7 +36,7 @@ export default function RootLayout({
                     rel="stylesheet"
                 />
                 {/* PWA: スマホのステータスバーカラーを設定 */}
-                <meta name="theme-color" content="#F2F2F7" />
+                <meta name="theme-color" content="#FDF6F4" />
                 {/* PWA: ノッチ・ホームバー領域まで表示を拡張 */}
                 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
             </head>

@@ -41,6 +41,7 @@ function rowToDayRecord(row: Record<string, unknown>): DayRecord {
         carbsG:       row.carbs_g   != null ? Number(row.carbs_g)   : undefined,
         saltG:        row.salt_g    != null ? Number(row.salt_g)    : undefined,
         proteinG:     row.protein_g != null ? Number(row.protein_g) : undefined,
+        lipidG:       row.lipid_g   != null ? Number(row.lipid_g)   : undefined,
     };
 }
 
@@ -62,10 +63,11 @@ function dayRecordToRow(
         exercise_text: record.exerciseText,
         note:          record.note,
         meals_text:    record.mealsText,
-        // carbs_g / salt_g / protein_g は値がある場合のみ含める（NULL = 未入力）
+        // carbs_g / salt_g / protein_g / lipid_g は値がある場合のみ含める（NULL = 未入力）
         ...(record.carbsG   != null ? { carbs_g:   record.carbsG   } : { carbs_g:   null }),
         ...(record.saltG    != null ? { salt_g:    record.saltG    } : { salt_g:    null }),
         ...(record.proteinG != null ? { protein_g: record.proteinG } : { protein_g: null }),
+        ...(record.lipidG   != null ? { lipid_g:   record.lipidG   } : { lipid_g:   null }),
         updated_at:    new Date().toISOString(),
     };
 }
@@ -213,6 +215,7 @@ function rowToFullRecord(row: Record<string, unknown>): { day: string } & DayRec
         carbsG:       row.carbs_g   != null ? Number(row.carbs_g)   : undefined,
         saltG:        row.salt_g    != null ? Number(row.salt_g)    : undefined,
         proteinG:     row.protein_g != null ? Number(row.protein_g) : undefined,
+        lipidG:       row.lipid_g   != null ? Number(row.lipid_g)   : undefined,
     };
 }
 
@@ -280,6 +283,7 @@ export async function batchUpsertDayRecords(
         ...(r.carbsG   != null ? { carbs_g:   r.carbsG   } : {}),
         ...(r.saltG    != null ? { salt_g:    r.saltG    } : {}),
         ...(r.proteinG != null ? { protein_g: r.proteinG } : {}),
+        ...(r.lipidG   != null ? { lipid_g:   r.lipidG   } : {}),
         updated_at:    new Date().toISOString(),
     }));
 

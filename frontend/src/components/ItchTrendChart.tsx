@@ -11,15 +11,15 @@ import type { ItchStatEntry } from "@/app/api/itch-stats/route";
 import { ITCH_SCORE_ICONS } from "@/constants/AppConstants";
 
 // 折れ線の色
-const LINE_COLOR = "#007AFF";
+const LINE_COLOR = "#D96B5F";
 
-// グラフの描画定数（SVG単位）。月次水分量グラフと同じ高さ系定数を使う
+// グラフの描画定数（SVG単位）
 const GRAPH_HEIGHT = 100;
 const PADDING_TOP = 16;
 const PADDING_BOTTOM = 18; // X軸ラベル用
-const PADDING_LEFT = 44;   // Y軸ラベル用（英語ラベルが長いため広めに確保）
-const PADDING_RIGHT = 32;  // 右側パディング
-const VIEW_WIDTH = 226;    // PADDING_LEFT + 描画幅(150) + PADDING_RIGHT
+const PADDING_LEFT = 40;   // Y軸アイコン＋ラベル用
+const PADDING_RIGHT = 12;  // 右側パディング
+const VIEW_WIDTH = 202;    // PADDING_LEFT + 描画幅(150) + PADDING_RIGHT
 
 // 前月に移動する
 function toPrevMonth(year: number, month: number): { year: number; month: number } {
@@ -125,7 +125,7 @@ export default function ItchTrendChart() {
                                     ? "1.5px solid var(--color-accent)"
                                     : "1px solid var(--color-border)",
                                 background: granularity === g
-                                    ? "rgba(0,122,255,0.1)"
+                                    ? "rgba(217,107,95,0.1)"
                                     : "var(--color-input-bg)",
                                 color: granularity === g
                                     ? "var(--color-accent)"
@@ -201,52 +201,46 @@ export default function ItchTrendChart() {
                     preserveAspectRatio="none"
                     style={{ display: "block", overflow: "visible" }}
                 >
-                    {/* Y軸ガイドライン（0〜5を1刻み） */}
-                    {Array.from({ length: 6 }, (_, i) => i).map((tick) => {
+                    <defs>
+                        {/* 線の下のグラデーション塗りつぶし */}
+                        <linearGradient id="itchAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={LINE_COLOR} stopOpacity={0.22}/>
+                            <stop offset="100%" stopColor={LINE_COLOR} stopOpacity={0}/>
+                        </linearGradient>
+                    </defs>
+
+                    {/* 水平グリッドライン＋Y軸アイコン（スコア 1〜5） */}
+                    {[1, 2, 3, 4, 5].map((tick) => {
                         const y = yOf(tick);
                         return (
                             <g key={tick}>
                                 <line
                                     x1={PADDING_LEFT} y1={y}
                                     x2={VIEW_WIDTH - PADDING_RIGHT} y2={y}
-                                    stroke="var(--color-border, #E5E5EA)"
+                                    stroke="rgba(217,107,95,0.2)"
                                     strokeWidth={0.5}
-                                    opacity={0.7}
+                                    strokeDasharray="3 3"
                                 />
-                                {/* 0: 未記録ラベル / 1〜5: アイコン＋ラベルを2行で表示 */}
-                                {tick === 0 ? (
-                                    <text
-                                        x={PADDING_LEFT - 2}
-                                        y={y + 2}
-                                        textAnchor="end"
-                                        fontSize={4}
-                                        fontWeight="bold"
-                                        fill="#000000"
-                                    >
-                                        {t.itch.noRecord}
-                                    </text>
-                                ) : (
-                                    <g>
-                                        <text
-                                            x={PADDING_LEFT - 2}
-                                            y={y + 2}
-                                            textAnchor="end"
-                                            fontSize={6}
-                                        >
-                                            {ITCH_SCORE_ICONS[tick]}
-                                        </text>
-                                        <text
-                                            x={PADDING_LEFT - 2}
-                                            y={y + 8}
-                                            textAnchor="end"
-                                            fontSize={4}
-                                            fontWeight="bold"
-                                            fill="#000000"
-                                        >
-                                            {t.itch.scoreLabels[tick - 1]}
-                                        </text>
-                                    </g>
-                                )}
+                                {/* 顔アイコン */}
+                                <text
+                                    x={PADDING_LEFT - 14}
+                                    y={y + 2.5}
+                                    textAnchor="middle"
+                                    fontSize={7}
+                                >
+                                    {ITCH_SCORE_ICONS[tick]}
+                                </text>
+                                {/* スコアラベル */}
+                                <text
+                                    x={PADDING_LEFT - 2}
+                                    y={y + 8}
+                                    textAnchor="end"
+                                    fontSize={4}
+                                    fontWeight="600"
+                                    fill="rgba(217,107,95,0.6)"
+                                >
+                                    {t.itch.scoreLabels[tick - 1]}
+                                </text>
                             </g>
                         );
                     })}
@@ -262,12 +256,22 @@ export default function ItchTrendChart() {
                                 y={PADDING_TOP + GRAPH_HEIGHT + PADDING_BOTTOM - 4}
                                 textAnchor="middle"
                                 fontSize={4}
-                                fontWeight="bold"
-                                fill="#000000"
+                                fill="rgba(217,107,95,0.5)"
                             >
                                 {formatLabel(entry.label, granularity, locale)}
                             </text>
                         ) : null;
+                    })}
+
+                    {/* グラデーションエリア塗りつぶし（線より先に描画して線で上書き） */}
+                    {lineSegments.map((indices, si) => {
+                        if (indices.length < 1) return null;
+                        const firstX = xOf(indices[0]);
+                        const lastX = xOf(indices[indices.length - 1]);
+                        const bottomY = PADDING_TOP + GRAPH_HEIGHT;
+                        const linePts = indices.map((i) => `${xOf(i)},${yOf(data[i].avgScore)}`).join(" L ");
+                        const areaD = `M${firstX},${bottomY} L${linePts} L${lastX},${bottomY} Z`;
+                        return <path key={`area-${si}`} d={areaD} fill="url(#itchAreaGradient)"/>;
                     })}
 
                     {/* かゆみスコア平均の折れ線（記録なし点で線を切る） */}
@@ -277,20 +281,22 @@ export default function ItchTrendChart() {
                             points={indices.map((i) => `${xOf(i)},${yOf(data[i].avgScore)}`).join(" ")}
                             fill="none"
                             stroke={LINE_COLOR}
-                            strokeWidth={0.9}
-                            strokeDasharray="4 2"
+                            strokeWidth={1.5}
                             strokeLinejoin="round"
                             strokeLinecap="round"
                         />
                     ))}
-                    {/* データ点のドット（スコアが0より大きい場合のみ表示） */}
+
+                    {/* データ点（白塗り＋コーラルボーダーのドット） */}
                     {data.map((entry, i) => entry.avgScore > 0 ? (
                         <circle
                             key={entry.label}
                             cx={xOf(i)}
                             cy={yOf(entry.avgScore)}
-                            r={1.5}
-                            fill={LINE_COLOR}
+                            r={2.2}
+                            fill="#FFFFFF"
+                            stroke={LINE_COLOR}
+                            strokeWidth={1.2}
                         />
                     ) : null)}
                 </svg>

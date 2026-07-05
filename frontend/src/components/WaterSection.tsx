@@ -10,7 +10,8 @@ import { useTranslations } from "@/hooks/UseTranslations";
 
 interface WaterSectionProps {
     record: DayRecord;
-    updateRecord: (patch: Partial<DayRecord> | ((prev: DayRecord) => Partial<DayRecord>)) => void;
+    // 水分ログはその場でDBに保存する。updater は最新ログ配列を受け取り新しい配列を返す
+    saveWaterLogs: (updater: (prev: WaterLog[]) => WaterLog[]) => Promise<void>;
     waterTargetMl: number;
     setWaterTargetMl: (ml: number) => void;
 }
@@ -30,7 +31,7 @@ function getCurrentTime(): string {
     return `${h}:${m}`;
 }
 
-export default function WaterSection({ record, updateRecord, waterTargetMl, setWaterTargetMl }: WaterSectionProps) {
+export default function WaterSection({ record, saveWaterLogs, waterTargetMl, setWaterTargetMl }: WaterSectionProps) {
     const t = useTranslations();
     // 目標設定の編集モード
     const [editingTarget, setEditingTarget] = useState(false);
@@ -72,16 +73,15 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
         mlInputRef.current?.focus();
     }
 
-    // 追加: 入力内容を検証してログに追記する
-    // 関数パッチを使うことでrecord.waterLogsへの直接参照を避ける（rerender-memo）
-    function handleAdd() {
+    // 追加: 入力内容を検証してログに追記し即時保存する
+    async function handleAdd() {
         const ml = Number(entryMl);
         if (!entryTime || isNaN(ml) || ml <= 0) return;
 
         const newLog: WaterLog = { time: entryTime, ml };
-        updateRecord((prev) => {
-            if (calcTotalWaterMl(prev.waterLogs) + ml > MAX_WATER_ML) return {};
-            return { waterLogs: sortLogsByTime([...prev.waterLogs, newLog]) };
+        await saveWaterLogs((prev) => {
+            if (calcTotalWaterMl(prev) + ml > MAX_WATER_ML) return prev;
+            return sortLogsByTime([...prev, newLog]);
         });
 
         // 追加後はフォームをリセット（時刻は現在時刻に更新）
@@ -96,28 +96,25 @@ export default function WaterSection({ record, updateRecord, waterTargetMl, setW
         setEditingMl(String(currentMl));
     }
 
-    // ログの保存（時刻と水分量を更新する）
-    function handleEditLogSave() {
+    // ログの保存（時刻と水分量を更新して即時保存する）
+    async function handleEditLogSave() {
         if (editingLogIndex === null || !editingTime) return;
         const ml = Number(editingMl);
         if (isNaN(ml) || ml <= 0) return;
         const idx = editingLogIndex;
         const time = editingTime;
-        updateRecord((prev) => ({
-            waterLogs: sortLogsByTime(prev.waterLogs.map((log, i) => (i === idx ? { ...log, time, ml } : log))),
-        }));
+        await saveWaterLogs((prev) =>
+            sortLogsByTime(prev.map((log, i) => (i === idx ? { ...log, time, ml } : log)))
+        );
         setEditingLogIndex(null);
     }
 
-    // ログ削除: 指定インデックスのエントリを取り除く
-    // 関数パッチを使うことでrecord.waterLogsを依存配列から除去する（rerender-memo）
+    // ログ削除: 指定インデックスのエントリを取り除いて即時保存する
     const handleDeleteLog = useCallback(
         (index: number) => {
-            updateRecord((prev) => ({
-                waterLogs: prev.waterLogs.filter((_, i) => i !== index),
-            }));
+            saveWaterLogs((prev) => prev.filter((_, i) => i !== index));
         },
-        [updateRecord],
+        [saveWaterLogs],
     );
 
     // レンダリングごとに新配列を生成しないよう useMemo で記憶する（rerender-memo）

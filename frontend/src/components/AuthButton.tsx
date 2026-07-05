@@ -11,22 +11,45 @@ export default function AuthButton() {
     const { data: session, status } = useSession();
     // 設定画面でニックネームを変更した場合に即時反映するためストアから取得する
     const displayName = useAppStore((s) => s.displayName);
+    const avatarUrl   = useAppStore((s) => s.avatarUrl);
     const t = useTranslations();
 
     if (status === "loading") return null;
 
     if (session?.user) {
+        const name = displayName || session.user.name;
+        const initial = name.charAt(0).toUpperCase();
         return (
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "10px" }}>
+                {/* アバター（画像があれば表示、なければ頭文字） */}
+                {avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                        src={avatarUrl}
+                        alt={name}
+                        style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+                    />
+                ) : (
+                    <div style={{
+                        width: "28px", height: "28px", borderRadius: "50%",
+                        background: "var(--color-accent-bg)",
+                        border: "1.5px solid rgba(217,107,95,0.4)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: "0.75rem", fontWeight: 700, color: "var(--color-accent)",
+                        flexShrink: 0,
+                    }}>
+                        {initial}
+                    </div>
+                )}
                 {/* ストアのニックネームを表示（設定変更後に即時反映される） */}
                 <span style={{ fontSize: "0.75rem", color: "var(--color-text-muted)", flex: 1 }}>
-                    {displayName || session.user.name}
+                    {name}
                 </span>
                 <button
                     onClick={() => signOut()}
                     style={{
                         background: "none",
-                        border: "1px solid rgba(0, 122, 255, 0.4)",
+                        border: "1px solid rgba(217, 107, 95, 0.4)",
                         borderRadius: "var(--radius-pill)",
                         color: "var(--color-accent)",
                         fontSize: "0.75rem",

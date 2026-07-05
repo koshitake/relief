@@ -216,6 +216,8 @@ CLAUDE.md
 .vscode
 .vscode/**
 
+*.webp
+
 # Next.js
 frontend/.next/
 frontend/node_modules/

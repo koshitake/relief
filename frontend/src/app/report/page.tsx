@@ -34,7 +34,7 @@ function dayColor(day: string): string | undefined {
     const [y, m, d] = day.split("-").map(Number);
     const dow = new Date(y, m - 1, d).getDay();
     if (dow === 0) return "#FF3B30";
-    if (dow === 6) return "#007AFF";
+    if (dow === 6) return "#D96B5F";
     return undefined;
 }
 
@@ -144,7 +144,7 @@ export default function ReportPage() {
                     padding: 8px 10px;
                     border-bottom: 1px solid var(--color-input-bg);
                 }
-                .report-table tr:active td { background: rgba(0,122,255,0.04); }
+                .report-table tr:active td { background: rgba(217,107,95,0.04); }
 
                 /* テキスト列は折り返して全文表示 */
                 .report-table .col-wrap {

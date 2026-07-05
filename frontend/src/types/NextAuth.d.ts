@@ -10,6 +10,8 @@ declare module "next-auth" {
             id: string;
             /** Google アカウントの表示名（ニックネーム） */
             name: string;
+            /** プロフィール画像の URL（未設定時は undefined） */
+            avatarUrl?: string;
         };
         /** Google Drive API 用のアクセストークン */
         accessToken?: string;
@@ -28,5 +30,9 @@ declare module "next-auth/jwt" {
         accessTokenExpires?: number;
         /** アクセストークン更新用のリフレッシュトークン */
         refreshToken?: string;
+        /** AI API 認証用のプラン値（0=Free / 10=Full） */
+        plan?: number;
+        /** プロフィール画像の URL */
+        avatarUrl?: string;
     }
 }

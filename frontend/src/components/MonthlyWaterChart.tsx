@@ -37,7 +37,7 @@ function nextMonth(year: number, month: number): { year: number; month: number }
 const GRAPH_HEIGHT = 100;
 const GRAPH_PADDING_TOP = 16;    // 目標ラインラベル用
 const GRAPH_PADDING_BOTTOM = 18; // X軸ラベル用
-const GRAPH_PADDING_LEFT = 32;   // Y軸ラベル用
+const GRAPH_PADDING_LEFT = 24;   // Y軸ラベル用
 const BAR_GAP = 1;
 
 export default function MonthlyWaterChart() {
@@ -91,12 +91,12 @@ export default function MonthlyWaterChart() {
         return Math.max(dataMax, waterTargetMl, 1);
     }, [data, waterTargetMl]);
 
-    // Y軸の目盛り（200ml 単位で scaleMax まで生成）
+    // Y軸の目盛り（500ml 単位で scaleMax まで生成）
     const yAxisTicks = useMemo(() => {
         const ticks: { label: string; y: number }[] = [];
-        for (let ml = 0; ml <= scaleMax; ml += 200) {
+        for (let ml = 0; ml <= scaleMax; ml += 500) {
             ticks.push({
-                label: `${ml}ml`,
+                label: ml === 0 ? "0" : `${ml / 1000 >= 1 ? `${ml / 1000}L` : `${ml}`}`,
                 y: GRAPH_PADDING_TOP + GRAPH_HEIGHT * (1 - ml / scaleMax),
             });
         }
@@ -178,7 +178,15 @@ export default function MonthlyWaterChart() {
                     style={{ display: "block", overflow: "visible" }}
                     aria-label={t.chart.formatAriaLabel(viewYear, viewMonth)}
                 >
-                    {/* Y軸ラベルと目盛りライン */}
+                    <defs>
+                        {/* 棒グラフのグラデーション塗りつぶし */}
+                        <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#D96B5F" stopOpacity={0.9}/>
+                            <stop offset="100%" stopColor="#D96B5F" stopOpacity={0.45}/>
+                        </linearGradient>
+                    </defs>
+
+                    {/* Y軸グリッドライン（コーラル系・破線） */}
                     {yAxisTicks.map(({ label, y }) => (
                         <g key={label}>
                             <line
@@ -186,52 +194,52 @@ export default function MonthlyWaterChart() {
                                 y1={y}
                                 x2={totalWidth - GRAPH_PADDING_LEFT}
                                 y2={y}
-                                stroke="var(--color-border, #E5E5EA)"
-                                strokeWidth={0.3}
-                                opacity={0.6}
+                                stroke="rgba(217,107,95,0.2)"
+                                strokeWidth={0.4}
+                                strokeDasharray="3 3"
                             />
                             <text
-                                x={GRAPH_PADDING_LEFT - 1}
+                                x={GRAPH_PADDING_LEFT - 2}
                                 y={y + 2}
                                 textAnchor="end"
-                                fontSize={5}
-                                fontWeight="bold"
-                                fill="#333333"
+                                fontSize={4.5}
+                                fontWeight="600"
+                                fill="rgba(217,107,95,0.55)"
                             >
                                 {label}
                             </text>
                         </g>
                     ))}
 
-                    {/* 目標ライン（破線）とY軸ラベル */}
+                    {/* 目標ライン（破線）とラベル */}
                     <line
                         x1={GRAPH_PADDING_LEFT}
                         y1={targetY}
                         x2={totalWidth - GRAPH_PADDING_LEFT}
                         y2={targetY}
-                        stroke="rgba(255,59,48,0.7)"
-                        strokeWidth={0.4}
+                        stroke="rgba(255,59,48,0.6)"
+                        strokeWidth={0.5}
                         strokeDasharray="2 1.5"
                     />
                     <text
-                        x={GRAPH_PADDING_LEFT - 1}
+                        x={GRAPH_PADDING_LEFT - 2}
                         y={targetY + 2}
                         textAnchor="end"
-                        fontSize={5}
-                        fill="rgba(255,59,48,0.9)"
-                        fontWeight="bold"
+                        fontSize={4.5}
+                        fill="rgba(255,59,48,0.85)"
+                        fontWeight="600"
                     >
-                        {waterTargetMl}ml
+                        目標
                     </text>
 
-                    {/* 各日のバー */}
+                    {/* 各日のバー（グラデーション塗りつぶし・丸角） */}
                     {Array.from({ length: daysInMonth }, (_, i) => {
                         const dayNum = i + 1;
                         const ml = dataMap.get(dayNum) ?? 0;
                         const barH = ml > 0 ? Math.max(2, (ml / scaleMax) * GRAPH_HEIGHT) : 0;
                         const x = GRAPH_PADDING_LEFT + i * (barWidth + BAR_GAP * 2) + BAR_GAP;
                         const y = GRAPH_PADDING_TOP + GRAPH_HEIGHT - barH;
-                        const fill = ml === 0 ? "transparent" : "#007AFF";
+                        const fill = ml === 0 ? "transparent" : "url(#barGradient)";
 
                         return (
                             <g key={dayNum}>
@@ -241,7 +249,7 @@ export default function MonthlyWaterChart() {
                                     width={barWidth}
                                     height={barH}
                                     fill={fill}
-                                    rx={0.5}
+                                    rx={1}
                                 />
                                 {/* 5日ごとに日付ラベルを表示 */}
                                 {(dayNum === 1 || dayNum % 5 === 0) ? (
@@ -249,8 +257,8 @@ export default function MonthlyWaterChart() {
                                         x={x + barWidth / 2}
                                         y={GRAPH_PADDING_TOP + GRAPH_HEIGHT + GRAPH_PADDING_BOTTOM - 4}
                                         textAnchor="middle"
-                                        fontSize={2.5}
-                                        fill="var(--color-text-muted)"
+                                        fontSize={3}
+                                        fill="rgba(217,107,95,0.5)"
                                     >
                                         {dayNum}
                                     </text>
@@ -264,7 +272,7 @@ export default function MonthlyWaterChart() {
             {/* 凡例 */}
             <div style={{ display: "flex", gap: "12px", marginTop: "6px", marginBottom: "12px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                    <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: "#007AFF" }} />
+                    <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: "#D96B5F" }} />
                     <span style={{ fontSize: "0.68rem", color: "var(--color-text-muted)" }}>{t.chart.legend}</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>

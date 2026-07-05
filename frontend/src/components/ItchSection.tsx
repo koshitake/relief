@@ -53,7 +53,7 @@ export default function ItchSection({ record, updateRecord }: ItchSectionProps) 
                                         ? "1.5px solid var(--color-accent)"
                                         : "1px solid var(--color-border)",
                                     background: selected
-                                        ? "rgba(0, 122, 255, 0.1)"
+                                        ? "rgba(217, 107, 95, 0.1)"
                                         : "var(--color-input-bg)",
                                     color: selected
                                         ? "var(--color-accent)"
@@ -98,7 +98,7 @@ export default function ItchSection({ record, updateRecord }: ItchSectionProps) 
                                         ? "1.5px solid var(--color-accent)"
                                         : "1px solid var(--color-border)",
                                     background: selected
-                                        ? "rgba(0, 122, 255, 0.1)"
+                                        ? "rgba(217, 107, 95, 0.1)"
                                         : "var(--color-input-bg)",
                                     cursor: "pointer",
                                     fontFamily: "inherit",

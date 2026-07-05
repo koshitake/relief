@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     google_sub   TEXT        UNIQUE NOT NULL,   -- Google OAuth の sub（固有識別子）
     display_name TEXT        NOT NULL DEFAULT '',
+    avatar_url   TEXT,                          -- プロフィール画像の URL。NULL は未設定
     created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -107,3 +108,9 @@ CREATE INDEX IF NOT EXISTS idx_users_google_sub ON users (google_sub);
 --
 -- ALTER TABLE day_records ADD COLUMN IF NOT EXISTS protein_g NUMERIC;
 -- ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS protein_target_g NUMERIC NOT NULL DEFAULT 60;
+
+-- [2026-06-28] プロフィール画像 URL を追加
+-- users に avatar_url を追加する。NULL は未設定を意味する
+-- Supabase SQL Editor で実行:
+--
+-- ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;

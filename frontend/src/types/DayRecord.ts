@@ -21,12 +21,14 @@ export interface DayRecord {
     note: string;
     /** 食事内容（自由記述） */
     mealsText: string;
-    /** 糖質（g）手動入力（AI推定は有料機能のため未実装） */
+    /** 糖質（g）手動入力またはAI推定値 */
     carbsG?: number;
-    /** 塩分（g）手動入力（AI推定は有料機能のため未実装） */
+    /** 塩分（g）手動入力またはAI推定値 */
     saltG?: number;
-    /** タンパク質（g）手動入力（AI推定は有料機能のため未実装） */
+    /** タンパク質（g）手動入力またはAI推定値 */
     proteinG?: number;
+    /** 脂質（g）手動入力またはAI推定値 */
+    lipidG?: number;
 }
 
 /** waterLogs の合計水分量（ml）を計算する */
