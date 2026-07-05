@@ -74,7 +74,6 @@ export const authOptions: NextAuthOptions = {
                     .maybeSingle();
                 if (data) {
                     token.name = data.display_name as string;
-                    token.avatarUrl = (data.avatar_url as string | null) ?? undefined;
                 }
 
                 // プランも最新値に更新する（プラン変更が即時反映されるようにする）
@@ -97,14 +96,13 @@ export const authOptions: NextAuthOptions = {
 
                     const { data: existing } = await supabaseAdmin
                         .from("users")
-                        .select("id, display_name, avatar_url")
+                        .select("id, display_name")
                         .eq("google_sub", googleSub)
                         .maybeSingle();
 
                     if (existing) {
-                        token.userId    = existing.id as string;
-                        token.name      = existing.display_name as string;
-                        token.avatarUrl = (existing.avatar_url as string | null) ?? undefined;
+                        token.userId = existing.id as string;
+                        token.name   = existing.display_name as string;
                     } else {
                         const { data: newUser, error } = await supabaseAdmin
                             .from("users")
@@ -140,10 +138,9 @@ export const authOptions: NextAuthOptions = {
 
         // セッション生成時: token の情報をセッションに反映する
         async session({ session, token }: { session: Session; token: JWT }) {
-            session.user.id        = (token.userId as string) ?? "";
-            session.user.name      = (token.name as string) ?? "ユーザー";
-            session.user.avatarUrl = token.avatarUrl;
-            session.accessToken    = token.accessToken as string | undefined;
+            session.user.id     = (token.userId as string) ?? "";
+            session.user.name   = (token.name as string) ?? "ユーザー";
+            session.accessToken = token.accessToken as string | undefined;
             // refresh_token が存在する = drive.file スコープに同意済み
             session.hasDriveScope = !!token.refreshToken;
             // メールアドレスをセッションに含めない
