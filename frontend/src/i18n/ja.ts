@@ -175,6 +175,12 @@ export const ja = {
     settings: {
         title: "設定",
         profile: "プロフィール",
+        avatar: "プロフィール写真",
+        avatarChange: "写真を変更",
+        avatarDelete: "削除",
+        avatarUploading: "アップロード中...",
+        avatarUploadError: "アップロードに失敗しました。5MB 以下の JPEG/PNG/WebP を選択してください",
+        avatarDeleteError: "削除に失敗しました",
         nickname: "ニックネーム",
         change: "変更",
         saving: "保存中…",

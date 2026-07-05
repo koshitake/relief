@@ -179,6 +179,12 @@ export const en: Messages = {
     settings: {
         title: "Settings",
         profile: "Profile",
+        avatar: "Profile photo",
+        avatarChange: "Change photo",
+        avatarDelete: "Delete",
+        avatarUploading: "Uploading...",
+        avatarUploadError: "Upload failed. Please select a JPEG/PNG/WebP file under 5 MB.",
+        avatarDeleteError: "Delete failed",
         nickname: "Nickname",
         change: "Change",
         saving: "Saving…",

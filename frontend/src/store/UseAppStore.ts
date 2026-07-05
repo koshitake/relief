@@ -28,6 +28,8 @@ interface AppState {
     locale: "ja" | "en";
     /** 加入プラン。ログイン後に user_settings から復元する */
     plan: "free" | "full";
+    /** プロフィール画像の URL。ログイン後に DB から復元する */
+    avatarUrl: string;
 }
 
 interface AppActions {
@@ -49,6 +51,8 @@ interface AppActions {
     setLocale: (locale: "ja" | "en") => void;
     /** 加入プランを更新する */
     setPlan: (plan: "free" | "full") => void;
+    /** プロフィール画像 URL を更新する */
+    setAvatarUrl: (url: string) => void;
 }
 
 // 今日の日付を YYYY-MM-DD 形式で返す
@@ -72,6 +76,7 @@ export const useAppStore = create<AppState & AppActions>()((set) => ({
     displayName: "",
     locale: detectLocale(),
     plan: "free",
+    avatarUrl: "",
 
     setSelectedDay: (day: string) => set({ selectedDay: day }),
 
@@ -101,4 +106,5 @@ export const useAppStore = create<AppState & AppActions>()((set) => ({
 
     setLocale: (locale: "ja" | "en") => set({ locale }),
     setPlan: (plan: "free" | "full") => set({ plan }),
+    setAvatarUrl: (url: string) => set({ avatarUrl: url }),
 }));

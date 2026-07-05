@@ -2,10 +2,10 @@
 
 /* ===== CSS カスタムプロパティ（デザイントークン） ===== */
 :root {
-    /* iOS Blue アクセント */
-    --color-accent:       #007AFF;
-    --color-accent-bg:    rgba(0, 122, 255, 0.08);
-    --color-accent-light: rgba(0, 122, 255, 0.15);
+    /* ウォームコーラル アクセント */
+    --color-accent:       #D96B5F;
+    --color-accent-bg:    rgba(217, 107, 95, 0.08);
+    --color-accent-light: rgba(217, 107, 95, 0.15);
 
     /* テキスト（iOS 準拠） */
     --color-text-primary:     #1C1C1E;
@@ -14,21 +14,21 @@
     --color-text-placeholder: #C7C7CC;
 
     /* 背景・カード */
-    --color-bg:       #F2F2F7;
+    --color-bg:       #FDF6F4;
     --color-card:     #FFFFFF;
-    --color-input-bg: #F2F2F7;
+    --color-input-bg: #F9EDE9;
 
-    /* シャドウ */
-    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+    /* シャドウ（暖色系） */
+    --shadow-card: 0 1px 4px rgba(180, 70, 55, 0.08), 0 1px 2px rgba(180, 70, 55, 0.04);
 
     /* 角丸 */
-    --radius-card:  14px;
+    --radius-card:  18px;
     --radius-input: 10px;
     --radius-pill:  999px;
 
     /* ボトムナビゲーションバー */
     --bottom-nav-height: 56px;
-    --bottom-nav-bg: rgba(242, 242, 247, 0.92);
+    --bottom-nav-bg: rgba(253, 246, 244, 0.92);
     /* 広告バナー（ボトムナビ直上に固定表示） */
     --ad-banner-height: 50px;
 }
@@ -66,7 +66,7 @@ body {
 .section-label {
     font-size: 0.72rem;
     font-weight: 600;
-    color: var(--color-text-muted);
+    color: rgba(217, 107, 95, 0.8);
     letter-spacing: 0.06em;
     text-transform: uppercase;
     margin-bottom: 10px;
@@ -117,7 +117,7 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: 50%;
     background: #FFFFFF;
     border: 2px solid var(--color-accent);
-    box-shadow: 0 1px 4px rgba(0, 122, 255, 0.3);
+    box-shadow: 0 1px 4px rgba(217, 107, 95, 0.3);
     cursor: pointer;
 }
 
@@ -197,7 +197,7 @@ input[type="range"]::-moz-range-thumb {
 /* ===== セグメントコントロール ===== */
 .segment-control {
     display: flex;
-    background: #E5E5EA;
+    background: rgba(217, 107, 95, 0.1);
     border-radius: 11px;
     padding: 2px;
     margin-bottom: 16px;
@@ -359,7 +359,7 @@ input[type="range"]::-moz-range-thumb {
     padding: 4px 12px;
     font-size: 0.72rem;
     color: var(--color-accent);
-    border: 0.8px solid rgba(0, 122, 255, 0.3);
+    border: 0.8px solid rgba(217, 107, 95, 0.3);
 }
 
 /* ===== ボタン ===== */
@@ -383,7 +383,7 @@ input[type="range"]::-moz-range-thumb {
 
 /* 水分クイック追加ボタン */
 .btn-quick {
-    border: 0.8px solid rgba(0, 122, 255, 0.4);
+    border: 0.8px solid rgba(217, 107, 95, 0.4);
     border-radius: var(--radius-pill);
     /* スマホでのタップしやすさのため最低 44px のタップ領域を確保 */
     padding: 10px 16px;
@@ -440,7 +440,7 @@ input[type="range"]::-moz-range-thumb {
     background: var(--bottom-nav-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-top: 0.5px solid rgba(60, 60, 67, 0.18);
+    border-top: 0.5px solid rgba(217, 107, 95, 0.18);
     display: flex;
     padding-bottom: env(safe-area-inset-bottom);
 }

@@ -5,7 +5,7 @@
 // このフックは日次記録の取得・保存のみを担当します。
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { DayRecord, createEmptyDayRecord } from "@/types/DayRecord";
+import { DayRecord, WaterLog, createEmptyDayRecord } from "@/types/DayRecord";
 import { useAuth } from "@/hooks/UseAuth";
 
 export function useDayRecord(day: string) {
@@ -95,5 +95,20 @@ export function useDayRecord(day: string) {
         }
     }, [day, userId]);
 
-    return { record, updateRecord, saveRecord, isSaving, isSaved, isDirty };
+    // 水分ログをその場でDBに保存する（保存ボタン不要）。
+    // updater は recordRef.current.waterLogs（常に最新値）を受け取り新しい配列を返す。
+    // recordRef を使うことで、React の再レンダリング前でも連続追加が正しく動作する。
+    const saveWaterLogs = useCallback(async (updater: (prev: WaterLog[]) => WaterLog[]) => {
+        if (!userId) return;
+        const next: DayRecord = { ...recordRef.current, waterLogs: updater(recordRef.current.waterLogs) };
+        recordRef.current = next;
+        setRecord(next);
+        await fetch(`/api/records/${day}`, {
+            method:  "PUT",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify(next),
+        });
+    }, [day, userId]);
+
+    return { record, updateRecord, saveRecord, saveWaterLogs, isSaving, isSaved, isDirty };
 }

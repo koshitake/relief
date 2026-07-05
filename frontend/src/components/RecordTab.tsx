@@ -23,7 +23,7 @@ export default function RecordTab({ day }: RecordTabProps) {
     // セレクターで必要な値だけ購読し、他の状態変化による不要な再レンダリングを防ぐ
     const waterTargetMl = useAppStore((s) => s.waterTargetMl);
     const activeTab = useAppStore((s) => s.activeTab);
-    const { record, updateRecord, saveRecord, isSaving, isSaved, isDirty } = useDayRecord(day);
+    const { record, updateRecord, saveRecord, saveWaterLogs, isSaving, isSaved, isDirty } = useDayRecord(day);
     const { saveWaterTargetMl } = useUserSettings();
     const t = useTranslations();
 
@@ -43,7 +43,7 @@ export default function RecordTab({ day }: RecordTabProps) {
                 {/* 毎日入力するセクション: 常に展開表示 */}
                 <WaterSection
                     record={record}
-                    updateRecord={updateRecord}
+                    saveWaterLogs={saveWaterLogs}
                     waterTargetMl={waterTargetMl}
                     setWaterTargetMl={saveWaterTargetMl}
                 />
@@ -77,7 +77,7 @@ export default function RecordTab({ day }: RecordTabProps) {
                                 : isSaved
                                 ? "#34C759"
                                 : isDirty
-                                ? "#007AFF"
+                                ? "#D96B5F"
                                 : "#C7C7CC",
                             color: "#fff",
                             fontSize: "1rem",
